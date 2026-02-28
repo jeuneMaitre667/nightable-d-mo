@@ -100,6 +100,18 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Activation du processus de mise à jour continue de `PROJECT_STATUS.md` à chaque session.
 - Ajout de la règle dans `README.md` et traçage dans `CHANGELOG.md`.
 
+### 2026-02-28 (aperçu final produit)
+
+- Mise à jour de `src/app/demo/page.tsx` avec un aperçu final plus complet du produit.
+- Ajout des modules clés (Client, Club, Promoteur, VIP, Paiements, IA) dans la démo.
+- Préparation d’une visualisation inspirée de l’UX event discovery de Shotgun (sans copie).
+
+### 2026-02-28 (itération visuelle avancée)
+
+- Renforcement du style visuel de la démo: gradients colorés, ambiance plus immersive.
+- Ajout de cartes visuelles avec images pour les sections collections et événements.
+- Alignement UX sur une logique marketplace événementielle premium (inspiration Shotgun, identité NightTable).
+
 ## Template d’entrée de session
 
 Copier-coller ce bloc pour chaque nouvelle session:

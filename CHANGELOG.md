@@ -12,6 +12,7 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 - Section "Contribution" dans `README.md`.
 - Document de suivi vivant `docs/PROJECT_STATUS.md` (fait / en cours / à faire + journal de sessions).
 - Processus de mise à jour continue de `docs/PROJECT_STATUS.md` formalisé (mise à jour à chaque session).
+- Démo produit enrichie visuellement (`src/app/demo/page.tsx`) avec plus de couleurs et des cartes image.
 
 ## v0.1-docs - 2026-02-28
 
