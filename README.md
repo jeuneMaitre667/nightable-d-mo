@@ -8,6 +8,7 @@ NightTable connecte 5 rôles dans un même écosystème : **client**, **club**, 
 
 Les documents complets sont stockés dans le repo :
 
+- `CHANGELOG.md`
 - `docs/NightTable_BusinessPlan_V3.docx`
 - `docs/NightTable_DevGuide.docx`
 - `docs/NightTable_BusinessPlan_V3.txt` (extraction texte)
