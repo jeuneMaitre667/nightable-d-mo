@@ -13,6 +13,7 @@ Index central de la documentation projet.
 
 - `ARCHITECTURE.md`
 - `ROADMAP.md`
+- `PROJECT_STATUS.md`
 
 ## Releases docs
 

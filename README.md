@@ -17,6 +17,7 @@ Les documents complets sont stockés dans le repo :
 
 - `CHANGELOG.md`
 - `docs/README.md` (index documentation)
+- `docs/PROJECT_STATUS.md` (suivi vivant: fait / en cours / à faire)
 - `docs/NightTable_BusinessPlan_V3.docx`
 - `docs/NightTable_DevGuide.docx`
 - `docs/NightTable_BusinessPlan_V3.txt` (extraction texte)

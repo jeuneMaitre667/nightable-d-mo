@@ -1,0 +1,100 @@
+# NightTable — Suivi d’avancement (vivant)
+
+Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est en cours, et ce qui reste à faire.
+
+## Mode d’utilisation
+
+- À chaque session de travail, ajouter une entrée dans la section "Journal de sessions".
+- Déplacer les items entre "Fait", "En cours" et "À faire".
+- Garder les tâches formulées de manière actionnable (verbe + livrable).
+- Mettre à jour les dates et le statut avant chaque commit majeur.
+
+## Dernière mise à jour
+
+- Date: 2026-02-28
+- Auteur: GitHub Copilot
+
+## Vue synthèse
+
+- Progression MVP (estimation): 35%
+- Axe prioritaire actuel: finaliser le flux Réservation + Paiement Stripe
+
+## Fait
+
+### Documentation
+
+- Documentation complète du projet dans `README.md`.
+- Architecture technique dans `docs/ARCHITECTURE.md`.
+- Roadmap produit/technique dans `docs/ROADMAP.md`.
+- Index docs dans `docs/README.md`.
+- Changelog initialisé dans `CHANGELOG.md`.
+- Documents sources business/dev sauvegardés dans `docs/`.
+
+### Base applicative
+
+- Auth multi-rôles en place (`client`, `club`, `promoter`, `female_vip`, `admin`).
+- Redirections dashboard par rôle implémentées.
+- Protection d’accès dashboard via `src/proxy.ts`.
+- Actions club de base (création événement/table) implémentées.
+- Action promoteur de base (guest list) implémentée.
+- Endpoint bot IA opérationnel.
+- Endpoint webhook Stripe présent (base de traitement).
+
+## En cours
+
+- Structuration du pilotage produit via ce document vivant.
+- Clarification du périmètre MVP prioritaire (réservation/paiement/webhook).
+
+## À faire (priorité)
+
+### P0 — Critique MVP
+
+- Implémenter `POST /api/reservations` (validation + création réservation).
+- Ajouter migration `003_reservations.sql` (tables réservations + waitlist minimal).
+- Ajouter policies RLS associées aux réservations.
+- Finaliser le webhook Stripe:
+  - `payment_intent.succeeded` → confirmation réservation.
+  - `payment_intent.payment_failed` → annulation réservation.
+- Ajouter idempotence et logs sur le webhook.
+
+### P1 — Important après P0
+
+- Lier les réservations aux promoteurs via `promo_code`.
+- Démarrer le calcul et suivi des commissions promoteurs.
+- Ajouter notifications transactionnelles (email + SMS).
+- Renforcer la validation serveur (inputs/API) sur endpoints critiques.
+
+### P2 — Itérations suivantes
+
+- Pricing dynamique côté backend + affichage côté UI.
+- Enrichissement du bot IA avec contexte réel clubs/events.
+- Fonction waitlist automatisée.
+- Revente sécurisée.
+
+## Risques ouverts
+
+- Risque cohérence paiement/réservation sans idempotence webhook.
+- Risque sécurité si validations API incomplètes.
+- Risque dérive de scope si P1/P2 démarrés avant clôture P0.
+
+## Journal de sessions
+
+### 2026-02-28
+
+- Sauvegarde des docs sources (.docx + .txt) dans le repo.
+- Création docs `ARCHITECTURE.md`, `ROADMAP.md`, `CHANGELOG.md`, index docs.
+- Ajout liens GitHub/release/tags dans le README.
+- Création de ce fichier de suivi vivant.
+
+## Template d’entrée de session
+
+Copier-coller ce bloc pour chaque nouvelle session:
+
+```markdown
+### YYYY-MM-DD
+- Objectif session:
+- Fait:
+- Blocages:
+- Décisions:
+- Prochaine étape:
+```
