@@ -208,6 +208,7 @@ Migrations actuellement présentes :
 - Ouvrir une PR claire avec objectif, scope et impacts.
 - Éviter les changements non liés au ticket/fonction en cours.
 - Mettre à jour `README.md` / `CHANGELOG.md` si comportement ou setup modifié.
+- Mettre à jour `docs/PROJECT_STATUS.md` à chaque session (fait / en cours / à faire + journal).
 
 ---
 

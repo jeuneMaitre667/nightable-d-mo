@@ -9,6 +9,15 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Garder les tâches formulées de manière actionnable (verbe + livrable).
 - Mettre à jour les dates et le statut avant chaque commit majeur.
 
+## Processus de mise à jour continue
+
+- Ce document est mis à jour à chaque tâche réalisée sur le projet.
+- Le minimum attendu par session:
+  - 1 ligne dans "Journal de sessions".
+  - Mise à jour de "En cours" et/ou "À faire" si le périmètre change.
+  - Déplacement en "Fait" des éléments terminés.
+- En fin de session, synchroniser avec `CHANGELOG.md` si des docs/process changent.
+
 ## Dernière mise à jour
 
 - Date: 2026-02-28
@@ -85,6 +94,11 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Création docs `ARCHITECTURE.md`, `ROADMAP.md`, `CHANGELOG.md`, index docs.
 - Ajout liens GitHub/release/tags dans le README.
 - Création de ce fichier de suivi vivant.
+
+### 2026-02-28 (suivi continu activé)
+
+- Activation du processus de mise à jour continue de `PROJECT_STATUS.md` à chaque session.
+- Ajout de la règle dans `README.md` et traçage dans `CHANGELOG.md`.
 
 ## Template d’entrée de session
 
