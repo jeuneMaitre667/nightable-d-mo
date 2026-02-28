@@ -118,6 +118,12 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Création de la page club publique dynamique `src/app/(public)/clubs/[slug]/page.tsx`.
 - Ajout d’un rendu riche en images/couleurs pour mieux projeter le produit final.
 
+### 2026-02-28 (cartographie finale des pages)
+
+- Création de `src/app/final-pages/page.tsx` avec la vision complète des pages finales.
+- Statut `live/planned` ajouté par section (Public, Auth, Client, Club, Promoteur, VIP, Admin).
+- Lien ajouté depuis la home pour accéder au plan global produit.
+
 ## Template d’entrée de session
 
 Copier-coller ce bloc pour chaque nouvelle session:

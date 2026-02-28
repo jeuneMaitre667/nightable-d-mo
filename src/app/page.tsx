@@ -67,6 +67,9 @@ export default function HomePage() {
             <Link className="rounded-md border border-zinc-700 px-5 py-3" href="/demo">
               Voir la démo complète
             </Link>
+            <Link className="rounded-md border border-zinc-700 px-5 py-3" href="/final-pages">
+              Voir toutes les pages finales
+            </Link>
           </div>
         </div>
       </section>
