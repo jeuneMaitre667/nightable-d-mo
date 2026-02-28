@@ -16,6 +16,11 @@ Les documents complets sont stockés dans le repo :
 - `docs/ARCHITECTURE.md`
 - `docs/ROADMAP.md`
 
+## Releases
+
+- `v0.1-docs` : baseline documentation (README complet + architecture + roadmap + documents sources).
+- `v0.1-docs.1` : baseline documentation + ajout du `CHANGELOG.md`.
+
 ## Stack actuelle
 
 - **Frontend / App** : Next.js 16 (App Router), React 19, TypeScript
