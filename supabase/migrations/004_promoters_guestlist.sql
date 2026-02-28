@@ -1,5 +1,5 @@
 create table if not exists public.promoter_clicks (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   promo_code text not null,
   ip_hash text,
   converted boolean default false,
@@ -7,7 +7,7 @@ create table if not exists public.promoter_clicks (
 );
 
 create table if not exists public.guest_lists (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   event_id uuid references public.events(id) on delete cascade not null,
   promoter_id uuid references public.promoter_profiles(id) on delete cascade not null,
   guest_name text not null,

@@ -1,5 +1,7 @@
+create extension if not exists pgcrypto;
+
 create table if not exists public.events (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   club_id uuid references public.club_profiles(id) on delete cascade not null,
   title text not null,
   description text,
@@ -13,7 +15,7 @@ create table if not exists public.events (
 );
 
 create table if not exists public.tables (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   club_id uuid references public.club_profiles(id) on delete cascade not null,
   name text not null,
   capacity integer not null default 4,

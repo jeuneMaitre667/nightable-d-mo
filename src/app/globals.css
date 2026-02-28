@@ -1,26 +1,116 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050508;
+  --background-secondary: #0a0f2e;
+  --background-card: #12172b;
+  --foreground: #f7f6f3;
+  --muted: #888888;
+  --gold: #c9973a;
+  --gold-light: #e8c96a;
+  --rose: #c4567a;
+  --blue: #3a6bc9;
+  --green: #3a9c6b;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-dm-sans);
+  --font-serif: var(--font-cormorant);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dm-sans), Arial, Helvetica, sans-serif;
+}
+
+.nt-heading {
+  font-family: var(--font-cormorant), Georgia, serif;
+  letter-spacing: 0.01em;
+}
+
+.nt-section {
+  background: linear-gradient(180deg, rgba(10, 15, 46, 0.65) 0%, rgba(5, 5, 8, 0.9) 100%);
+  border: 1px solid rgba(201, 151, 58, 0.15);
+  border-radius: 12px;
+}
+
+.nt-card {
+  background: var(--background-card);
+  border: 1px solid rgba(201, 151, 58, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(201, 151, 58, 0.08);
+  transition: border-color 250ms ease, box-shadow 250ms ease;
+}
+
+.nt-card:hover {
+  border-color: rgba(201, 151, 58, 0.4);
+  box-shadow: 0 8px 28px rgba(201, 151, 58, 0.12);
+}
+
+.nt-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.nt-input {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #2a2f4a;
+  background: var(--background-secondary);
+  color: var(--foreground);
+  padding: 0.625rem 0.75rem;
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.nt-input::placeholder {
+  color: #7a7a7a;
+}
+
+.nt-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 151, 58, 0.15);
+}
+
+.nt-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: filter 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.nt-btn-primary {
+  background: var(--gold);
+  color: var(--background);
+  border: 1px solid transparent;
+}
+
+.nt-btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 4px 18px rgba(201, 151, 58, 0.28);
+}
+
+.nt-btn-secondary {
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  background: transparent;
+}
+
+.nt-btn-secondary:hover {
+  color: var(--gold-light);
+  border-color: var(--gold-light);
+  box-shadow: 0 3px 14px rgba(201, 151, 58, 0.18);
+}
+
+.nt-price {
+  font-family: var(--font-cormorant), Georgia, serif;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
 }
