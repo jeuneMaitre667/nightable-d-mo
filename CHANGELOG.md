@@ -16,6 +16,7 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 - Home publique refondue visuellement (`src/app/page.tsx`).
 - Nouvelle page club publique dynamique (`src/app/(public)/clubs/[slug]/page.tsx`).
 - Nouvelle page de cartographie finale des routes: `src/app/final-pages/page.tsx`.
+- Nouvelle roadmap interactive de build: `src/app/build-plan/page.tsx`.
 
 ## v0.1-docs - 2026-02-28
 

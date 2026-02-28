@@ -124,6 +124,12 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Statut `live/planned` ajouté par section (Public, Auth, Client, Club, Promoteur, VIP, Admin).
 - Lien ajouté depuis la home pour accéder au plan global produit.
 
+### 2026-02-28 (roadmap interactive)
+
+- Création de `src/app/build-plan/page.tsx` avec ordre de build page par page.
+- Ajout des priorités (P0/P1/P2), estimations et dépendances par étape.
+- Intégration de l’accès à cette roadmap depuis `final-pages`.
+
 ## Template d’entrée de session
 
 Copier-coller ce bloc pour chaque nouvelle session:

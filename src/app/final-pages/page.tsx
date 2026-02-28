@@ -20,6 +20,7 @@ const sections: Section[] = [
     pages: [
       { label: "Landing", path: "/", status: "live" },
       { label: "Démo produit", path: "/demo", status: "live" },
+      { label: "Roadmap interactive", path: "/build-plan", status: "live" },
       { label: "Club public (slug)", path: "/clubs/l-arc-paris", status: "live" },
       { label: "Réservation publique", path: "/reserve", status: "live" },
       { label: "Liste des clubs", path: "/clubs", status: "planned" },
@@ -113,6 +114,9 @@ export default function FinalPagesPage() {
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
             <span className="rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-emerald-300">Live: déjà disponible</span>
             <span className="rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-amber-300">Planned: prévu en version finale</span>
+            <Link href="/build-plan" className="rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-zinc-200">
+              Ouvrir la roadmap interactive
+            </Link>
           </div>
         </section>
 
