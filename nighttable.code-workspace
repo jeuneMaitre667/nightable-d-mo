@@ -8,6 +8,14 @@
     "files.exclude": {
       "**/.next": true,
       "**/node_modules": true
-    }
+    },
+    "files.associations": {
+      "supabase/migrations/*.sql": "plaintext",
+      "**/supabase/migrations/*.sql": "plaintext"
+    },
+    "problems.exclude": {
+      "**/supabase/migrations/*.sql": true
+    },
+    "mssql.intelliSense.enableErrorChecking": false
   }
 }

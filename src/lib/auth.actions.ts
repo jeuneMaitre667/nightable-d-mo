@@ -1,98 +1,383 @@
 "use server";
 
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
 import { getDashboardPathByRole, normalizeRole } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
-async function ensureRoleProfile(userId: string, role: string) {
+import type {
+  ActionResult,
+  RegisterClientForm,
+  RegisterClubForm,
+  RegisterFemaleVipForm,
+  RegisterPromoterForm,
+  UserRole,
+} from "@/types";
+
+const loginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+});
+
+const registerClientSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+  firstName: z.string().trim().min(1).optional(),
+  lastName: z.string().trim().min(1).optional(),
+  phone: z.string().trim().min(6).optional(),
+});
+
+const registerClubSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+  clubName: z.string().trim().min(2),
+  slug: z.string().trim().min(2).optional(),
+  phone: z.string().trim().min(6).optional(),
+  city: z.string().trim().min(2).optional(),
+});
+
+const registerPromoterSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1).optional(),
+  phone: z.string().trim().min(6).optional(),
+  instagramHandle: z.string().trim().min(2).optional(),
+  commissionRate: z.number().min(0).max(100).optional(),
+});
+
+const registerFemaleVipSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1).optional(),
+  phone: z.string().trim().min(6).optional(),
+  instagramHandle: z.string().trim().min(2).optional(),
+});
+
+function getAppUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+}
+
+function toFriendlyError(): string {
+  return "Une erreur est survenue. Merci de réessayer.";
+}
+
+function buildPromoCode(firstName: string, userId: string): string {
+  const base = firstName.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 4) || "NIGHT";
+  const suffix = userId.replace(/-/g, "").slice(0, 4).toUpperCase();
+  return `${base}${suffix}`;
+}
+
+async function upsertRoleProfile(
+  userId: string,
+  role: UserRole,
+  payload: RegisterClientForm | RegisterClubForm | RegisterPromoterForm | RegisterFemaleVipForm,
+  clubId?: string
+): Promise<ActionResult<{ profileCreated: boolean }>> {
   const supabase = await createClient();
 
-  switch (role) {
-    case "client":
-      await supabase.from("client_profiles").upsert({ id: userId }, { onConflict: "id" });
-      break;
-    case "club":
-      await supabase.from("club_profiles").upsert({ id: userId }, { onConflict: "id" });
-      break;
-    case "promoter":
-      await supabase.from("promoter_profiles").upsert({ id: userId }, { onConflict: "id" });
-      break;
-    case "female_vip":
-      await supabase.from("female_vip_profiles").upsert({ id: userId }, { onConflict: "id" });
-      break;
-    default:
-      break;
+  if (role === "client") {
+    const clientPayload = payload as RegisterClientForm;
+    const { error } = await supabase.from("client_profiles").upsert(
+      {
+        id: userId,
+        first_name: clientPayload.firstName ?? null,
+        last_name: clientPayload.lastName ?? null,
+        phone: clientPayload.phone ?? null,
+      },
+      { onConflict: "id" }
+    );
+
+    if (error) {
+      return { success: false, error: "Impossible de créer le profil client." };
+    }
+
+    return { success: true, data: { profileCreated: true } };
+  }
+
+  if (role === "club") {
+    const clubPayload = payload as RegisterClubForm;
+    const { error } = await supabase.from("club_profiles").upsert(
+      {
+        id: userId,
+        club_name: clubPayload.clubName,
+        slug: clubPayload.slug ?? null,
+        phone: clubPayload.phone ?? null,
+        city: clubPayload.city ?? "Paris",
+      },
+      { onConflict: "id" }
+    );
+
+    if (error) {
+      return { success: false, error: "Impossible de créer le profil club." };
+    }
+
+    return { success: true, data: { profileCreated: true } };
+  }
+
+  if (role === "promoter") {
+    const promoterPayload = payload as RegisterPromoterForm;
+    const { error } = await supabase.from("promoter_profiles").upsert(
+      {
+        id: userId,
+        first_name: promoterPayload.firstName,
+        last_name: promoterPayload.lastName ?? null,
+        phone: promoterPayload.phone ?? null,
+        instagram_handle: promoterPayload.instagramHandle ?? null,
+        promo_code: buildPromoCode(promoterPayload.firstName, userId),
+        commission_rate: promoterPayload.commissionRate ?? 8,
+        club_id: clubId ?? null,
+      },
+      { onConflict: "id" }
+    );
+
+    if (error) {
+      return { success: false, error: "Impossible de créer le profil promoteur." };
+    }
+
+    return { success: true, data: { profileCreated: true } };
+  }
+
+  if (role === "female_vip") {
+    const vipPayload = payload as RegisterFemaleVipForm;
+    const { error } = await supabase.from("female_vip_profiles").upsert(
+      {
+        id: userId,
+        first_name: vipPayload.firstName,
+        last_name: vipPayload.lastName ?? null,
+        phone: vipPayload.phone ?? null,
+        instagram_handle: vipPayload.instagramHandle ?? null,
+      },
+      { onConflict: "id" }
+    );
+
+    if (error) {
+      return { success: false, error: "Impossible de créer le profil Female VIP." };
+    }
+
+    return { success: true, data: { profileCreated: true } };
+  }
+
+  return { success: true, data: { profileCreated: false } };
+}
+
+async function registerWithRole<T extends RegisterClientForm | RegisterClubForm | RegisterPromoterForm | RegisterFemaleVipForm>(
+  role: UserRole,
+  payload: T,
+  clubId?: string
+): Promise<ActionResult<{ userId: string; role: UserRole; redirectTo: string }>> {
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase.auth.signUp({
+      email: payload.email.trim().toLowerCase(),
+      password: payload.password,
+      options: {
+        emailRedirectTo: `${getAppUrl()}/api/auth/callback`,
+        data: { role },
+      },
+    });
+
+    if (error || !data.user) {
+      return { success: false, error: "Inscription impossible pour le moment." };
+    }
+
+    const { error: profileError } = await supabase.from("profiles").upsert(
+      {
+        id: data.user.id,
+        email: payload.email.trim().toLowerCase(),
+        role,
+      },
+      { onConflict: "id" }
+    );
+
+    if (profileError) {
+      return { success: false, error: "Impossible de créer le profil utilisateur." };
+    }
+
+    const roleProfileResult = await upsertRoleProfile(data.user.id, role, payload, clubId);
+
+    if (!roleProfileResult.success) {
+      return { success: false, error: roleProfileResult.error };
+    }
+
+    return {
+      success: true,
+      data: {
+        userId: data.user.id,
+        role,
+        redirectTo: `/verify?email=${encodeURIComponent(payload.email.trim().toLowerCase())}`,
+      },
+    };
+  } catch {
+    return { success: false, error: toFriendlyError() };
   }
 }
 
-export async function registerAction(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const password = String(formData.get("password") ?? "").trim();
+export async function loginAction(formData: FormData): Promise<ActionResult<{ redirectTo: string }>> {
+  try {
+    const candidate = {
+      email: String(formData.get("email") ?? "").trim().toLowerCase(),
+      password: String(formData.get("password") ?? "").trim(),
+    };
+
+    const parsed = loginSchema.safeParse(candidate);
+    if (!parsed.success) {
+      return { success: false, error: "Email ou mot de passe invalide." };
+    }
+
+    const supabase = await createClient();
+    const { data: signInData, error } = await supabase.auth.signInWithPassword(parsed.data);
+
+    if (error || !signInData.user) {
+      return { success: false, error: "Identifiants invalides." };
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", signInData.user.id)
+      .maybeSingle();
+
+    const role = normalizeRole(profile?.role);
+
+    return {
+      success: true,
+      data: {
+        redirectTo: getDashboardPathByRole(role),
+      },
+    };
+  } catch {
+    return { success: false, error: toFriendlyError() };
+  }
+}
+
+export async function registerClientAction(
+  data: RegisterClientForm
+): Promise<ActionResult<{ userId: string; role: UserRole; redirectTo: string }>> {
+  const parsed = registerClientSchema.safeParse(data);
+  if (!parsed.success) {
+    return { success: false, error: "Formulaire client invalide." };
+  }
+
+  return registerWithRole("client", parsed.data);
+}
+
+export async function registerClubAction(
+  data: RegisterClubForm
+): Promise<ActionResult<{ userId: string; role: UserRole; redirectTo: string }>> {
+  const parsed = registerClubSchema.safeParse(data);
+  if (!parsed.success) {
+    return { success: false, error: "Formulaire club invalide." };
+  }
+
+  return registerWithRole("club", parsed.data);
+}
+
+export async function registerPromoterAction(
+  data: RegisterPromoterForm,
+  clubId: string
+): Promise<ActionResult<{ userId: string; role: UserRole; redirectTo: string }>> {
+  const parsed = registerPromoterSchema.safeParse(data);
+  if (!parsed.success) {
+    return { success: false, error: "Formulaire promoteur invalide." };
+  }
+
+  if (!clubId) {
+    return { success: false, error: "Club associé requis." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: "Session invalide." };
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id, role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!profile || normalizeRole(profile.role) !== "club" || profile.id !== clubId) {
+      return { success: false, error: "Action non autorisée." };
+    }
+
+    return registerWithRole("promoter", parsed.data, clubId);
+  } catch {
+    return { success: false, error: toFriendlyError() };
+  }
+}
+
+export async function registerFemaleVipAction(
+  data: RegisterFemaleVipForm
+): Promise<ActionResult<{ userId: string; role: UserRole; redirectTo: string }>> {
+  const parsed = registerFemaleVipSchema.safeParse(data);
+  if (!parsed.success) {
+    return { success: false, error: "Formulaire Female VIP invalide." };
+  }
+
+  return registerWithRole("female_vip", parsed.data);
+}
+
+export async function logoutAction(): Promise<ActionResult<{ redirectTo: string }>> {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      return { success: false, error: "Déconnexion impossible pour le moment." };
+    }
+
+    return {
+      success: true,
+      data: {
+        redirectTo: "/login",
+      },
+    };
+  } catch {
+    return { success: false, error: toFriendlyError() };
+  }
+}
+
+export async function registerAction(formData: FormData): Promise<ActionResult<{ redirectTo: string }>> {
   const role = normalizeRole(String(formData.get("role") ?? "client"));
+  const payload = {
+    email: String(formData.get("email") ?? "").trim().toLowerCase(),
+    password: String(formData.get("password") ?? "").trim(),
+  };
 
-  if (!email || !password) {
-    redirect("/register?error=Email+et+mot+de+passe+requis");
+  let result: ActionResult<{ userId: string; role: UserRole; redirectTo: string }>;
+
+  if (role === "club") {
+    result = await registerClubAction({
+      ...payload,
+      clubName: "Club NightTable",
+    });
+  } else if (role === "promoter") {
+    return { success: false, error: "Inscription promoteur réservée aux clubs." };
+  } else if (role === "female_vip") {
+    result = await registerFemaleVipAction({
+      ...payload,
+      firstName: "VIP",
+    });
+  } else {
+    result = await registerClientAction(payload);
   }
 
-  if (password.length < 8) {
-    redirect("/register?error=Mot+de+passe+minimum+8+caracteres");
+  if (!result.success || !result.data) {
+    return { success: false, error: result.error ?? "Inscription impossible." };
   }
 
-  const supabase = await createClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${appUrl}/api/auth/callback`,
-      data: { role },
+  return {
+    success: true,
+    data: {
+      redirectTo: result.data.redirectTo,
     },
-  });
-
-  if (error) {
-    redirect(`/register?error=${encodeURIComponent(error.message)}`);
-  }
-
-  if (data.user?.id) {
-    await ensureRoleProfile(data.user.id, role);
-  }
-
-  redirect(`/verify?email=${encodeURIComponent(email)}`);
+  };
 }
 
-export async function loginAction(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const password = String(formData.get("password") ?? "").trim();
-
-  if (!email || !password) {
-    redirect("/login?error=Identifiants+requis");
-  }
-
-  const supabase = await createClient();
-
-  const { data: signInData, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error || !signInData.user) {
-    redirect("/login?error=Identifiants+invalides");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", signInData.user.id)
-    .single();
-
-  const role = normalizeRole(profile?.role);
-  const dashboardPath = getDashboardPathByRole(role);
-  redirect(dashboardPath);
-}
-
-export async function logoutAction() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect("/login");
-}
