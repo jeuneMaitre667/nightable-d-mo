@@ -136,6 +136,13 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Ajout de filtres par rôle: Public, Auth, Client, Club, Promoteur, VIP, Admin, Transverse.
 - Visualisation dynamique des items selon filtre actif.
 
+### 2026-02-28 (priorité 1 funnel public/auth)
+
+- Refonte visuelle de `login` et `register` avec expérience premium cohérente.
+- Création de la page index clubs `src/app/(public)/clubs/page.tsx`.
+- Upgrade de `reserve` avec formulaire sélection + récapitulatif estimé + gestion promo code.
+- Ouverture des pages de validation: `/login`, `/register`, `/clubs`, `/reserve?promo=NIGHTPARIS`.
+
 ## Template d’entrée de session
 
 Copier-coller ce bloc pour chaque nouvelle session:

@@ -18,6 +18,9 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 - Nouvelle page de cartographie finale des routes: `src/app/final-pages/page.tsx`.
 - Nouvelle roadmap interactive de build: `src/app/build-plan/page.tsx`.
 - `build-plan` converti en vue Kanban avec filtres par rôle.
+- Refonte visuelle des pages `login` et `register`.
+- Nouvelle page publique `clubs` (`src/app/(public)/clubs/page.tsx`).
+- Page `reserve` rendue opérationnelle côté UI (sélections + résumé dynamique via query params).
 
 ## v0.1-docs - 2026-02-28
 
