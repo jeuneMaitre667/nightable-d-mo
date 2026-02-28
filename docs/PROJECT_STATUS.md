@@ -112,6 +112,12 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Ajout de cartes visuelles avec images pour les sections collections et événements.
 - Alignement UX sur une logique marketplace événementielle premium (inspiration Shotgun, identité NightTable).
 
+### 2026-02-28 (home + club publique refondues)
+
+- Refonte visuelle de la home `src/app/page.tsx` en version plus production-ready.
+- Création de la page club publique dynamique `src/app/(public)/clubs/[slug]/page.tsx`.
+- Ajout d’un rendu riche en images/couleurs pour mieux projeter le produit final.
+
 ## Template d’entrée de session
 
 Copier-coller ce bloc pour chaque nouvelle session:
