@@ -4,11 +4,19 @@ Plateforme SaaS de réservation de tables VIP pour les clubs parisiens.
 
 NightTable connecte 5 rôles dans un même écosystème : **client**, **club**, **promoter**, **female_vip** et **admin**.
 
+## Repository
+
+- Repo GitHub : https://github.com/jeuneMaitre667/nightable-d-mo
+- Issues : https://github.com/jeuneMaitre667/nightable-d-mo/issues
+- Releases : https://github.com/jeuneMaitre667/nightable-d-mo/releases
+- Tags : https://github.com/jeuneMaitre667/nightable-d-mo/tags
+
 ## Documentation projet (sauvegardée)
 
 Les documents complets sont stockés dans le repo :
 
 - `CHANGELOG.md`
+- `docs/README.md` (index documentation)
 - `docs/NightTable_BusinessPlan_V3.docx`
 - `docs/NightTable_DevGuide.docx`
 - `docs/NightTable_BusinessPlan_V3.txt` (extraction texte)
@@ -19,7 +27,9 @@ Les documents complets sont stockés dans le repo :
 ## Releases
 
 - `v0.1-docs` : baseline documentation (README complet + architecture + roadmap + documents sources).
+	- https://github.com/jeuneMaitre667/nightable-d-mo/releases/tag/v0.1-docs
 - `v0.1-docs.1` : baseline documentation + ajout du `CHANGELOG.md`.
+	- https://github.com/jeuneMaitre667/nightable-d-mo/releases/tag/v0.1-docs.1
 
 ## Stack actuelle
 
@@ -190,6 +200,13 @@ Migrations actuellement présentes :
 - Cible recommandée : Vercel
 - Variables d'environnement à répliquer dans l'environnement cible
 - Configurer le webhook Stripe vers : `/api/webhooks/stripe`
+
+## Contribution
+
+- Créer une branche dédiée par feature (`feature/...` ou `fix/...`).
+- Ouvrir une PR claire avec objectif, scope et impacts.
+- Éviter les changements non liés au ticket/fonction en cours.
+- Mettre à jour `README.md` / `CHANGELOG.md` si comportement ou setup modifié.
 
 ---
 

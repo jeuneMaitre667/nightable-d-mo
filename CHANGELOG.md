@@ -2,6 +2,15 @@
 
 Toutes les évolutions notables du projet NightTable sont documentées dans ce fichier.
 
+## Unreleased
+
+### Added
+
+- Section "Repository" dans `README.md` avec liens GitHub directs (repo, issues, releases, tags).
+- Liens directs des tags docs dans la section "Releases" du `README.md`.
+- Index de documentation `docs/README.md`.
+- Section "Contribution" dans `README.md`.
+
 ## v0.1-docs - 2026-02-28
 
 ### Added
