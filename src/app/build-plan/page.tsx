@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 type Priority = "P0" | "P1" | "P2";
 type Status = "ready" | "next" | "later";
+type RoleFilter = "all" | "public" | "auth" | "client" | "club" | "promoter" | "vip" | "admin" | "cross";
 
 type PlanItem = {
   title: string;
@@ -10,63 +14,43 @@ type PlanItem = {
   estimate: string;
   dependency?: string;
   status: Status;
+  role: Exclude<RoleFilter, "all">;
+  phase: string;
 };
 
-type PlanPhase = {
-  name: string;
-  objective: string;
-  sprint: string;
-  items: PlanItem[];
-};
+const items: PlanItem[] = [
+  { title: "Landing finale", route: "/", priority: "P0", estimate: "0.5 j", status: "ready", role: "public", phase: "Phase 1" },
+  { title: "Login premium UI", route: "/login", priority: "P0", estimate: "0.5 j", status: "next", role: "auth", phase: "Phase 1" },
+  { title: "Register premium UI", route: "/register", priority: "P0", estimate: "0.5 j", dependency: "Login premium UI", status: "next", role: "auth", phase: "Phase 1" },
+  { title: "Verify flow + messages", route: "/verify", priority: "P1", estimate: "0.5 j", dependency: "Register premium UI", status: "next", role: "auth", phase: "Phase 1" },
+  { title: "Page clubs index", route: "/clubs", priority: "P1", estimate: "1 j", status: "next", role: "public", phase: "Phase 1" },
+  { title: "Page club publique", route: "/clubs/l-arc-paris", priority: "P0", estimate: "0.5 j", status: "ready", role: "public", phase: "Phase 1" },
+  { title: "Reserve page complete", route: "/reserve", priority: "P0", estimate: "1 j", status: "next", role: "public", phase: "Phase 2" },
+  { title: "Client dashboard shell", route: "/dashboard/client", priority: "P0", estimate: "1 j", status: "ready", role: "client", phase: "Phase 2" },
+  { title: "Client reservations page", route: "/dashboard/client/reservations", priority: "P0", estimate: "1 j", dependency: "Reserve page complete", status: "next", role: "client", phase: "Phase 2" },
+  { title: "Stripe payment flow UI", route: "/reserve", priority: "P0", estimate: "1 j", dependency: "Reserve page complete", status: "next", role: "cross", phase: "Phase 2" },
+  { title: "Club dashboard UX", route: "/dashboard/club", priority: "P0", estimate: "1 j", status: "ready", role: "club", phase: "Phase 3" },
+  { title: "Club events page", route: "/dashboard/club/events", priority: "P0", estimate: "1 j", status: "next", role: "club", phase: "Phase 3" },
+  { title: "Club tables / floor plan", route: "/dashboard/club/tables", priority: "P0", estimate: "1.5 j", dependency: "Club events page", status: "next", role: "club", phase: "Phase 3" },
+  { title: "Club reservations board", route: "/dashboard/club/reservations", priority: "P0", estimate: "1 j", dependency: "Client reservations page", status: "next", role: "club", phase: "Phase 3" },
+  { title: "Club analytics v1", route: "/dashboard/club/analytics", priority: "P1", estimate: "1 j", status: "later", role: "club", phase: "Phase 3" },
+  { title: "Promoter guestlist UI", route: "/dashboard/promoter/guestlist", priority: "P1", estimate: "1 j", status: "later", role: "promoter", phase: "Phase 4" },
+  { title: "Promoter commissions", route: "/dashboard/promoter/commissions", priority: "P1", estimate: "1 j", dependency: "Promoter guestlist UI", status: "later", role: "promoter", phase: "Phase 4" },
+  { title: "VIP invitations", route: "/dashboard/vip/invitations", priority: "P1", estimate: "1 j", status: "later", role: "vip", phase: "Phase 4" },
+  { title: "Admin users & clubs", route: "/dashboard/admin", priority: "P1", estimate: "1 j", status: "later", role: "admin", phase: "Phase 4" },
+  { title: "AI assistant UX", route: "/demo", priority: "P2", estimate: "1 j", status: "later", role: "cross", phase: "Phase 4" },
+];
 
-const phases: PlanPhase[] = [
-  {
-    name: "Phase 1 — Acquisition & Auth",
-    sprint: "Semaine 1",
-    objective: "Transformer les visiteurs en utilisateurs inscrits.",
-    items: [
-      { title: "Landing finale", route: "/", priority: "P0", estimate: "0.5 j", status: "ready" },
-      { title: "Login premium UI", route: "/login", priority: "P0", estimate: "0.5 j", status: "next" },
-      { title: "Register premium UI", route: "/register", priority: "P0", estimate: "0.5 j", dependency: "Login premium UI", status: "next" },
-      { title: "Verify flow + messages", route: "/verify", priority: "P1", estimate: "0.5 j", dependency: "Register premium UI", status: "next" },
-      { title: "Page clubs index", route: "/clubs", priority: "P1", estimate: "1 j", status: "next" },
-      { title: "Page club publique", route: "/clubs/[slug]", priority: "P0", estimate: "0.5 j", status: "ready" },
-    ],
-  },
-  {
-    name: "Phase 2 — Core Reservation",
-    sprint: "Semaine 2",
-    objective: "Permettre la réservation table de bout en bout.",
-    items: [
-      { title: "Reserve page complete", route: "/reserve", priority: "P0", estimate: "1 j", status: "next" },
-      { title: "Client dashboard shell", route: "/dashboard/client", priority: "P0", estimate: "1 j", status: "ready" },
-      { title: "Client reservations page", route: "/dashboard/client/reservations", priority: "P0", estimate: "1 j", dependency: "Reserve page complete", status: "next" },
-      { title: "Stripe payment flow UI", route: "/reserve", priority: "P0", estimate: "1 j", dependency: "Reserve page complete", status: "next" },
-    ],
-  },
-  {
-    name: "Phase 3 — Club Operations",
-    sprint: "Semaine 3",
-    objective: "Donner au club un cockpit opérationnel complet.",
-    items: [
-      { title: "Club dashboard UX", route: "/dashboard/club", priority: "P0", estimate: "1 j", status: "ready" },
-      { title: "Club events page", route: "/dashboard/club/events", priority: "P0", estimate: "1 j", status: "next" },
-      { title: "Club tables / floor plan", route: "/dashboard/club/tables", priority: "P0", estimate: "1.5 j", dependency: "Club events page", status: "next" },
-      { title: "Club reservations board", route: "/dashboard/club/reservations", priority: "P0", estimate: "1 j", dependency: "Client reservations page", status: "next" },
-      { title: "Club analytics v1", route: "/dashboard/club/analytics", priority: "P1", estimate: "1 j", status: "later" },
-    ],
-  },
-  {
-    name: "Phase 4 — Growth Modules",
-    sprint: "Semaine 4",
-    objective: "Activer les leviers réseau: promoteurs, VIP, IA.",
-    items: [
-      { title: "Promoter guestlist UI", route: "/dashboard/promoter/guestlist", priority: "P1", estimate: "1 j", status: "later" },
-      { title: "Promoter commissions", route: "/dashboard/promoter/commissions", priority: "P1", estimate: "1 j", dependency: "Promoter guestlist UI", status: "later" },
-      { title: "VIP invitations", route: "/dashboard/vip/invitations", priority: "P1", estimate: "1 j", status: "later" },
-      { title: "AI assistant UX", route: "/demo", priority: "P2", estimate: "1 j", status: "later" },
-    ],
-  },
+const roleFilters: { key: RoleFilter; label: string }[] = [
+  { key: "all", label: "Tous" },
+  { key: "public", label: "Public" },
+  { key: "auth", label: "Auth" },
+  { key: "client", label: "Client" },
+  { key: "club", label: "Club" },
+  { key: "promoter", label: "Promoteur" },
+  { key: "vip", label: "VIP" },
+  { key: "admin", label: "Admin" },
+  { key: "cross", label: "Transverse" },
 ];
 
 function badgePriority(priority: Priority) {
@@ -89,61 +73,106 @@ function badgeStatus(status: Status) {
   return <span className="rounded-full border border-zinc-600 bg-zinc-800/70 px-2 py-0.5 text-xs text-zinc-300">Later</span>;
 }
 
+function columnTitle(status: Status) {
+  if (status === "ready") return "Now";
+  if (status === "next") return "Next";
+  return "Later";
+}
+
+function statusBorder(status: Status) {
+  if (status === "ready") return "border-emerald-700/40";
+  if (status === "next") return "border-violet-700/40";
+  return "border-zinc-700/60";
+}
+
 export default function BuildPlanPage() {
+  const [activeRole, setActiveRole] = useState<RoleFilter>("all");
+
+  const filtered = useMemo(() => {
+    if (activeRole === "all") return items;
+    return items.filter((item) => item.role === activeRole);
+  }, [activeRole]);
+
+  const byStatus = useMemo(() => {
+    return {
+      ready: filtered.filter((item) => item.status === "ready"),
+      next: filtered.filter((item) => item.status === "next"),
+      later: filtered.filter((item) => item.status === "later"),
+    };
+  }, [filtered]);
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-zinc-900 px-4 py-10 text-zinc-100 md:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <section className="rounded-2xl border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-900 to-fuchsia-950/50 p-6 md:p-8">
           <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">NightTable · Build Plan</p>
           <h1 className="mt-3 text-3xl font-bold md:text-5xl">Roadmap interactive des pages finales</h1>
-          <p className="mt-4 max-w-4xl text-zinc-300">
-            Ordre de construction page par page avec priorité, estimation et dépendances. Ce plan est pensé pour livrer
-            rapidement une V1 cohérente et monétisable.
-          </p>
+          <p className="mt-4 max-w-4xl text-zinc-300">Vue Kanban avec filtres par rôle pour prioriser ce qu’on construit maintenant, ensuite, puis plus tard.</p>
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
             <span className="rounded-full border border-rose-500/40 bg-rose-500/20 px-3 py-1 text-rose-300">P0: critique</span>
             <span className="rounded-full border border-amber-500/40 bg-amber-500/20 px-3 py-1 text-amber-300">P1: important</span>
             <span className="rounded-full border border-sky-500/40 bg-sky-500/20 px-3 py-1 text-sky-300">P2: confort</span>
           </div>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            {roleFilters.map((filter) => (
+              <button
+                key={filter.key}
+                type="button"
+                onClick={() => setActiveRole(filter.key)}
+                className={`rounded-full border px-3 py-1 text-sm ${
+                  activeRole === filter.key
+                    ? "border-white bg-white text-black"
+                    : "border-zinc-700 bg-zinc-900 text-zinc-200"
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
         </section>
 
-        <div className="grid gap-4">
-          {phases.map((phase) => (
-            <section key={phase.name} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-semibold">{phase.name}</h2>
-                  <p className="mt-1 text-sm text-zinc-300">{phase.objective}</p>
-                </div>
-                <span className="rounded-full border border-zinc-700 bg-zinc-950 px-3 py-1 text-xs text-zinc-300">
-                  {phase.sprint}
-                </span>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {(["ready", "next", "later"] as Status[]).map((status) => (
+            <section key={status} className={`rounded-2xl border bg-zinc-900 p-4 ${statusBorder(status)}`}>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-xl font-semibold">{columnTitle(status)}</h2>
+                <span className="text-sm text-zinc-400">{byStatus[status].length} items</span>
               </div>
 
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                {phase.items.map((item) => (
-                  <article key={`${phase.name}-${item.title}`} className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
+              <div className="space-y-3">
+                {byStatus[status].map((item) => (
+                  <article key={`${item.phase}-${item.title}`} className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
                     <div className="flex flex-wrap items-center gap-2">
                       {badgePriority(item.priority)}
                       {badgeStatus(item.status)}
+                      <span className="rounded-full border border-zinc-700 px-2 py-0.5 text-xs text-zinc-300">{item.phase}</span>
                     </div>
+
                     <h3 className="mt-2 font-semibold">{item.title}</h3>
                     <p className="mt-1 text-sm text-zinc-400">{item.route}</p>
 
-                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-zinc-300">
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-zinc-300">
                       <span className="rounded-md border border-zinc-700 px-2 py-1">Estimation: {item.estimate}</span>
-                      {item.dependency ? (
-                        <span className="rounded-md border border-zinc-700 px-2 py-1">Dépend de: {item.dependency}</span>
-                      ) : null}
+                      {item.dependency ? <span className="rounded-md border border-zinc-700 px-2 py-1">Dépend de: {item.dependency}</span> : null}
                     </div>
 
                     <div className="mt-3">
-                      <Link href={item.route.startsWith("/dashboard") || item.route.includes("[slug]") ? "/final-pages" : item.route} className="text-sm underline">
+                      <Link
+                        href={item.route.startsWith("/dashboard") || item.route.includes("[slug]") ? "/final-pages" : item.route}
+                        className="text-sm underline"
+                      >
                         Ouvrir
                       </Link>
                     </div>
                   </article>
                 ))}
+
+                {byStatus[status].length === 0 ? (
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-400">
+                    Aucun item pour ce filtre.
+                  </div>
+                ) : null}
               </div>
             </section>
           ))}

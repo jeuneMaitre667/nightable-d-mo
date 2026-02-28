@@ -130,6 +130,12 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Ajout des priorités (P0/P1/P2), estimations et dépendances par étape.
 - Intégration de l’accès à cette roadmap depuis `final-pages`.
 
+### 2026-02-28 (kanban + filtres rôles)
+
+- Transformation de `build-plan` en vue Kanban (Now / Next / Later).
+- Ajout de filtres par rôle: Public, Auth, Client, Club, Promoteur, VIP, Admin, Transverse.
+- Visualisation dynamique des items selon filtre actif.
+
 ## Template d’entrée de session
 
 Copier-coller ce bloc pour chaque nouvelle session:
