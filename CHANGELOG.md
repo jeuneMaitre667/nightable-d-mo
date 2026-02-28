@@ -21,6 +21,7 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 - Refonte visuelle des pages `login` et `register`.
 - Nouvelle page publique `clubs` (`src/app/(public)/clubs/page.tsx`).
 - Page `reserve` rendue opérationnelle côté UI (sélections + résumé dynamique via query params).
+- Correctif runtime `src/proxy.ts` pour éviter les erreurs 500 sur `/login` et `/register` quand les variables d’environnement Supabase sont absentes en local (fallback non bloquant hors `/dashboard`).
 
 ## v0.1-docs - 2026-02-28
 

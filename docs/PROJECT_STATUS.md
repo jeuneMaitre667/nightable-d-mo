@@ -143,6 +143,13 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Upgrade de `reserve` avec formulaire sélection + récapitulatif estimé + gestion promo code.
 - Ouverture des pages de validation: `/login`, `/register`, `/clubs`, `/reserve?promo=NIGHTPARIS`.
 
+### 2026-02-28 (correctif runtime auth local)
+
+- Diagnostic des routes `/login` et `/register` en erreur HTTP 500 en local.
+- Identification de la cause dans `src/proxy.ts`: initialisation Supabase sans variables d’environnement requises.
+- Ajout d’un fallback: si config Supabase absente, laisser passer les routes publiques/auth et rediriger uniquement `/dashboard*` vers `/login` avec message explicite.
+- Validation post-correctif: `/login` et `/register` répondent de nouveau en `200`.
+
 ## Template d’entrée de session
 
 Copier-coller ce bloc pour chaque nouvelle session:
