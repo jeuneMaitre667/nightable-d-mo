@@ -1,3 +1,8 @@
+// Component: ClubDashboardHomePage
+// Reference: component.gallery/components/table
+// Inspired by: IBM Carbon Design System pattern
+// NightTable usage: operational dashboard for club nightly activity
+
 import { redirect } from "next/navigation";
 import FloorPlan from "@/components/floor-plan/FloorPlan";
 import RefreshButton from "./refreshButton";
@@ -109,7 +114,10 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
           Prépare la prochaine expérience VIP en publiant un nouvel événement NightTable.
         </p>
         <div className="mt-6 flex items-center justify-center gap-2">
-          <a href="/dashboard/club/events/new" className="nt-btn nt-btn-primary px-6 py-3">
+          <a
+            href="/dashboard/club/events/new"
+            className="nt-btn nt-btn-primary min-h-11 px-6 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+          >
             Créer un événement
           </a>
           <RefreshButton />
@@ -249,7 +257,10 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
                   <td className="px-3 py-2">{new Date(reservation.created_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</td>
                   <td className="px-3 py-2 capitalize">{reservation.status.replace("_", " ")}</td>
                   <td className="px-3 py-2">
-                    <button type="button" className="nt-btn nt-btn-secondary px-3 py-1.5 text-xs">
+                    <button
+                      type="button"
+                      className="nt-btn nt-btn-secondary min-h-11 px-3 py-1.5 text-xs transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+                    >
                       Check-in
                     </button>
                   </td>

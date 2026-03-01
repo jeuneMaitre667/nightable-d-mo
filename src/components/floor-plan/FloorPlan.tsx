@@ -1,5 +1,10 @@
 "use client";
 
+// Component: FloorPlan
+// Reference: component.gallery/components/card
+// Inspired by: IBM Carbon Design System pattern
+// NightTable usage: interactive floor map for club management and public booking
+
 import { Fragment, useMemo, useState } from "react";
 import { Layer, Rect, Stage, Text } from "react-konva";
 
@@ -17,11 +22,18 @@ type FloorPlanTable = {
 };
 
 type FloorPlanProps = {
+  /** Tables rendered on the floor plan canvas. */
   tables: FloorPlanTable[];
+  /** Triggered when a table is selected. */
   onTableSelect: (tableId: string) => void;
+  /** Optional selected table identifier. */
   selectedTableId?: string;
+  /** Current interaction mode for plan behavior. */
   mode: "view" | "edit" | "booking";
+  /** Optional callback fired when a table drag position changes. */
   onPositionChange?: (tableId: string, positionX: number, positionY: number) => void;
+  /** Optional className for wrapper composability. */
+  className?: string;
 };
 
 type TooltipState = {
@@ -73,6 +85,7 @@ export default function FloorPlan({
   selectedTableId,
   mode,
   onPositionChange,
+  className,
 }: FloorPlanProps): ReactElement {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
 
@@ -87,7 +100,7 @@ export default function FloorPlan({
   );
 
   return (
-    <div className="relative rounded-xl border border-[#C9973A]/20 bg-[#0A0F2E] p-3">
+    <div className={`relative rounded-xl border border-[#C9973A]/20 bg-[#0A0F2E] p-3 ${className ?? ""}`.trim()}>
       <Stage width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="max-w-full overflow-hidden rounded-md">
         <Layer>
           {positionedTables.map((table) => {

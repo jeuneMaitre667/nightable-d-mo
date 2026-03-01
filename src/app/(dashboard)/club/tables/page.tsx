@@ -1,3 +1,8 @@
+// Component: ClubTablesPage
+// Reference: component.gallery/components/table
+// Inspired by: IBM Carbon Design System pattern
+// NightTable usage: server page loading club tables management data
+
 import { redirect } from "next/navigation";
 import TablesClient from "./tablesClient";
 import { createClient } from "@/lib/supabase/server";

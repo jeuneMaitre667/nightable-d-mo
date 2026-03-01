@@ -1,13 +1,20 @@
 "use client";
 
+// Component: RegisterPage
+// Reference: component.gallery/components/text-input
+// Inspired by: Atlassian Design System pattern
+// NightTable usage: role-based account creation page
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   registerClientAction,
   registerClubAction,
   registerFemaleVipAction,
 } from "@/lib/auth.actions";
+
+import type { FormEvent, ReactElement } from "react";
 
 type RegisterRole = "client" | "club" | "female_vip";
 
@@ -19,7 +26,7 @@ function normalizeRegisterRole(value: string | null): RegisterRole {
   return "client";
 }
 
-export default function RegisterPage() {
+export default function RegisterPage(): ReactElement {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -123,15 +130,15 @@ export default function RegisterPage() {
           </p>
 
           <div className="mt-6 grid gap-3">
-            <button type="button" onClick={() => setSelectedRole("client")} className={`nt-card p-4 text-left ${selectedRole === "client" ? "border-[#c9973a]/70" : ""}`}>
+            <button type="button" onClick={() => setSelectedRole("client")} className={`nt-card min-h-11 p-4 text-left transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] ${selectedRole === "client" ? "border-[#C9973A]/70" : ""}`}>
               <p className="text-sm text-[#888888]">Compte Client</p>
               <p className="mt-1 font-medium">Réservation, historique, expérience VIP</p>
             </button>
-            <button type="button" onClick={() => setSelectedRole("club")} className={`nt-card p-4 text-left ${selectedRole === "club" ? "border-[#c9973a]/70" : ""}`}>
+            <button type="button" onClick={() => setSelectedRole("club")} className={`nt-card min-h-11 p-4 text-left transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] ${selectedRole === "club" ? "border-[#C9973A]/70" : ""}`}>
               <p className="text-sm text-[#888888]">Compte Club</p>
               <p className="mt-1 font-medium">Événements, tables, commissions, analytics</p>
             </button>
-            <button type="button" onClick={() => setSelectedRole("female_vip")} className={`nt-card p-4 text-left ${selectedRole === "female_vip" ? "border-[#c4567a]/70" : ""}`}>
+            <button type="button" onClick={() => setSelectedRole("female_vip")} className={`nt-card min-h-11 p-4 text-left transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] ${selectedRole === "female_vip" ? "border-[#C4567A]/70" : ""}`}>
               <p className="text-sm text-[#888888]">Compte Femme VIP</p>
               <p className="mt-1 font-medium">Parcours premium avec validation par club</p>
             </button>
@@ -201,7 +208,7 @@ export default function RegisterPage() {
               </>
             )}
 
-            <button type="submit" className="nt-btn nt-btn-primary w-full px-4 py-2 disabled:opacity-70" disabled={isPending}>
+            <button type="submit" className="nt-btn nt-btn-primary min-h-11 w-full px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-70" disabled={isPending}>
               {isPending ? "Création du compte..." : "Créer le compte"}
             </button>
           </form>

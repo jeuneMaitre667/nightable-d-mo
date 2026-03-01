@@ -1,5 +1,10 @@
 "use client";
 
+// Component: TablesClient
+// Reference: component.gallery/components/modal
+// Inspired by: Atlassian Design System pattern
+// NightTable usage: interactive table management with floor-plan editing
+
 import { useMemo, useState, useTransition } from "react";
 import FloorPlan from "@/components/floor-plan/FloorPlan";
 import { createTableAction, updateTablePositionAction } from "@/lib/club.actions";
@@ -18,7 +23,10 @@ type ClubTable = {
 };
 
 type TablesClientProps = {
+  /** Initial list of club tables fetched server-side. */
   initialTables: ClubTable[];
+  /** Optional utility classes for wrapper composition. */
+  className?: string;
 };
 
 type FloorPlanStatus = "available" | "reserved" | "occupied" | "selected" | "promo" | "disabled" | "sold_out";
@@ -42,7 +50,7 @@ function formatEuros(value: number): string {
   }).format(value);
 }
 
-export default function TablesClient({ initialTables }: TablesClientProps): ReactElement {
+export default function TablesClient({ initialTables, className }: TablesClientProps): ReactElement {
   const [tables, setTables] = useState<ClubTable[]>(initialTables);
   const [selectedTableId, setSelectedTableId] = useState<string | undefined>(undefined);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -133,7 +141,7 @@ export default function TablesClient({ initialTables }: TablesClientProps): Reac
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${className ?? ""}`.trim()}>
       <header className="flex flex-col gap-4 rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-6 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-[#888888]">Club Dashboard</p>
@@ -141,10 +149,19 @@ export default function TablesClient({ initialTables }: TablesClientProps): Reac
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button type="button" className="nt-btn nt-btn-secondary px-4 py-2" onClick={() => setShowModal(true)}>
+          <button
+            type="button"
+            className="nt-btn nt-btn-secondary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+            onClick={() => setShowModal(true)}
+          >
             Ajouter une table
           </button>
-          <button type="button" className="nt-btn nt-btn-primary px-4 py-2" onClick={onSavePositions} disabled={isPending}>
+          <button
+            type="button"
+            className="nt-btn nt-btn-primary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={onSavePositions}
+            disabled={isPending}
+          >
             Sauvegarder positions
           </button>
         </div>
@@ -185,7 +202,13 @@ export default function TablesClient({ initialTables }: TablesClientProps): Reac
 
       {showModal ? (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#050508]/80 px-4">
-          <form action={onCreateTable} className="w-full max-w-lg rounded-xl border border-[#C9973A]/30 bg-[#12172B] p-6">
+          <form
+            action={onCreateTable}
+            className="w-full max-w-lg rounded-xl border border-[#C9973A]/30 bg-[#12172B] p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Ajouter une table"
+          >
             <h3 className="nt-heading text-2xl text-[#F7F6F3]">Ajouter une table</h3>
 
             <div className="mt-4 grid gap-3">
@@ -217,10 +240,18 @@ export default function TablesClient({ initialTables }: TablesClientProps): Reac
             </div>
 
             <div className="mt-6 flex justify-end gap-2">
-              <button type="button" className="nt-btn nt-btn-secondary px-4 py-2" onClick={() => setShowModal(false)}>
+              <button
+                type="button"
+                className="nt-btn nt-btn-secondary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+                onClick={() => setShowModal(false)}
+              >
                 Annuler
               </button>
-              <button type="submit" className="nt-btn nt-btn-primary px-4 py-2" disabled={isPending}>
+              <button
+                type="submit"
+                className="nt-btn nt-btn-primary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isPending}
+              >
                 Ajouter
               </button>
             </div>

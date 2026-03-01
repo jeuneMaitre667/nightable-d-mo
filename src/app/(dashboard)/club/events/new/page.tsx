@@ -1,5 +1,10 @@
 "use client";
 
+// Component: NewClubEventPage
+// Reference: component.gallery/components/text-input
+// Inspired by: Atlassian Design System pattern
+// NightTable usage: club form to create and configure new events
+
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { z } from "zod";
@@ -166,7 +171,12 @@ export default function NewClubEventPage(): ReactElement {
               placeholder="Ajouter un DJ"
               disabled={isPending}
             />
-            <button type="button" onClick={addDjTag} className="nt-btn nt-btn-secondary px-4 py-2" disabled={isPending}>
+            <button
+              type="button"
+              onClick={addDjTag}
+              className="nt-btn nt-btn-secondary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isPending}
+            >
               Ajouter
             </button>
           </div>
@@ -176,7 +186,7 @@ export default function NewClubEventPage(): ReactElement {
                 type="button"
                 key={dj}
                 onClick={() => removeDjTag(dj)}
-                className="rounded-md border border-[#C9973A]/40 bg-[#C9973A]/12 px-3 py-1 text-xs font-medium text-[#E8C96A]"
+                className="min-h-11 rounded-md border border-[#C9973A]/40 bg-[#C9973A]/12 px-3 py-1 text-xs font-medium text-[#E8C96A] transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
                 disabled={isPending}
               >
                 {dj} ×
@@ -191,11 +201,13 @@ export default function NewClubEventPage(): ReactElement {
             <button
               type="button"
               onClick={() => setIsVipPromoActive((value) => !value)}
-              className={`h-7 w-12 rounded-full border ${isVipPromoActive ? "border-[#C4567A] bg-[#C4567A]/40" : "border-[#2A2F4A] bg-[#12172B]"}`}
+              className={`h-11 w-12 rounded-full border transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0F2E] ${isVipPromoActive ? "border-[#C4567A] bg-[#C4567A]/40" : "border-[#2A2F4A] bg-[#12172B]"}`}
               disabled={isPending}
+              aria-label="Activer le module femmes VIP"
+              aria-pressed={isVipPromoActive}
             >
               <span
-                className={`block h-5 w-5 rounded-full bg-[#F7F6F3] transition ${isVipPromoActive ? "translate-x-6" : "translate-x-1"}`}
+                className={`block h-5 w-5 rounded-full bg-[#F7F6F3] transition-all duration-200 ease-in-out ${isVipPromoActive ? "translate-x-6" : "translate-x-1"}`}
               />
             </button>
           </div>
@@ -205,11 +217,13 @@ export default function NewClubEventPage(): ReactElement {
             <button
               type="button"
               onClick={() => setIsAuction((value) => !value)}
-              className={`h-7 w-12 rounded-full border ${isAuction ? "border-[#C9973A] bg-[#C9973A]/35" : "border-[#2A2F4A] bg-[#12172B]"}`}
+              className={`h-11 w-12 rounded-full border transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0F2E] ${isAuction ? "border-[#C9973A] bg-[#C9973A]/35" : "border-[#2A2F4A] bg-[#12172B]"}`}
               disabled={isPending}
+              aria-label="Activer le mode enchères"
+              aria-pressed={isAuction}
             >
               <span
-                className={`block h-5 w-5 rounded-full bg-[#F7F6F3] transition ${isAuction ? "translate-x-6" : "translate-x-1"}`}
+                className={`block h-5 w-5 rounded-full bg-[#F7F6F3] transition-all duration-200 ease-in-out ${isAuction ? "translate-x-6" : "translate-x-1"}`}
               />
             </button>
           </div>
@@ -231,7 +245,11 @@ export default function NewClubEventPage(): ReactElement {
           <p className="text-sm text-[#E8C96A]">{notoriety.toFixed(1)}x</p>
         </div>
 
-        <button type="submit" className="nt-btn nt-btn-primary w-full px-5 py-3 disabled:opacity-70" disabled={isPending}>
+        <button
+          type="submit"
+          className="nt-btn nt-btn-primary min-h-11 w-full px-5 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-70"
+          disabled={isPending}
+        >
           {isPending ? "Création en cours..." : "Créer l’événement"}
         </button>
       </form>

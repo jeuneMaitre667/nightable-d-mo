@@ -1,3 +1,8 @@
+// Component: ClubEventsPage
+// Reference: component.gallery/components/list
+// Inspired by: IBM Carbon Design System pattern
+// NightTable usage: club event listing and status overview
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -101,7 +106,10 @@ export default async function ClubEventsPage(): Promise<ReactElement> {
           </p>
         </div>
 
-        <Link href="/dashboard/club/events/new" className="nt-btn nt-btn-primary w-full px-5 py-3 text-center md:w-auto">
+        <Link
+          href="/dashboard/club/events/new"
+          className="nt-btn nt-btn-primary min-h-11 w-full px-5 py-3 text-center transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] md:w-auto"
+        >
           Créer un événement
         </Link>
       </header>
@@ -113,7 +121,10 @@ export default async function ClubEventsPage(): Promise<ReactElement> {
             Démarre la prochaine soirée NightTable en créant un premier événement publié.
           </p>
           <div className="mt-6">
-            <Link href="/dashboard/club/events/new" className="nt-btn nt-btn-primary px-6 py-3">
+            <Link
+              href="/dashboard/club/events/new"
+              className="nt-btn nt-btn-primary min-h-11 px-6 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+            >
               Créer mon premier événement
             </Link>
           </div>

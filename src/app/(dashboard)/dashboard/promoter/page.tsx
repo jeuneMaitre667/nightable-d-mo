@@ -1,5 +1,12 @@
+// Component: PromoterDashboardPage
+// Reference: component.gallery/components/list
+// Inspired by: IBM Carbon Design System pattern
+// NightTable usage: promoter guest-list management dashboard
+
 import { addGuestAction } from "@/lib/promoter.actions";
 import { createClient } from "@/lib/supabase/server";
+
+import type { ReactElement } from "react";
 
 type PromoterDashboardPageProps = {
   searchParams: Promise<{ error?: string }>;
@@ -20,7 +27,7 @@ type GuestListRow = {
   events: Array<{ title: string }> | null;
 };
 
-export default async function PromoterDashboardPage({ searchParams }: PromoterDashboardPageProps) {
+export default async function PromoterDashboardPage({ searchParams }: PromoterDashboardPageProps): Promise<ReactElement> {
   const params = await searchParams;
   const supabase = await createClient();
 
@@ -50,17 +57,17 @@ export default async function PromoterDashboardPage({ searchParams }: PromoterDa
   return (
     <div className="space-y-8">
       <section>
-        <h1 className="text-2xl font-semibold">Dashboard Promoteur</h1>
-        <p className="mt-1 text-sm text-zinc-400">Phase 1 — guest list digitale.</p>
+        <h1 className="nt-heading text-3xl text-[#F7F6F3]">Dashboard Promoteur</h1>
+        <p className="mt-1 text-sm text-[#888888]">Phase 1 — guest list digitale.</p>
         {params.error ? (
-          <p className="mt-4 rounded bg-red-100 px-3 py-2 text-sm text-red-700">{params.error}</p>
+          <p className="mt-4 rounded border border-[#C4567A]/45 bg-[#C4567A]/12 px-3 py-2 text-sm text-[#F7F6F3]">{params.error}</p>
         ) : null}
       </section>
 
-      <section className="rounded border border-zinc-800 p-4">
-        <h2 className="text-lg font-medium">Ajouter un invité</h2>
+      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
+        <h2 className="text-lg font-medium text-[#F7F6F3]">Ajouter un invité</h2>
         <form action={addGuestAction} className="mt-4 grid gap-3 md:grid-cols-3">
-          <select name="event_id" required className="rounded border border-zinc-700 bg-zinc-900 px-3 py-2">
+          <select name="event_id" required className="rounded border border-[#C9973A]/20 bg-[#0A0F2E] px-3 py-2 text-[#F7F6F3]">
             <option value="">Sélectionner un événement</option>
             {eventList.map((event) => (
               <option key={event.id} value={event.id}>
@@ -68,25 +75,25 @@ export default async function PromoterDashboardPage({ searchParams }: PromoterDa
               </option>
             ))}
           </select>
-          <input name="guest_name" placeholder="Nom invité" required className="rounded border border-zinc-700 bg-zinc-900 px-3 py-2" />
-          <input name="guest_phone" placeholder="Téléphone (optionnel)" className="rounded border border-zinc-700 bg-zinc-900 px-3 py-2" />
-          <button type="submit" className="rounded bg-white px-4 py-2 text-black md:col-span-3 md:w-fit">Ajouter à la guest list</button>
+          <input name="guest_name" placeholder="Nom invité" required className="rounded border border-[#C9973A]/20 bg-[#0A0F2E] px-3 py-2 text-[#F7F6F3]" />
+          <input name="guest_phone" placeholder="Téléphone (optionnel)" className="rounded border border-[#C9973A]/20 bg-[#0A0F2E] px-3 py-2 text-[#F7F6F3]" />
+          <button type="submit" className="nt-btn nt-btn-primary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] md:col-span-3 md:w-fit">Ajouter à la guest list</button>
         </form>
       </section>
 
-      <section className="rounded border border-zinc-800 p-4">
-        <h2 className="mb-3 text-lg font-medium">Mes invités récents</h2>
-        <ul className="space-y-2 text-sm text-zinc-300">
+      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
+        <h2 className="mb-3 text-lg font-medium text-[#F7F6F3]">Mes invités récents</h2>
+        <ul className="space-y-2 text-sm text-[#888888]">
           {guestListRows.map((guest) => (
-            <li key={guest.id} className="rounded bg-zinc-900 px-3 py-2">
-              <p className="font-medium text-zinc-100">{guest.guest_name}</p>
+            <li key={guest.id} className="rounded bg-[#0A0F2E] px-3 py-2">
+              <p className="font-medium text-[#F7F6F3]">{guest.guest_name}</p>
               <p>
                 {guest.events?.[0]?.title ?? "Événement"} • {guest.status}
                 {guest.guest_phone ? ` • ${guest.guest_phone}` : ""}
               </p>
             </li>
           ))}
-          {guestListRows.length === 0 ? <li className="text-zinc-500">Aucun invité ajouté pour le moment.</li> : null}
+          {guestListRows.length === 0 ? <li className="text-[#888888]">Aucun invité ajouté pour le moment.</li> : null}
         </ul>
       </section>
     </div>

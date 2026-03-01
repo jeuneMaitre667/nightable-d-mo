@@ -1,3 +1,8 @@
+// Component: DashboardRootPage
+// Reference: component.gallery/components/breadcrumb
+// Inspired by: Atlassian Design System pattern
+// NightTable usage: role-based redirect from dashboard root
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDashboardPathByRole, normalizeRole } from "@/lib/auth";

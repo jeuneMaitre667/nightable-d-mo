@@ -1,16 +1,23 @@
 "use client";
 
+// Component: CheckoutClient
+// Reference: component.gallery/components/accordion
+// Inspired by: Shopify Polaris pattern
+// NightTable usage: multi-step reservation checkout and payment initialization
+
 import { useMemo, useState, useTransition } from "react";
 import { createReservationAction } from "@/lib/reservation.actions";
 
 import type { ReactElement } from "react";
 
 type CheckoutClientProps = {
+  /** Event summary linked to selected reservation context. */
   event: {
     id: string;
     name: string;
     eventDate: string;
   };
+  /** Selected table details and dynamic pricing metadata. */
   table: {
     eventTableId: string;
     name: string;
@@ -19,7 +26,10 @@ type CheckoutClientProps = {
     dynamicPrice: number;
     occupancyRate: number;
   };
+  /** Reservation prepayment amount to collect immediately. */
   prepaymentAmount: number;
+  /** Optional utility classes for wrapper composition. */
+  className?: string;
 };
 
 type ClientDetails = {
@@ -46,6 +56,7 @@ export default function CheckoutClient({
   event,
   table,
   prepaymentAmount,
+  className,
 }: CheckoutClientProps): ReactElement {
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<number>(1);
@@ -105,7 +116,7 @@ export default function CheckoutClient({
 
   return (
     <>
-      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-6">
+      <section className={`rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-6 ${className ?? ""}`.trim()}>
         <div className="mb-6 flex items-center justify-between">
           <h1 className="nt-heading text-3xl text-[#F7F6F3]">Finaliser votre réservation</h1>
           <span className="rounded-full border border-[#C9973A]/30 bg-[#0A0F2E] px-3 py-1 text-xs text-[#C9973A]">
@@ -227,7 +238,7 @@ export default function CheckoutClient({
 
             <button
               type="button"
-              className="nt-btn nt-btn-primary w-full px-4 py-3 disabled:opacity-50"
+              className="nt-btn nt-btn-primary min-h-11 w-full px-4 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-50"
               onClick={submitReservation}
               disabled={isPending}
             >
@@ -239,7 +250,7 @@ export default function CheckoutClient({
         <div className="mt-6 flex gap-2">
           <button
             type="button"
-            className="nt-btn border border-[#C9973A]/30 px-4 py-2 text-sm text-[#F7F6F3] disabled:opacity-40"
+            className="nt-btn min-h-11 border border-[#C9973A]/30 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-40"
             onClick={() => setStep((prev) => Math.max(1, prev - 1))}
             disabled={step === 1}
           >
@@ -248,7 +259,7 @@ export default function CheckoutClient({
           {step < 3 ? (
             <button
               type="button"
-              className="nt-btn nt-btn-primary ml-auto px-4 py-2 text-sm"
+              className="nt-btn nt-btn-primary ml-auto min-h-11 px-4 py-2 text-sm transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
               onClick={() => setStep((prev) => Math.min(3, prev + 1))}
             >
               Continuer

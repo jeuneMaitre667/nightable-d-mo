@@ -6,6 +6,8 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Added
 
+- UI component headers ajoutés sur l’ensemble du scope TSX demandé (`src/components/floor-plan`, `src/app/(dashboard)`, `src/app/(public)`, `src/app/(auth)`) pour alignement avec les règles Component Development.
+
 - Section "Repository" dans `README.md` avec liens GitHub directs (repo, issues, releases, tags).
 - Liens directs des tags docs dans la section "Releases" du `README.md`.
 - Index de documentation `docs/README.md`.
@@ -70,6 +72,36 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Changed
 
+- Refonte visuelle cohérente Dashboard/Public/Auth: remplacement des styles Tailwind par défaut par la palette NightTable et harmonisation des classes d’interaction/focus.
+- Composants réutilisables (`FloorPlan`, `RefreshButton`, `CheckoutClient`, `EventBookingClient`, `TablesClient`) durcis avec props typées strictes, `className?: string` et documentation JSDoc.
+- `FloorPlan` : alignement design system component.gallery (couleurs, états, accessibilité, animations).
+- `DashboardGroupLayout` : alignement design system component.gallery (couleurs, états, accessibilité, animations).
+- `DashboardLayout` : alignement design system component.gallery (header composant + typage).
+- `DashboardRootPage` : alignement design system component.gallery (header composant).
+- `ClubEventsError` : alignement design system component.gallery (couleurs, états, accessibilité, animations).
+- `ClubEventsLoading` : alignement design system component.gallery (header composant + loading UI).
+- `NewClubEventPage` : alignement design system component.gallery (états interactifs, focus ring, aria toggles).
+- `ClubEventsPage` : alignement design system component.gallery (cards, CTA, focus/transition).
+- `ClubDashboardHomePage` : alignement design system component.gallery (actions, focus/transition).
+- `RefreshButton` : alignement design system component.gallery (props, accessibilité, animations).
+- `ClubTablesPage` : alignement design system component.gallery (header composant).
+- `TablesClient` : alignement design system component.gallery (props, modal role/aria, états boutons).
+- `AdminDashboardPage` : alignement design system component.gallery (card NightTable).
+- `ClientDashboardPage` : alignement design system component.gallery (card NightTable).
+- `ClubDashboardPage` : alignement design system component.gallery (palette NightTable, états interactifs).
+- `PromoterDashboardPage` : alignement design system component.gallery (palette NightTable, états interactifs).
+- `VipDashboardPage` : alignement design system component.gallery (card NightTable).
+- `LoginPage` : alignement design system component.gallery (focus, transition, cibles min 44px).
+- `RegisterPage` : alignement design system component.gallery (focus, transition, cibles min 44px).
+- `VerifyPage` : alignement design system component.gallery (palette NightTable + structure card).
+- `ClubsPage` : alignement design system component.gallery (palette NightTable, CTA interactifs).
+- `ClubSlugPage` : alignement design system component.gallery (palette NightTable, CTA interactifs).
+- `PublicEventPage` : alignement design system component.gallery (header composant + structure).
+- `EventBookingClient` : alignement design system component.gallery (props, CTA/focus, transitions).
+- `ReservePage` : alignement design system component.gallery (CTA/focus, transitions).
+- `CheckoutPage` : alignement design system component.gallery (header composant + structure).
+- `CheckoutClient` : alignement design system component.gallery (props, états boutons, transitions/focus).
+
 - Refonte des actions club dans `src/lib/club.actions.ts`:
   - validation Zod,
   - retour normalisé `{ success, data, error }`,
@@ -94,6 +126,8 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - ajout du bloc “Component Development Rules — MANDATORY” (références design, a11y, tokens, checklist).
 
 ### Fixed
+
+- Incohérences d’accessibilité et d’ergonomie interactive (focus ring, disabled states, cibles minimales) corrigées sur les actions critiques du scope UI.
 
 - Auth signup stabilisé pour création des profils secondaires:
   - migration RLS/trigger/backfill `supabase/migrations/006_auth_profile_policies_fix.sql`,

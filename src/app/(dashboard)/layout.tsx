@@ -1,3 +1,8 @@
+// Component: DashboardGroupLayout
+// Reference: component.gallery/components/tabs
+// Inspired by: IBM Carbon Design System pattern
+// NightTable usage: global shell for authenticated dashboard group
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -83,7 +88,10 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
             <p className="nt-heading text-xl">Dashboard {role.replace("_", " ")}</p>
           </div>
           <form action={logoutAndRedirect}>
-            <button type="submit" className="nt-btn nt-btn-secondary px-3 py-2 text-xs">
+            <button
+              type="submit"
+              className="nt-btn nt-btn-secondary min-h-11 px-3 py-2 text-xs transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+            >
               Déconnexion
             </button>
           </form>
@@ -103,7 +111,7 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
               <Link
                 key={`${role}-${item.label}-${item.href}`}
                 href={item.href}
-                className="block rounded-md border border-[#c9973a]/10 px-3 py-2 text-sm text-[#c9c9c9] transition duration-200 ease-in-out hover:border-[#c9973a]/40 hover:text-[#f7f6f3]"
+                className="block min-h-11 rounded-md border border-[#C9973A]/10 px-3 py-2 text-sm text-[#888888] transition-all duration-200 ease-in-out hover:border-[#C9973A]/40 hover:text-[#F7F6F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0F2E]"
               >
                 {item.label}
               </Link>
@@ -111,7 +119,10 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
           </nav>
 
           <form action={logoutAndRedirect} className="mt-6">
-            <button type="submit" className="nt-btn nt-btn-secondary w-full px-4 py-2 text-sm">
+            <button
+              type="submit"
+              className="nt-btn nt-btn-secondary min-h-11 w-full px-4 py-2 text-sm transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+            >
               Déconnexion
             </button>
           </form>
@@ -126,7 +137,7 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
             <Link
               key={`mobile-${item.label}-${item.href}`}
               href={item.href}
-              className="rounded-md border border-[#c9973a]/10 px-1 py-2 text-center text-[11px] text-[#c9c9c9]"
+              className="min-h-11 rounded-md border border-[#C9973A]/10 px-1 py-2 text-center text-[11px] text-[#888888] transition-all duration-200 ease-in-out hover:border-[#C9973A]/40 hover:text-[#F7F6F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0F2E]"
             >
               {item.label}
             </Link>

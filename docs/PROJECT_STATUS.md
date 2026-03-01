@@ -30,6 +30,8 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## Fait
 
+- Refonte UI cohérente (Dashboard/Public/Auth + FloorPlan): headers composants, palette NightTable, états interactifs et a11y harmonisés sur le périmètre TSX prioritaire.
+
 ### Documentation
 
 - Documentation complète du projet dans `README.md`.
@@ -139,6 +141,13 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 - Ajout d’un bloc complet “Component Development Rules — MANDATORY” dans `.github/copilot-instructions.md`.
 - Standardisation explicite du process UI (références component.gallery, accessibilité, tokens, checklist de sortie).
+
+### 2026-03-01 (refonte UI full scope dashboard/public/auth)
+
+- Audit et mise à jour de tous les fichiers TSX ciblés (`src/components`, `src/app/(dashboard)`, `src/app/(public)`, `src/app/(auth)`) selon les Component Development Rules.
+- Ajout systématique des headers composants, suppression des styles Tailwind par défaut dans le scope demandé, et homogénéisation des états hover/focus/disabled.
+- Renforcement a11y (aria-label/aria-pressed, focus ring gold, cibles min-h 44px sur actions critiques) sans impact métier.
+- Validation post-refonte exécutée et réussie: `npm run lint` ✅, `npm run build` ✅.
 
 ### 2026-02-28
 

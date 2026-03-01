@@ -1,3 +1,8 @@
+// Component: ClubEventsLoading
+// Reference: component.gallery/components/progress-bar
+// Inspired by: IBM Carbon Design System pattern
+// NightTable usage: loading skeleton for club events list
+
 import type { ReactElement } from "react";
 
 export default function ClubEventsLoading(): ReactElement {

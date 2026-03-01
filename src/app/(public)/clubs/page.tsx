@@ -1,4 +1,11 @@
+// Component: ClubsPage
+// Reference: component.gallery/components/card
+// Inspired by: Shopify Polaris pattern
+// NightTable usage: public discovery grid of partner clubs
+
 import Link from "next/link";
+
+import type { ReactElement } from "react";
 
 type ClubCard = {
   slug: string;
@@ -44,14 +51,14 @@ const clubs: ClubCard[] = [
   },
 ];
 
-export default function ClubsPage() {
+export default function ClubsPage(): ReactElement {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-zinc-900 px-4 py-10 text-zinc-100 md:px-8">
+    <main className="min-h-screen bg-gradient-to-b from-[#050508] via-[#0A0F2E] to-[#050508] px-4 py-10 text-[#F7F6F3] md:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
-        <section className="rounded-2xl border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-900 to-indigo-950/50 p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">NightTable · Clubs</p>
+        <section className="rounded-2xl border border-[#C9973A]/20 bg-gradient-to-br from-[#12172B] via-[#12172B] to-[#0A0F2E] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.22em] text-[#888888]">NightTable · Clubs</p>
           <h1 className="mt-3 text-3xl font-bold md:text-5xl">Les meilleurs clubs partenaires à Paris</h1>
-          <p className="mt-4 max-w-3xl text-zinc-300">
+          <p className="mt-4 max-w-3xl text-[#888888]">
             Sélectionne ton ambiance, ouvre la page club et réserve ta table VIP en quelques taps.
           </p>
         </section>
@@ -60,7 +67,7 @@ export default function ClubsPage() {
           {clubs.map((club) => (
             <article
               key={club.slug}
-              className="relative min-h-72 overflow-hidden rounded-2xl border border-zinc-800"
+              className="relative min-h-72 overflow-hidden rounded-2xl border border-[#C9973A]/20"
               style={{
                 backgroundImage: `linear-gradient(to top, rgba(9,9,11,0.88), rgba(9,9,11,0.25)), url(${club.image})`,
                 backgroundSize: "cover",
@@ -68,18 +75,24 @@ export default function ClubsPage() {
               }}
             >
               <div className="absolute bottom-0 w-full p-5">
-                <p className="text-sm text-zinc-300">{club.area}</p>
+                <p className="text-sm text-[#888888]">{club.area}</p>
                 <h2 className="text-2xl font-semibold">{club.name}</h2>
-                <p className="mt-1 text-zinc-200">{club.vibe}</p>
-                <p className="mt-2 inline-block rounded-md border border-zinc-700 bg-zinc-950/70 px-2 py-1 text-sm">
+                <p className="mt-1 text-[#F7F6F3]">{club.vibe}</p>
+                <p className="mt-2 inline-block rounded-md border border-[#C9973A]/25 bg-[#0A0F2E]/80 px-2 py-1 text-sm">
                   {club.minConsumption}
                 </p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Link href={`/clubs/${club.slug}`} className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black">
+                  <Link
+                    href={`/clubs/${club.slug}`}
+                    className="nt-btn nt-btn-primary min-h-11 px-4 py-2 text-sm font-medium transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+                  >
                     Voir le club
                   </Link>
-                  <Link href="/reserve" className="rounded-md border border-zinc-600 px-4 py-2 text-sm">
+                  <Link
+                    href="/reserve"
+                    className="nt-btn nt-btn-secondary min-h-11 px-4 py-2 text-sm transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+                  >
                     Réserver
                   </Link>
                 </div>

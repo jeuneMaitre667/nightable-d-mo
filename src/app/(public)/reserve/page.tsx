@@ -1,3 +1,10 @@
+// Component: ReservePage
+// Reference: component.gallery/components/select
+// Inspired by: Shopify Polaris pattern
+// NightTable usage: public reservation configurator before checkout
+
+import type { ReactElement } from "react";
+
 type ReservePageProps = {
   searchParams: Promise<{
     promo?: string;
@@ -32,7 +39,7 @@ function getById<T extends { id: string }>(items: T[], id: string, fallback: T) 
   return items.find((item) => item.id === id) ?? fallback;
 }
 
-export default async function ReservePage({ searchParams }: ReservePageProps) {
+export default async function ReservePage({ searchParams }: ReservePageProps): Promise<ReactElement> {
   const params = await searchParams;
 
   const promoCode = params.promo ?? null;
@@ -110,7 +117,10 @@ export default async function ReservePage({ searchParams }: ReservePageProps) {
                 />
               </div>
 
-              <button type="submit" className="nt-btn nt-btn-primary px-4 py-2">
+              <button
+                type="submit"
+                className="nt-btn nt-btn-primary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+              >
                 Mettre à jour le récapitulatif
               </button>
             </form>
@@ -140,8 +150,18 @@ export default async function ReservePage({ searchParams }: ReservePageProps) {
                 Le paiement final Stripe et la création serveur de la réservation seront branchés sur cette sélection.
               </p>
               <div className="mt-4 flex flex-wrap gap-2 text-sm">
-                <a href="/register" className="nt-btn nt-btn-primary px-3 py-2">Continuer (inscription)</a>
-                <a href="/login" className="nt-btn nt-btn-secondary px-3 py-2">J&apos;ai déjà un compte</a>
+                <a
+                  href="/register"
+                  className="nt-btn nt-btn-primary min-h-11 px-3 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+                >
+                  Continuer (inscription)
+                </a>
+                <a
+                  href="/login"
+                  className="nt-btn nt-btn-secondary min-h-11 px-3 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+                >
+                  J&apos;ai déjà un compte
+                </a>
               </div>
             </section>
           </aside>

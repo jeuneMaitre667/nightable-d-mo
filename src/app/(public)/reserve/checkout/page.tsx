@@ -1,3 +1,8 @@
+// Component: CheckoutPage
+// Reference: component.gallery/components/card
+// Inspired by: Shopify Polaris pattern
+// NightTable usage: server page for selected table checkout context
+
 import { notFound } from "next/navigation";
 import CheckoutClient from "./checkoutClient";
 import { createClient } from "@/lib/supabase/server";

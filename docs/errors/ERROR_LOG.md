@@ -11,3 +11,12 @@
 | 2026-03-01 | ERR-2026-007 | Dashboard/Public UI / Build TS | Medium | resolved | Build cassé sur `Cannot find namespace 'JSX'` (plusieurs composants/pages) | [2026-03-01-dashboard-events-jsx-namespace-build](incidents/2026-03-01-dashboard-events-jsx-namespace-build.md) |
 | 2026-03-01 | ERR-2026-008 | Auth UI / Next.js build-lint | Medium | resolved | `useSearchParams` cassait le prerender `/register` et `setState` dans `useEffect` cassait le lint `/login` | [2026-03-01-dashboard-events-jsx-namespace-build](incidents/2026-03-01-dashboard-events-jsx-namespace-build.md) |
 | 2026-03-01 | ERR-2026-009 | UI governance process | Low | resolved | Règles de construction des composants non standardisées entre sessions | [incident-template](templates/incident-template.md) |
+
+---
+**[2026-03-01] — Refonte UI NightTable sur pages Dashboard/Public/Auth**
+- File(s) affected: `src/components/floor-plan/FloorPlan.tsx`, `src/app/(dashboard)/**`, `src/app/(public)/**`, `src/app/(auth)/**`
+- Error: Incohérences UI (tokens couleurs, états interactifs, a11y et headers composants) entre pages TSX.
+- Root cause: Composants/pages hétérogènes issus d’itérations successives sans standard unique appliqué à tout le périmètre.
+- Fix applied: Ajout des headers composants, harmonisation palette NightTable, renforcement hover/focus/disabled + min 44px, ajouts a11y ciblés, typage strict des props réutilisables.
+- Status: ✅ Resolved
+---

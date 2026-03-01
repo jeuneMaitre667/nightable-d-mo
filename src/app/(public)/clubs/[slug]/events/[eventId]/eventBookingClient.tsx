@@ -1,5 +1,10 @@
 "use client";
 
+// Component: EventBookingClient
+// Reference: component.gallery/components/card
+// Inspired by: Shopify Polaris pattern
+// NightTable usage: public interactive table selection for one event
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import FloorPlan from "@/components/floor-plan/FloorPlan";
@@ -28,10 +33,16 @@ type EventTable = {
 };
 
 type EventBookingClientProps = {
+  /** Event identifier used for checkout routing. */
   eventId: string;
+  /** Event datetime used for dynamic pricing urgency. */
   eventDate: string;
+  /** Notoriety coefficient used by pricing formula. */
   eventNotoriety: number;
+  /** Event tables enriched with status and pricing metadata. */
   tables: EventTable[];
+  /** Optional utility classes for wrapper composition. */
+  className?: string;
 };
 
 type FloorPlanStatus = "available" | "reserved" | "occupied" | "selected" | "promo" | "disabled" | "sold_out";
@@ -67,6 +78,7 @@ export default function EventBookingClient({
   eventDate,
   eventNotoriety,
   tables,
+  className,
 }: EventBookingClientProps): ReactElement {
   const [selectedEventTableId, setSelectedEventTableId] = useState<string | undefined>(undefined);
 
@@ -99,7 +111,7 @@ export default function EventBookingClient({
   }));
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[1fr_360px]">
+    <section className={`grid gap-4 xl:grid-cols-[1fr_360px] ${className ?? ""}`.trim()}>
       <article className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="nt-heading text-2xl text-[#F7F6F3]">Choisir votre table</h2>
@@ -144,7 +156,7 @@ export default function EventBookingClient({
 
             <Link
               href={`/reserve/checkout?eventId=${encodeURIComponent(eventId)}&tableId=${encodeURIComponent(selectedEventTable.id)}`}
-              className="nt-btn nt-btn-primary block w-full px-4 py-3 text-center"
+              className="nt-btn nt-btn-primary block min-h-11 w-full px-4 py-3 text-center transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
             >
               Réserver cette table
             </Link>

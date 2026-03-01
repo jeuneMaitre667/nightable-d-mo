@@ -1,11 +1,18 @@
 "use client";
 
+// Component: LoginPage
+// Reference: component.gallery/components/text-input
+// Inspired by: Atlassian Design System pattern
+// NightTable usage: authentication entry page
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { loginAction } from "@/lib/auth.actions";
 
-export default function LoginPage() {
+import type { FormEvent, ReactElement } from "react";
+
+export default function LoginPage(): ReactElement {
   const router = useRouter();
   const [queryError] = useState<string | null>(() => {
     if (typeof window === "undefined") {
@@ -48,17 +55,17 @@ export default function LoginPage() {
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <Link href="/register?role=client" className="nt-card block p-4">
+            <Link href="/register?role=client" className="nt-card block min-h-11 p-4 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]">
               <p className="text-sm text-[#888888]">Inscription Client</p>
               <p className="mt-1 font-medium">Réserve vite et suis tes soirées</p>
             </Link>
-            <Link href="/register?role=club" className="nt-card block p-4">
+            <Link href="/register?role=club" className="nt-card block min-h-11 p-4 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]">
               <p className="text-sm text-[#888888]">Inscription Club</p>
               <p className="mt-1 font-medium">Pilote ton activité en temps réel</p>
             </Link>
           </div>
           <div className="mt-3">
-            <Link href="/register?role=female_vip" className="nt-card block p-4">
+            <Link href="/register?role=female_vip" className="nt-card block min-h-11 p-4 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]">
               <p className="text-sm text-[#888888]">Inscription Femme VIP</p>
               <p className="mt-1 font-medium">Rejoins le parcours VIP validé par les clubs</p>
             </Link>
@@ -100,7 +107,7 @@ export default function LoginPage() {
               />
             </div>
 
-            <button type="submit" className="nt-btn nt-btn-primary w-full px-4 py-2 disabled:opacity-70" disabled={isPending}>
+            <button type="submit" className="nt-btn nt-btn-primary min-h-11 w-full px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-70" disabled={isPending}>
               {isPending ? "Connexion en cours..." : "Se connecter"}
             </button>
           </form>

@@ -1,3 +1,8 @@
+// Component: PublicEventPage
+// Reference: component.gallery/components/card
+// Inspired by: IBM Carbon Design System pattern
+// NightTable usage: public event detail and table booking entry
+
 import { notFound } from "next/navigation";
 import EventBookingClient from "./eventBookingClient";
 import { createClient } from "@/lib/supabase/server";
