@@ -192,6 +192,12 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Clés Stripe test locales resynchronisées depuis Stripe CLI dans `.env.local` (`sk_test` + `pk_test`).
 - Validation post-fix exécutée: `npm run healthcheck:env` ✅ (checks Stripe/Supabase tous verts).
 
+### 2026-03-01 (durcissement idempotence webhook concurrence)
+
+- Correction d’un cas de concurrence sur `stripe_webhook_events`: les doublons `event_id` renvoyaient `500`.
+- Route webhook patchée pour traiter `23505` en réponse idempotente `200` (`Already processing`).
+- Validation post-correctif exécutée: `npm run lint` ✅, `npm run build` ✅.
+
 ### 2026-02-28
 
 - Sauvegarde des docs sources (.docx + .txt) dans le repo.

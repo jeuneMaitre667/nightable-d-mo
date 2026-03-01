@@ -101,3 +101,12 @@
 - Fix applied: Synchronisation des clés Stripe test depuis la config Stripe CLI, puis revalidation `npm run healthcheck:env` en vert.
 - Status: ✅ Resolved
 ---
+
+---
+**[2026-03-01] — Webhook Stripe: doublons `event_id` retournaient 500**
+- File(s) affected: `src/app/api/webhooks/stripe/route.ts`
+- Error: Concurrence webhook sur le même event provoquait `duplicate key value` (`23505`) et réponse `500`.
+- Root cause: Fenêtre de course entre `select maybeSingle` et `insert` sans gestion explicite du conflit unique.
+- Fix applied: Gestion spécifique du code `23505` avec réponse idempotente `200` (`Already processing`) au lieu d’erreur serveur.
+- Status: ✅ Resolved
+---

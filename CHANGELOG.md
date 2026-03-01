@@ -158,6 +158,8 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - ajout de `healthcheck:env` pour diagnostic standardisé Supabase/Stripe.
 - Environnement local Stripe aligné:
   - resynchronisation des clés test (`STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`) dans `.env.local` et validation healthcheck.
+- Webhook Stripe fiabilisé sur concurrence:
+  - gestion du conflit unique `event_id` (`23505`) en réponse idempotente `200` au lieu de `500`.
 
 ### Fixed
 

@@ -346,6 +346,10 @@ export async function POST(req: Request) {
     });
 
     if (insertEventError) {
+      if (insertEventError.code === "23505") {
+        return new Response("Already processing", { status: 200 });
+      }
+
       console.error("[stripe-webhook] insert stripe_webhook_events failed", insertEventError);
       return new Response("Webhook persistence error", { status: 500 });
     }
