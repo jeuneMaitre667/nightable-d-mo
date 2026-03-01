@@ -50,7 +50,7 @@ export async function proxy(request: NextRequest) {
       .from("profiles")
       .select("role")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     return NextResponse.redirect(
       new URL(getDashboardPathByRole(normalizeRole(profile?.role)), request.url)
@@ -62,7 +62,7 @@ export async function proxy(request: NextRequest) {
       .from("profiles")
       .select("role")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     const role = normalizeRole(profile?.role);
     const allowedPrefixes = getAllowedDashboardPrefixes(role);
