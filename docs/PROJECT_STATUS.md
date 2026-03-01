@@ -31,6 +31,7 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 ## Fait
 
 - Refonte UI cohérente (Dashboard/Public/Auth + FloorPlan): headers composants, palette NightTable, états interactifs et a11y harmonisés sur le périmètre TSX prioritaire.
+- Ajout des règles “Token Optimization Rules — MANDATORY” dans `.github/copilot-instructions.md` (sélection modèle, discipline prompt, #file, hygiène de contexte, templates).
 
 ### Documentation
 
@@ -156,6 +157,22 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Dashboard promoteur branché sur données réelles (CA mois, clients confirmés, pending commissions, total versé, historique commissions, lien promo copy/share + conversion).
 - Migration `supabase/migrations/009_commissions_amount_rate.sql` ajoutée pour champs `amount`/`rate` compatibles reporting.
 - Validation finale exécutée: `npm run lint` ✅, `npm run build` ✅.
+
+### 2026-03-01 (gouvernance prompts & optimisation tokens)
+
+- Mise à jour de `.github/copilot-instructions.md` avec un bloc dédié à l’optimisation tokens et à la discipline de prompting.
+- Ajout des règles de sélection de modèles, chargement ciblé `#file:*`, et templates standardisés par type de tâche.
+
+### 2026-03-01 (correction diagnostics copilot-instructions)
+
+- Correction de 14 diagnostics VS Code dans `.github/copilot-instructions.md` liés aux références `#file:*`.
+- Alignement des chemins vers des fichiers existants du repo et validation finale sans erreur.
+
+### 2026-03-01 (correction finale 7 diagnostics markdown)
+
+- Résolution de 7 faux positifs restants dans `.github/copilot-instructions.md`.
+- Ajustement du pattern de référence `#file:` vers `# file:` pour éviter l’auto-résolution en chemins cassés.
+- Nettoyage des alias temporaires `.github/BUSINESS_RULES.md`, `.github/DESIGN_SYSTEM.md`, `.github/ARCHITECTURE.md`.
 
 ### 2026-02-28
 

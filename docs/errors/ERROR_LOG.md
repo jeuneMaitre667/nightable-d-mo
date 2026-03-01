@@ -29,3 +29,39 @@
 - Fix applied: Validation promo + cookie 48h, attribution post-réservation non bloquante, création commission au webhook avec fallback non bloquant, dashboard promoteur branché en données réelles.
 - Status: ✅ Resolved
 ---
+
+---
+**[2026-03-01] — Règles d’optimisation tokens manquantes dans Copilot Instructions**
+- File(s) affected: `.github/copilot-instructions.md`
+- Error: Absence de directives explicites sur sélection de modèle, discipline de prompt et hygiène de contexte.
+- Root cause: Gouvernance IA initiale focalisée sur qualité code/UI sans bloc dédié à l’optimisation de consommation tokens.
+- Fix applied: Ajout de la section “Token Optimization Rules — MANDATORY” (model selection, #file usage, inline vs chat, templates de prompt).
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-01] — 14 diagnostics fichiers introuvables dans copilot-instructions**
+- File(s) affected: `.github/copilot-instructions.md`
+- Error: Diagnostics VS Code “File not found” sur les directives `#file:*`.
+- Root cause: Références `#file` pointant vers des chemins/nommage invalides depuis le dossier `.github`.
+- Fix applied: Correction des chemins vers des cibles existantes (`../BUSINESS_RULES.md`, `../DESIGN_SYSTEM.md`, `../ARCHITECTURE.md`, `copilot-instructions.md`).
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-01] — 7 diagnostics persistants sur pattern #file dans markdown**
+- File(s) affected: `.github/copilot-instructions.md`
+- Error: Le validateur markdown interprétait `#file:` comme chemin fichier, générant 7 faux positifs “File not found”.
+- Root cause: Pattern `#file:` auto-résolu par l’éditeur malgré les ajustements de chemins.
+- Fix applied: Remplacement du pattern par `# file:` dans la section d’optimisation tokens et les templates.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-01] — Nettoyage fichiers alias temporaires**
+- File(s) affected: `.github/BUSINESS_RULES.md`, `.github/DESIGN_SYSTEM.md`, `.github/ARCHITECTURE.md`
+- Error: Fichiers alias créés uniquement pour diagnostic intermédiaire, non nécessaires après fix final.
+- Root cause: Tentative de contournement temporaire avant identification de la cause racine markdown.
+- Fix applied: Suppression des fichiers alias pour garder un repo propre.
+- Status: ✅ Resolved
+---

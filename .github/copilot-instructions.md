@@ -550,3 +550,66 @@ tooltip on hover: dark card with name, capacity, price
 mode booking: only 'available' tables are clickable
 mode edit: drag & drop enabled, callback onPositionChange
 ```
+
+---
+
+## Token Optimization Rules — MANDATORY
+
+### Model selection
+Use the right model for each task — never default to the most powerful:
+
+- GPT-4o        → generate full components, Server Actions, debug standard bugs
+- GPT-4o mini   → rename, reformat, small fixes, simple questions
+- Claude Sonnet → complex bugs, full feature architecture, deep reasoning
+- o1            → last resort only — logic bugs in pricing, commissions, algorithms
+
+### Prompt discipline
+- Always target a single file or function per prompt — never ask to
+  regenerate multiple files at once
+- Always specify the exact file path and line number when fixing a bug:
+  "Dans src/lib/reservation.actions.ts ligne 67, corrige uniquement..."
+- Never use vague prompts: "refais le dashboard", "améliore le code"
+- Always describe the expected behavior AND the observed behavior when debugging
+
+### # file: usage — load only what is strictly necessary
+- # file:BUSINESS_RULES.md     → business logic, commissions, pricing, roles
+- # file:DESIGN_SYSTEM.md      → any UI component creation or modification
+- # file:ARCHITECTURE.md       → new file creation, folder structure questions
+- # file:copilot-instructions.md → only if rules themselves are in question
+- Never load all 4 files at once unless the task genuinely requires all of them
+
+### Context hygiene
+- Close all VSCode tabs not related to the current task before prompting
+  (Copilot reads all open tabs as context)
+- When working on a module, keep open only:
+  the target file + its direct dependencies + the relevant .md rule file
+
+### Inline vs Chat
+- Use inline autocompletion (Ctrl+I / Cmd+I on selection) for:
+  renaming, reformatting, completing a started function, small corrections
+- Use Chat only for:
+  generating full files, debugging, architectural questions
+- Inline consumes far fewer tokens than Chat — default to inline first
+
+### Prompt templates by task type
+
+Bug fix:
+"Dans [filepath] ligne [N], [observed behavior] au lieu de [expected behavior].
+Corrige uniquement cette fonction en respectant les règles du projet."
+
+New component:
+"# file:DESIGN_SYSTEM.md
+Crée [ComponentName] dans [filepath].
+Usage: [where it is used].
+Props: [list].
+Variants: [list]."
+
+New Server Action:
+"# file:BUSINESS_RULES.md
+Crée [actionName] dans [filepath].
+Règles métier à respecter: [specific rules from BUSINESS_RULES.md].
+Retourne { success, data, error }."
+
+Architecture question:
+"# file:ARCHITECTURE.md
+[Question précise sur la structure ou l'organisation du code]"

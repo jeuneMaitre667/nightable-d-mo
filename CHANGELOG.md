@@ -130,6 +130,14 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - `src/app/(auth)/register/page.tsx`
 - Gouvernance UI renforcée dans `.github/copilot-instructions.md`:
   - ajout du bloc “Component Development Rules — MANDATORY” (références design, a11y, tokens, checklist).
+- Gouvernance prompts/tokens renforcée dans `.github/copilot-instructions.md`:
+  - ajout du bloc “Token Optimization Rules — MANDATORY” (sélection modèle, discipline de prompt, usage `#file:*`, hygiène de contexte, templates).
+- Références `#file:*` corrigées dans `.github/copilot-instructions.md`:
+  - chemins ajustés vers des fichiers existants pour supprimer les diagnostics “File not found” dans l’éditeur.
+- Réduction des faux positifs markdown dans `.github/copilot-instructions.md`:
+  - remplacement du pattern `#file:` par `# file:` pour neutraliser les 7 diagnostics restants.
+- Nettoyage post-correctif:
+  - suppression des fichiers alias temporaires `.github/BUSINESS_RULES.md`, `.github/DESIGN_SYSTEM.md`, `.github/ARCHITECTURE.md`.
 - Tracking promo public renforcé dans `src/app/(public)/reserve/page.tsx`:
   - validation `promo_code` + persistance cookie `nighttable_promo` (48h).
 - Attribution promoteur post-réservation dans `src/lib/reservation.actions.ts`:
