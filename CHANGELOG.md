@@ -6,6 +6,15 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Added
 
+- Script de seed démo complet: `scripts/seed-demo-data.mjs` (users/profiles/events/tables/event_tables/reservations/waitlist/commissions/guest_lists).
+- Commande npm `seed:demo` dans `package.json`.
+- Note de release prête pour tag MVP: `docs/v0.3-mvp-complete.md`.
+
+- Page guest list promoteur: `src/app/(dashboard)/promoter/guestlist/page.tsx` + `src/app/(dashboard)/promoter/guestlist/GuestListClient.tsx` avec événements futurs, compteurs live et arrivée optimiste.
+- Page gestion promoteurs club: `src/app/(dashboard)/club/promoters/page.tsx` + modal `src/app/(dashboard)/club/promoters/AddPromoterModal.tsx` avec création promoteur et slider de commission.
+- Pages dashboard client complètes: `src/app/(dashboard)/client/page.tsx`, `src/app/(dashboard)/client/reservations/page.tsx`, `src/app/(dashboard)/client/waitlist/page.tsx`.
+- Alias routes dashboard ajoutées: `src/app/(dashboard)/dashboard/promoter/guestlist/page.tsx`, `src/app/(dashboard)/dashboard/club/promoters/page.tsx`, `src/app/(dashboard)/dashboard/client/reservations/page.tsx`, `src/app/(dashboard)/dashboard/client/waitlist/page.tsx`.
+
 - UI component headers ajoutés sur l’ensemble du scope TSX demandé (`src/components/floor-plan`, `src/app/(dashboard)`, `src/app/(public)`, `src/app/(auth)`) pour alignement avec les règles Component Development.
 
 - Section "Repository" dans `README.md` avec liens GitHub directs (repo, issues, releases, tags).
@@ -81,6 +90,15 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - `supabase/migrations/010_stripe_webhook_events.sql`
 
 ### Changed
+
+- Landing publique finalisée dans `src/app/page.tsx` avec metadata SEO, design NightTable et intégration `next/image`.
+- `next.config.ts`: ajout de `images.remotePatterns` pour `images.unsplash.com`.
+- `scripts/seed-demo-data.mjs`: adaptation au schéma Supabase déployé (fallback sans `ON CONFLICT`, suppression colonnes non disponibles, messages d’erreur explicites).
+- `src/lib/promoter.actions.ts`: correction du typage du client Supabase admin (`SupabaseClient`) pour éviter l’inférence `never` au build.
+
+- `src/lib/promoter.actions.ts`: extension complète des actions promoteur/club (`addGuestListEntryAction`, `markGuestArrivedAction`, `createPromoterAction`, `validateCommissionAction`) avec validation Zod, contrôle rôle et revalidation ciblée.
+- `src/lib/reservation.actions.ts`: ajout des actions client `cancelReservationAction` et `leaveWaitlistAction` avec vérification ownership et règles métier d’éligibilité.
+- `src/app/(dashboard)/dashboard/client/page.tsx`: conversion en alias vers la nouvelle home client.
 
 - Refonte visuelle cohérente Dashboard/Public/Auth: remplacement des styles Tailwind par défaut par la palette NightTable et harmonisation des classes d’interaction/focus.
 - Composants réutilisables (`FloorPlan`, `RefreshButton`, `CheckoutClient`, `EventBookingClient`, `TablesClient`) durcis avec props typées strictes, `className?: string` et documentation JSDoc.
@@ -162,6 +180,16 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - gestion du conflit unique `event_id` (`23505`) en réponse idempotente `200` au lieu de `500`.
 
 ### Fixed
+
+- Compatibilité build Next des formulaires server actions sur pages dashboard:
+  - `src/app/(dashboard)/club/promoters/page.tsx`
+  - `src/app/(dashboard)/client/reservations/page.tsx`
+  - `src/app/(dashboard)/client/waitlist/page.tsx`
+  via wrappers `Promise<void>` pour `form action`.
+- Correction TypeScript dans `src/app/(dashboard)/promoter/guestlist/GuestListClient.tsx` sur le narrowing de `result.data`.
+- Correction metadata OpenGraph dans `src/app/page.tsx` (`images` au lieu de `image`).
+
+- `src/app/(dashboard)/client/reservations/page.tsx`: correction lint `react-hooks/purity` en supprimant l’usage direct de `Date.now` pendant le rendu.
 
 - Incohérences d’accessibilité et d’ergonomie interactive (focus ring, disabled states, cibles minimales) corrigées sur les actions critiques du scope UI.
 

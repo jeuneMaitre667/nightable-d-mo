@@ -25,8 +25,8 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## Vue synthèse
 
-- Progression MVP (estimation): 62%
-- Axe prioritaire actuel: valider clé Stripe locale puis exécuter runbook E2E complet
+- Progression MVP (estimation): 80%
+- Axe prioritaire actuel: tagger et publier `v0.3-mvp-complete`
 
 ## Fait
 
@@ -36,6 +36,32 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Stabilisation du run local: script `npm run dev` fiabilisé avec pré-nettoyage lock/ports (`dev:clean`).
 - Idempotence webhook Stripe implémentée via journal d’événements persisté (`stripe_webhook_events`).
 - Script de diagnostic environnement ajouté: `npm run healthcheck:env`.
+- Module promoteur complété côté guest list:
+  - page `src/app/(dashboard)/promoter/guestlist/page.tsx` (sélecteur événements à venir, liste statuts, ajout invité, compteur live, arrivée optimiste),
+  - alias dashboard `src/app/(dashboard)/dashboard/promoter/guestlist/page.tsx`,
+  - server actions dédiées dans `src/lib/promoter.actions.ts`.
+- Gestion promoteurs club ajoutée:
+  - page `src/app/(dashboard)/club/promoters/page.tsx`,
+  - modal d’ajout `src/app/(dashboard)/club/promoters/AddPromoterModal.tsx` (commission 5–15%),
+  - actions `createPromoterAction` et `validateCommissionAction` (création compte, promo code unique, email de bienvenue, validation commissions),
+  - alias dashboard `src/app/(dashboard)/dashboard/club/promoters/page.tsx`.
+- Dashboard client complété:
+  - home `src/app/(dashboard)/client/page.tsx` (score, prochaine réservation, raccourcis),
+  - réservations `src/app/(dashboard)/client/reservations/page.tsx` (revendre/annuler conditionnel),
+  - waitlist `src/app/(dashboard)/client/waitlist/page.tsx` (liste active + quitter),
+  - alias dashboard `src/app/(dashboard)/dashboard/client/*`.
+- Actions client ajoutées dans `src/lib/reservation.actions.ts`:
+  - `cancelReservationAction` (règle >48h + ownership),
+  - `leaveWaitlistAction` (ownership + statut),
+  - revalidation des routes client/dashboard.
+- Landing page publique finalisée:
+  - refonte `src/app/page.tsx` (design dark luxury NightTable, metadata SEO, `next/image`),
+  - support images externes Unsplash dans `next.config.ts`.
+- Seed Supabase démo implémenté et exécuté:
+  - script `scripts/seed-demo-data.mjs` + commande `npm run seed:demo`,
+  - provisioning comptes démo (club/promoteurs/clients/vip), événements/tables, réservations, waitlist, commissions, guest list.
+- Note de release prête pour tag:
+  - `docs/v0.3-mvp-complete.md`.
 
 ### Documentation
 
@@ -73,13 +99,14 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## En cours
 
-- Formalisation du runbook E2E local (ordre des commandes et critères de succès).
+- Préparation du commit/tag de release `v0.3-mvp-complete`.
 
 ## À faire (priorité)
 
 ### P0 — Critique MVP
 
 - Exécuter un runbook E2E local complet (checkout Stripe Elements + webhook + statut réservation).
+- Publier le tag de fin MVP `v0.3-mvp-complete` après validation finale.
 
 ### P1 — Important après P0
 
@@ -103,6 +130,23 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Risque dérive de scope si P1/P2 démarrés avant clôture P0.
 
 ## Journal de sessions
+
+### 2026-03-01 (landing finale + seed démo + release prep)
+
+- Landing publique finalisée (`src/app/page.tsx`) avec styles NightTable, CTA propres, metadata SEO et cartes événements via `next/image`.
+- Configuration Next mise à jour pour images externes (`next.config.ts` → `images.remotePatterns` Unsplash).
+- Script `npm run seed:demo` créé et validé en exécution réelle (comptes démo + données métier complètes pour dashboard/promoteur/client).
+- Correction de compatibilité schéma déployé dans le seed (colonnes absentes + contrainte `ON CONFLICT` non disponible) et correction typage Supabase admin dans `src/lib/promoter.actions.ts`.
+- Note de version préparée pour `v0.3-mvp-complete` (`docs/v0.3-mvp-complete.md`).
+- Validations exécutées: `npm run seed:demo` ✅, `npm run lint` ✅, `npm run build` ✅.
+
+### 2026-03-01 (module promoteur + dashboard client)
+
+- Prompt 1 implémenté: page Guest List promoteur avec événements futurs, ajout invité (prénom/nom/téléphone), statuts et arrivée optimiste + compteurs live.
+- Prompt 2 implémenté: page gestion promoteurs club avec classement, top 5 mensuel, commissions en attente et modal de création promoteur (commission slider 5–15%).
+- Prompt 3 implémenté: dashboard client complet (home score + prochaine réservation, page réservations avec conditions revendre/annuler, page waitlist avec action quitter).
+- Ajout des server actions associées (`promoter.actions.ts`, `reservation.actions.ts`) avec validations Zod, contrôles auth/ownership et revalidatePath.
+- Validation exécutée: `npm run lint` ✅.
 
 ### 2026-03-01 (booking/checkout/webhook)
 

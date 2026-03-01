@@ -1,4 +1,21 @@
+import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Réserver une table VIP à Paris | NightTable",
+  description:
+    "NightTable centralise réservation tables VIP, paiement sécurisé, gestion club et performance promoteurs.",
+  openGraph: {
+    title: "NightTable Paris",
+    description:
+      "Plateforme premium de réservation de tables VIP pour clubs à Paris.",
+    images: [
+      "https://images.unsplash.com/photo-1574391884720-bbc7d4f6f444?auto=format&fit=crop&w=1600&q=80",
+    ],
+    type: "website",
+  },
+};
 
 const featuredEvents = [
   {
@@ -38,37 +55,47 @@ const valuePillars = [
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-zinc-900 text-white">
+    <main className="min-h-screen bg-[#050508] text-[#F7F6F3]">
       <section className="mx-auto max-w-7xl px-6 py-14 md:py-20">
-        <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-900 to-violet-950/60 p-7 md:p-10">
-          <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">NightTable · Paris</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-bold md:text-6xl">
+        <div className="overflow-hidden rounded-3xl border border-[#C9973A]/20 bg-gradient-to-br from-[#0A0F2E] via-[#12172B] to-[#0A0F2E] p-7 md:p-10">
+          <p className="text-xs uppercase tracking-[0.22em] text-[#888888]">NightTable · Paris</p>
+          <h1 className="mt-4 max-w-4xl text-4xl font-semibold text-[#F7F6F3] md:text-6xl">
             Le standard premium pour réserver une table VIP en club.
           </h1>
-          <p className="mt-5 max-w-3xl text-zinc-300 md:text-lg">
+          <p className="mt-5 max-w-3xl text-[#888888] md:text-lg">
             NightTable connecte clients, clubs, promoteurs et parcours VIP dans une seule plateforme:
             découverte événements, paiement sécurisé, opérations club et performance commerciale.
           </p>
+
           <div className="mt-8 flex flex-wrap gap-3 text-sm">
             {valuePillars.map((item) => (
-              <span key={item} className="rounded-full border border-zinc-700 bg-zinc-900/70 px-3 py-1.5 text-zinc-200">
+              <span
+                key={item}
+                className="rounded-full border border-[#C9973A]/20 bg-[#050508]/70 px-3 py-1.5 text-[#F7F6F3]"
+              >
                 {item}
               </span>
             ))}
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link className="rounded-md bg-white px-5 py-3 text-black" href="/register">
+            <Link
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-[#C9973A] px-5 py-3 text-sm font-semibold text-[#050508] transition-all duration-200 ease-in-out hover:brightness-110"
+              href="/register"
+            >
               Créer un compte
             </Link>
-            <Link className="rounded-md border border-zinc-700 px-5 py-3" href="/login">
+            <Link
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#C9973A]/40 px-5 py-3 text-sm text-[#C9973A] transition-all duration-200 ease-in-out hover:bg-[#C9973A]/10"
+              href="/login"
+            >
               Connexion
             </Link>
-            <Link className="rounded-md border border-zinc-700 px-5 py-3" href="/demo">
+            <Link
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#C9973A]/20 px-5 py-3 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out hover:border-[#C9973A]/40"
+              href="/demo"
+            >
               Voir la démo complète
-            </Link>
-            <Link className="rounded-md border border-zinc-700 px-5 py-3" href="/final-pages">
-              Voir toutes les pages finales
             </Link>
           </div>
         </div>
@@ -76,9 +103,9 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-7xl px-6 pb-16">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">Événements en avant</h2>
-          <Link href="/demo" className="text-sm text-zinc-300 underline">
-            Voir tous les événements
+          <h2 className="text-2xl font-semibold text-[#F7F6F3]">Événements en avant</h2>
+          <Link href="/clubs" className="text-sm text-[#C9973A] underline underline-offset-4">
+            Voir les clubs
           </Link>
         </div>
 
@@ -86,18 +113,22 @@ export default function HomePage() {
           {featuredEvents.map((event) => (
             <article
               key={event.title}
-              className="relative min-h-72 overflow-hidden rounded-2xl border border-zinc-800"
-              style={{
-                backgroundImage: `linear-gradient(to top, rgba(9,9,11,0.88), rgba(9,9,11,0.22)), url(${event.image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
+              className="relative min-h-80 overflow-hidden rounded-2xl border border-[#C9973A]/15"
             >
+              <Image
+                src={event.image}
+                alt={`${event.title} au ${event.club}`}
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 33vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/55 to-transparent" />
               <div className="absolute bottom-0 p-4">
-                <p className="text-sm text-zinc-300">{event.club}</p>
-                <h3 className="text-xl font-semibold">{event.title}</h3>
-                <p className="mt-1 text-sm text-zinc-200">{event.date}</p>
-                <p className="mt-2 inline-block rounded-md border border-zinc-700 bg-zinc-950/70 px-2 py-1 text-sm">
+                <p className="text-sm text-[#888888]">{event.club}</p>
+                <h3 className="text-xl font-semibold text-[#F7F6F3]">{event.title}</h3>
+                <p className="mt-1 text-sm text-[#F7F6F3]">{event.date}</p>
+                <p className="mt-2 inline-block rounded-md border border-[#C9973A]/20 bg-[#050508]/75 px-2 py-1 text-sm text-[#C9973A]">
                   {event.price}
                 </p>
               </div>
@@ -107,24 +138,30 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-4 px-6 pb-20 md:grid-cols-2">
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">Pour les clubs</p>
-          <h3 className="mt-2 text-2xl font-semibold">Pilote ton opérationnel de soirée</h3>
-          <p className="mt-2 text-zinc-300">
+        <div className="rounded-2xl border border-[#C9973A]/15 bg-[#12172B] p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-[#888888]">Pour les clubs</p>
+          <h3 className="mt-2 text-2xl font-semibold text-[#F7F6F3]">Pilote ton opérationnel de soirée</h3>
+          <p className="mt-2 text-[#888888]">
             Gère événements, tables, réservations, promoteurs et performance dans un seul cockpit.
           </p>
-          <Link href="/dashboard/club" className="mt-4 inline-block rounded-md border border-zinc-700 px-4 py-2 text-sm">
+          <Link
+            href="/dashboard/club"
+            className="mt-4 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#C9973A]/40 px-4 py-2 text-sm font-semibold text-[#C9973A] transition-all duration-200 ease-in-out hover:bg-[#C9973A]/10"
+          >
             Explorer le dashboard club
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">Pour les clients</p>
-          <h3 className="mt-2 text-2xl font-semibold">Réserve vite, vis une expérience premium</h3>
-          <p className="mt-2 text-zinc-300">
+        <div className="rounded-2xl border border-[#C9973A]/15 bg-[#12172B] p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-[#888888]">Pour les clients</p>
+          <h3 className="mt-2 text-2xl font-semibold text-[#F7F6F3]">Réserve vite, vis une expérience premium</h3>
+          <p className="mt-2 text-[#888888]">
             Découvre les meilleures nuits parisiennes, sécurise ta table et partage ton expérience.
           </p>
-          <Link href="/dashboard/client" className="mt-4 inline-block rounded-md border border-zinc-700 px-4 py-2 text-sm">
+          <Link
+            href="/dashboard/client"
+            className="mt-4 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-[#C9973A] px-4 py-2 text-sm font-semibold text-[#050508] transition-all duration-200 ease-in-out hover:brightness-110"
+          >
             Voir l’expérience client
           </Link>
         </div>

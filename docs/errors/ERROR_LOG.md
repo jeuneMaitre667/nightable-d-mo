@@ -110,3 +110,21 @@
 - Fix applied: Gestion spécifique du code `23505` avec réponse idempotente `200` (`Already processing`) au lieu d’erreur serveur.
 - Status: ✅ Resolved
 ---
+
+---
+**[2026-03-01] — Module promoteur/client incomplet sur dashboards dédiés**
+- File(s) affected: `src/lib/promoter.actions.ts`, `src/lib/reservation.actions.ts`, `src/app/(dashboard)/promoter/guestlist/page.tsx`, `src/app/(dashboard)/club/promoters/page.tsx`, `src/app/(dashboard)/client/*`
+- Error: Les parcours MVP demandés (guest list promoteur, gestion promoteurs club, dashboard client/réservations/waitlist) n’étaient pas implémentés et un lint bloquait sur usage impur du temps courant en rendu.
+- Root cause: Couverture fonctionnelle partielle des dashboards rôle-spécifiques et absence d’actions serveur dédiées pour annulation réservation/sortie waitlist/validation commissions.
+- Fix applied: Ajout des nouvelles pages et alias `/dashboard/*`, création des server actions manquantes (guest list, création promoteur, validation commission, annulation réservation, sortie waitlist), et correction lint de pureté sur la page réservations.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-01] — Seed démo bloqué par dérive de schéma Supabase déployé**
+- File(s) affected: `scripts/seed-demo-data.mjs`, `src/lib/promoter.actions.ts`
+- Error: Le seed échouait successivement sur colonnes absentes (`tables.height`, `tables.shape`, `tables.x_position`, `events.notoriety`) et contrainte `ON CONFLICT` manquante.
+- Root cause: Écart entre migrations locales et schéma réellement déployé + typage Supabase admin trop strict (`never`) dans `createPromoterAction`.
+- Fix applied: Script seed rendu compatible schéma déployé (payload minimal + sync manuel des tables sans `ON CONFLICT`), ajout de diagnostics d’erreur explicites, correction du typage `SupabaseClient` côté actions promoteur.
+- Status: ✅ Resolved
+---

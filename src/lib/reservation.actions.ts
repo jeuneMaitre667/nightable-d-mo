@@ -2,6 +2,7 @@
 
 import { randomUUID } from "crypto";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { normalizeRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -29,6 +30,14 @@ const createReservationSchema = z.object({
   phone: z.string().trim().min(6).max(30),
   includeInsurance: z.boolean(),
   specialRequests: z.string().trim().max(500).optional(),
+});
+
+const cancelReservationSchema = z.object({
+  reservationId: z.string().uuid(),
+});
+
+const leaveWaitlistSchema = z.object({
+  waitlistId: z.string().uuid(),
 });
 
 type ReservationContext = {
@@ -253,5 +262,149 @@ export async function createReservationAction(
     };
   } catch {
     return { success: false, error: "Une erreur est survenue. Merci de réessayer." };
+  }
+}
+
+export async function cancelReservationAction(
+  formData: FormData
+): Promise<ActionResult<{ reservationId: string }>> {
+  try {
+    const parsed = cancelReservationSchema.safeParse({
+      reservationId: formData.get("reservation_id"),
+    });
+
+    if (!parsed.success) {
+      return { success: false, error: "Réservation invalide." };
+    }
+
+    const contextResult = await getReservationContext();
+    if (!contextResult.success || !contextResult.data) {
+      return { success: false, error: contextResult.error ?? "Action non autorisée." };
+    }
+
+    const supabase = await createClient();
+    const { data: reservation, error: reservationError } = await supabase
+      .from("reservations")
+      .select("id, client_id, status, event_starts_at")
+      .eq("id", parsed.data.reservationId)
+      .maybeSingle();
+
+    if (reservationError || !reservation) {
+      return { success: false, error: "Réservation introuvable." };
+    }
+
+    if (reservation.client_id !== contextResult.data.userId) {
+      return { success: false, error: "Action non autorisée." };
+    }
+
+    const cancellableStatuses = new Set(["confirmed", "reserved", "payment_pending"]);
+    if (!cancellableStatuses.has(reservation.status)) {
+      return { success: false, error: "Cette réservation ne peut plus être annulée." };
+    }
+
+    const eventStartTime = new Date(reservation.event_starts_at).getTime();
+    const cancellationDeadline = Date.now() + 48 * 60 * 60 * 1000;
+    if (eventStartTime <= cancellationDeadline) {
+      return { success: false, error: "Annulation indisponible à moins de 48h de l’événement." };
+    }
+
+    const { error: updateError } = await supabase
+      .from("reservations")
+      .update({
+        status: "cancelled",
+        cancelled_at: new Date().toISOString(),
+        cancellation_reason: "client_cancelled",
+      })
+      .eq("id", reservation.id)
+      .eq("client_id", contextResult.data.userId);
+
+    if (updateError) {
+      return { success: false, error: "Impossible d’annuler la réservation." };
+    }
+
+    revalidatePath("/client");
+    revalidatePath("/client/reservations");
+    revalidatePath("/dashboard/client");
+    revalidatePath("/dashboard/client/reservations");
+
+    return {
+      success: true,
+      data: {
+        reservationId: reservation.id,
+      },
+    };
+  } catch (error) {
+    console.error("[cancelReservationAction]", error);
+    return { success: false, error: "Une erreur inattendue est survenue." };
+  }
+}
+
+export async function leaveWaitlistAction(
+  formData: FormData
+): Promise<ActionResult<{ waitlistId: string }>> {
+  try {
+    const parsed = leaveWaitlistSchema.safeParse({
+      waitlistId: formData.get("waitlist_id"),
+    });
+
+    if (!parsed.success) {
+      return { success: false, error: "Entrée waitlist invalide." };
+    }
+
+    const contextResult = await getReservationContext();
+    if (!contextResult.success || !contextResult.data) {
+      return { success: false, error: contextResult.error ?? "Action non autorisée." };
+    }
+
+    const supabase = await createClient();
+    const { data: waitlistEntry, error: waitlistError } = await supabase
+      .from("waitlist")
+      .select("id, client_id, status")
+      .eq("id", parsed.data.waitlistId)
+      .maybeSingle();
+
+    if (waitlistError || !waitlistEntry) {
+      return { success: false, error: "Entrée waitlist introuvable." };
+    }
+
+    if (waitlistEntry.client_id !== contextResult.data.userId) {
+      return { success: false, error: "Action non autorisée." };
+    }
+
+    if (waitlistEntry.status === "cancelled") {
+      return {
+        success: true,
+        data: {
+          waitlistId: waitlistEntry.id,
+        },
+      };
+    }
+
+    const { error: updateError } = await supabase
+      .from("waitlist")
+      .update({
+        status: "cancelled",
+      })
+      .eq("id", waitlistEntry.id)
+      .eq("client_id", contextResult.data.userId);
+
+    if (updateError) {
+      return { success: false, error: "Impossible de quitter la waitlist." };
+    }
+
+    revalidatePath("/client");
+    revalidatePath("/client/waitlist");
+    revalidatePath("/dashboard/client");
+    revalidatePath("/dashboard/client/waitlist");
+
+    return {
+      success: true,
+      data: {
+        waitlistId: waitlistEntry.id,
+      },
+    };
+  } catch (error) {
+    console.error("[leaveWaitlistAction]", error);
+    return { success: false, error: "Une erreur inattendue est survenue." };
   }
 }
