@@ -4,6 +4,42 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ## Unreleased
 
+- Aucun changement non publié depuis `v0.3-mvp-complete`.
+
+## v0.3-mvp-complete - 2026-03-01
+
+### Added
+
+- Module promoteur complété: guest list dédiée, arrivée optimiste, compteurs live.
+- Module club promoteurs: création promoteur (code promo/taux commission/email), validation commissions, top 5 mensuel.
+- Dashboard client complet: home score/réservation, pages réservations et waitlist.
+- Seed démo exécutable: `npm run seed:demo` via `scripts/seed-demo-data.mjs`.
+- Note de release MVP: `docs/v0.3-mvp-complete.md`.
+
+### Changed
+
+- Landing publique finalisée (`src/app/page.tsx`) avec metadata SEO et intégration `next/image`.
+- Configuration images Next.js enrichie (`next.config.ts` + `images.remotePatterns`).
+- Actions serveur étendues (`src/lib/promoter.actions.ts`, `src/lib/reservation.actions.ts`) avec validations Zod et contrôles ownership/rôle.
+- Alias routes dashboard ajoutées pour cohérence `/dashboard/*`.
+
+### Fixed
+
+- Compatibilité build Next sur `form action` server actions (wrappers `Promise<void>`).
+- Correctifs TypeScript (`result.data` narrowing, OpenGraph `images`, typage `SupabaseClient` admin).
+- Compatibilité seed avec schéma Supabase réellement déployé (colonnes absentes/contraintes non disponibles).
+
+### Validation
+
+- `npm run seed:demo` ✅
+- `npm run lint` ✅
+- `npm run build` ✅
+
+### Git
+
+- Commit de release: `8a04f9d`
+- Tag annoté: `v0.3-mvp-complete`
+
 ### Added
 
 - Script de seed démo complet: `scripts/seed-demo-data.mjs` (users/profiles/events/tables/event_tables/reservations/waitlist/commissions/guest_lists).

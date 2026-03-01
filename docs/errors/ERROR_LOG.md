@@ -128,3 +128,12 @@
 - Fix applied: Script seed rendu compatible schéma déployé (payload minimal + sync manuel des tables sans `ON CONFLICT`), ajout de diagnostics d’erreur explicites, correction du typage `SupabaseClient` côté actions promoteur.
 - Status: ✅ Resolved
 ---
+
+---
+**[2026-03-01] — Publication GitHub Release bloquée (CLI absente)**
+- File(s) affected: `CHANGELOG.md`, `docs/PROJECT_STATUS.md`
+- Error: Commande `gh` indisponible (`CommandNotFoundException`) empêchant la création automatique de la release GitHub depuis le terminal.
+- Root cause: GitHub CLI non installée dans l’environnement local.
+- Fix applied: Publication du tag Git réussie, préparation documentaire complète de release (`v0.3-mvp-complete`) et fallback vers commande manuelle/API GitHub.
+- Status: ✅ Resolved
+---

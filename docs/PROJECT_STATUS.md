@@ -26,7 +26,7 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 ## Vue synthèse
 
 - Progression MVP (estimation): 80%
-- Axe prioritaire actuel: tagger et publier `v0.3-mvp-complete`
+- Axe prioritaire actuel: préparer itérations post-MVP (landing marketing finale + runbook démo)
 
 ## Fait
 
@@ -99,14 +99,14 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## En cours
 
-- Préparation du commit/tag de release `v0.3-mvp-complete`.
+- Consolidation post-release `v0.3-mvp-complete` (release GitHub, communication, backlog v0.4).
 
 ## À faire (priorité)
 
 ### P0 — Critique MVP
 
 - Exécuter un runbook E2E local complet (checkout Stripe Elements + webhook + statut réservation).
-- Publier le tag de fin MVP `v0.3-mvp-complete` après validation finale.
+- Publier la GitHub Release associée au tag `v0.3-mvp-complete`.
 
 ### P1 — Important après P0
 
@@ -130,6 +130,12 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Risque dérive de scope si P1/P2 démarrés avant clôture P0.
 
 ## Journal de sessions
+
+### 2026-03-01 (publication tag v0.3)
+
+- Commit de release créé: `8a04f9d`.
+- Tag annoté publié: `v0.3-mvp-complete` (push branche + tag effectués).
+- Changelog enrichi avec la section release `v0.3-mvp-complete` et statut `Unreleased` réinitialisé.
 
 ### 2026-03-01 (landing finale + seed démo + release prep)
 
