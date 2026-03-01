@@ -168,9 +168,10 @@ async function registerWithRole<T extends RegisterClientForm | RegisterClubForm 
 ): Promise<ActionResult<{ userId: string; role: UserRole; redirectTo: string }>> {
   try {
     const supabase = await createClient();
+    const normalizedEmail = payload.email.trim().toLowerCase();
 
     const { data, error } = await supabase.auth.signUp({
-      email: payload.email.trim().toLowerCase(),
+      email: normalizedEmail,
       password: payload.password,
       options: {
         emailRedirectTo: `${getAppUrl()}/api/auth/callback`,
@@ -185,7 +186,7 @@ async function registerWithRole<T extends RegisterClientForm | RegisterClubForm 
     const { error: profileError } = await supabase.from("profiles").upsert(
       {
         id: data.user.id,
-        email: payload.email.trim().toLowerCase(),
+        email: normalizedEmail,
         role,
       },
       { onConflict: "id" }
@@ -201,12 +202,41 @@ async function registerWithRole<T extends RegisterClientForm | RegisterClubForm 
       return { success: false, error: roleProfileResult.error };
     }
 
+    const dashboardPath = getDashboardPathByRole(role);
+
+    if (data.session) {
+      return {
+        success: true,
+        data: {
+          userId: data.user.id,
+          role,
+          redirectTo: dashboardPath,
+        },
+      };
+    }
+
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password: payload.password,
+    });
+
+    if (!signInError && signInData.user) {
+      return {
+        success: true,
+        data: {
+          userId: data.user.id,
+          role,
+          redirectTo: dashboardPath,
+        },
+      };
+    }
+
     return {
       success: true,
       data: {
         userId: data.user.id,
         role,
-        redirectTo: `/verify?email=${encodeURIComponent(payload.email.trim().toLowerCase())}`,
+        redirectTo: `/verify?email=${encodeURIComponent(normalizedEmail)}`,
       },
     };
   } catch {
