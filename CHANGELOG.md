@@ -22,6 +22,42 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 - Nouvelle page publique `clubs` (`src/app/(public)/clubs/page.tsx`).
 - Page `reserve` rendue opérationnelle côté UI (sélections + résumé dynamique via query params).
 - Correctif runtime `src/proxy.ts` pour éviter les erreurs 500 sur `/login` et `/register` quand les variables d’environnement Supabase sont absentes en local (fallback non bloquant hors `/dashboard`).
+- Base de connaissance des erreurs projet:
+  - `docs/errors/README.md`
+  - `docs/errors/ERROR_LOG.md`
+  - `docs/errors/templates/incident-template.md`
+  - `docs/errors/incidents/2026-03-01-next-middleware-proxy-conflict.md`
+  - `docs/errors/incidents/2026-03-01-supabase-signup-rate-limit.md`
+  - `docs/errors/incidents/2026-03-01-auth-signup-rls.md`
+- Dashboard Club — module événements:
+  - `src/app/(dashboard)/club/events/page.tsx`
+  - `src/app/(dashboard)/club/events/loading.tsx`
+  - `src/app/(dashboard)/club/events/error.tsx`
+  - `src/app/(dashboard)/club/events/new/page.tsx`
+- Dashboard Club — gestion des tables:
+  - `src/app/(dashboard)/club/tables/page.tsx`
+  - `src/app/(dashboard)/club/tables/tablesClient.tsx`
+- Dashboard Club — home "soirée du jour":
+  - `src/app/(dashboard)/club/page.tsx`
+  - `src/app/(dashboard)/club/refreshButton.tsx`
+- Composant plan de salle Konva:
+  - `src/components/floor-plan/FloorPlan.tsx`
+- Migration DB ajout de flags événements/tables:
+  - `supabase/migrations/007_club_event_table_flags.sql`
+
+### Changed
+
+- Refonte des actions club dans `src/lib/club.actions.ts`:
+  - validation Zod,
+  - retour normalisé `{ success, data, error }`,
+  - `createEventAction`, `createTableAction`, `updateTablePositionAction`.
+
+### Fixed
+
+- Auth signup stabilisé pour création des profils secondaires:
+  - migration RLS/trigger/backfill `supabase/migrations/006_auth_profile_policies_fix.sql`,
+  - durcissement `src/lib/auth.actions.ts` (session explicite, logs serveur détaillés, enrichissement non bloquant),
+  - redirections post-inscription validées (`client` vers `/dashboard/client`, `club` vers `/dashboard/club`).
 
 ## v0.1-docs - 2026-02-28
 
