@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getDashboardPathByRole, normalizeRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -68,13 +69,49 @@ function buildPromoCode(firstName: string, userId: string): string {
   return `${base}${suffix}`;
 }
 
+async function waitForOwnProfileRow(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  maxAttempts = 6,
+  delayMs = 150
+): Promise<boolean> {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (data?.id) {
+      return true;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  return false;
+}
+
 async function upsertRoleProfile(
   userId: string,
   role: UserRole,
   payload: RegisterClientForm | RegisterClubForm | RegisterPromoterForm | RegisterFemaleVipForm,
-  clubId?: string
+  clubId?: string,
+  accessToken?: string
 ): Promise<ActionResult<{ profileCreated: boolean }>> {
-  const supabase = await createClient();
+  const supabase = accessToken
+    ? createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+        {
+          global: {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          },
+        }
+      )
+    : await createClient();
 
   if (role === "client") {
     const clientPayload = payload as RegisterClientForm;
@@ -89,6 +126,12 @@ async function upsertRoleProfile(
     );
 
     if (error) {
+      console.error("[auth] client_profiles upsert failed", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       return { success: false, error: "Impossible de créer le profil client." };
     }
 
@@ -109,6 +152,12 @@ async function upsertRoleProfile(
     );
 
     if (error) {
+      console.error("[auth] club_profiles upsert failed", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       return { success: false, error: "Impossible de créer le profil club." };
     }
 
@@ -132,6 +181,12 @@ async function upsertRoleProfile(
     );
 
     if (error) {
+      console.error("[auth] promoter_profiles upsert failed", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       return { success: false, error: "Impossible de créer le profil promoteur." };
     }
 
@@ -152,6 +207,12 @@ async function upsertRoleProfile(
     );
 
     if (error) {
+      console.error("[auth] female_vip_profiles upsert failed", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       return { success: false, error: "Impossible de créer le profil Female VIP." };
     }
 
@@ -180,55 +241,89 @@ async function registerWithRole<T extends RegisterClientForm | RegisterClubForm 
     });
 
     if (error || !data.user) {
+      if (error) {
+        console.error("[auth] signUp failed", {
+          message: error.message,
+          code: error.code,
+          status: error.status,
+        });
+      }
       return { success: false, error: "Inscription impossible pour le moment." };
-    }
-
-    const { error: profileError } = await supabase.from("profiles").upsert(
-      {
-        id: data.user.id,
-        email: normalizedEmail,
-        role,
-      },
-      { onConflict: "id" }
-    );
-
-    if (profileError) {
-      return { success: false, error: "Impossible de créer le profil utilisateur." };
-    }
-
-    const roleProfileResult = await upsertRoleProfile(data.user.id, role, payload, clubId);
-
-    if (!roleProfileResult.success) {
-      return { success: false, error: roleProfileResult.error };
     }
 
     const dashboardPath = getDashboardPathByRole(role);
 
-    if (data.session) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    let activeSession = data.session ?? sessionData.session ?? null;
+
+    if (!activeSession) {
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: payload.password,
+      });
+
+      if (signInError) {
+        console.error("[auth] signInWithPassword after signUp failed", {
+          message: signInError.message,
+          code: signInError.code,
+          status: signInError.status,
+        });
+      }
+
+      activeSession = signInData.session ?? null;
+    }
+
+    if (!activeSession) {
       return {
         success: true,
         data: {
           userId: data.user.id,
           role,
-          redirectTo: dashboardPath,
+          redirectTo: `/verify?email=${encodeURIComponent(normalizedEmail)}`,
         },
       };
     }
 
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: normalizedEmail,
-      password: payload.password,
-    });
+    const ownProfileExists = await waitForOwnProfileRow(supabase, data.user.id);
+    if (!ownProfileExists) {
+      const sessionBoundSupabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+        {
+          global: {
+            headers: {
+              Authorization: `Bearer ${activeSession.access_token}`,
+            },
+          },
+        }
+      );
 
-    if (!signInError && signInData.user) {
-      return {
-        success: true,
-        data: {
-          userId: data.user.id,
+      const { error: profileError } = await sessionBoundSupabase.from("profiles").upsert(
+        {
+          id: data.user.id,
+          email: normalizedEmail,
           role,
-          redirectTo: dashboardPath,
         },
-      };
+        { onConflict: "id" }
+      );
+
+      if (profileError) {
+        console.error("[auth] profiles upsert failed", {
+          message: profileError.message,
+          code: profileError.code,
+          details: profileError.details,
+          hint: profileError.hint,
+        });
+        return { success: false, error: "Impossible de créer le profil utilisateur." };
+      }
+    }
+
+    const roleProfileResult = await upsertRoleProfile(data.user.id, role, payload, clubId, activeSession.access_token);
+    if (!roleProfileResult.success) {
+      console.warn("[auth] role profile enrichment skipped", {
+        role,
+        error: roleProfileResult.error,
+      });
     }
 
     return {
@@ -236,7 +331,7 @@ async function registerWithRole<T extends RegisterClientForm | RegisterClubForm 
       data: {
         userId: data.user.id,
         role,
-        redirectTo: `/verify?email=${encodeURIComponent(normalizedEmail)}`,
+        redirectTo: dashboardPath,
       },
     };
   } catch {
