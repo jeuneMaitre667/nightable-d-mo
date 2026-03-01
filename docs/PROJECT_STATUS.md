@@ -26,12 +26,16 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 ## Vue synthèse
 
 - Progression MVP (estimation): 62%
-- Axe prioritaire actuel: finaliser le checkout Stripe côté front (Elements) + stabiliser config env locale
+- Axe prioritaire actuel: valider clé Stripe locale puis exécuter runbook E2E complet
 
 ## Fait
 
 - Refonte UI cohérente (Dashboard/Public/Auth + FloorPlan): headers composants, palette NightTable, états interactifs et a11y harmonisés sur le périmètre TSX prioritaire.
 - Ajout des règles “Token Optimization Rules — MANDATORY” dans `.github/copilot-instructions.md` (sélection modèle, discipline prompt, #file, hygiène de contexte, templates).
+- Intégration Stripe Elements finalisée dans le checkout public (`PaymentElement` + `confirmPayment`) avec retour d’état paiement côté client.
+- Stabilisation du run local: script `npm run dev` fiabilisé avec pré-nettoyage lock/ports (`dev:clean`).
+- Idempotence webhook Stripe implémentée via journal d’événements persisté (`stripe_webhook_events`).
+- Script de diagnostic environnement ajouté: `npm run healthcheck:env`.
 
 ### Documentation
 
@@ -69,17 +73,13 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## En cours
 
-- Intégration Stripe Elements côté checkout client (remplacer le placeholder actuel).
-- Stabilisation des variables d’environnement locales (Stripe secret key valide, healthcheck de session).
 - Formalisation du runbook E2E local (ordre des commandes et critères de succès).
 
 ## À faire (priorité)
 
 ### P0 — Critique MVP
 
-- Intégrer Stripe Elements réel dans `checkout` et finaliser confirmation côté client.
-- Renforcer l’idempotence webhook (journal d’événements Stripe traités).
-- Ajouter script de healthcheck env (`Supabase`, `Stripe`, webhook secret).
+- Exécuter un runbook E2E local complet (checkout Stripe Elements + webhook + statut réservation).
 
 ### P1 — Important après P0
 
@@ -173,6 +173,24 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Résolution de 7 faux positifs restants dans `.github/copilot-instructions.md`.
 - Ajustement du pattern de référence `#file:` vers `# file:` pour éviter l’auto-résolution en chemins cassés.
 - Nettoyage des alias temporaires `.github/BUSINESS_RULES.md`, `.github/DESIGN_SYSTEM.md`, `.github/ARCHITECTURE.md`.
+
+### 2026-03-01 (stabilisation dev + Stripe Elements)
+
+- Correction du démarrage local: `npm run dev` exécute désormais un pré-nettoyage lock/ports (`dev:clean`) avant `next dev`.
+- Intégration du formulaire Stripe Elements dans le checkout (`PaymentElement` + `stripe.confirmPayment`).
+- Validation post-correctifs exécutée: `npm run lint` ✅, `npm run build` ✅.
+
+### 2026-03-01 (idempotence webhook + healthcheck env)
+
+- Ajout d’un journal d’events `stripe_webhook_events` pour garantir l’idempotence des webhooks Stripe.
+- Route webhook durcie: statut `processing/processed/failed` + court-circuit des events déjà traités.
+- Nouveau script `npm run healthcheck:env` (chargement `.env.local`, checks Supabase/Stripe).
+- Exécution healthcheck: échec attendu sur `STRIPE_SECRET_KEY` locale invalide, le reste des checks est vert.
+
+### 2026-03-01 (synchronisation clés Stripe test)
+
+- Clés Stripe test locales resynchronisées depuis Stripe CLI dans `.env.local` (`sk_test` + `pk_test`).
+- Validation post-fix exécutée: `npm run healthcheck:env` ✅ (checks Stripe/Supabase tous verts).
 
 ### 2026-02-28
 

@@ -65,3 +65,39 @@
 - Fix applied: Suppression des fichiers alias pour garder un repo propre.
 - Status: ✅ Resolved
 ---
+
+---
+**[2026-03-01] — `npm run dev` instable + checkout Stripe incomplet**
+- File(s) affected: `package.json`, `src/app/(public)/reserve/checkout/checkoutClient.tsx`
+- Error: Démarrage local cassé (lock `.next/dev/lock`) et étape paiement encore en placeholder.
+- Root cause: Script `dev` sans pré-nettoyage, checkout sans intégration `PaymentElement`.
+- Fix applied: Ajout d’un pré-nettoyage (`dev:clean`) avant `next dev` + intégration Stripe Elements avec `confirmPayment` côté checkout.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-01] — Risque de double traitement webhook Stripe**
+- File(s) affected: `src/app/api/webhooks/stripe/route.ts`, `supabase/migrations/010_stripe_webhook_events.sql`
+- Error: Sans journal d’événements, les retries Stripe pouvaient retraiter un même event.
+- Root cause: Absence de mécanisme d’idempotence persistant côté webhook.
+- Fix applied: Ajout de `stripe_webhook_events` + garde d’idempotence (`processing/processed/failed`) avant traitement des events.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-01] — Absence de healthcheck environnement exécutable**
+- File(s) affected: `scripts/healthcheck-env.mjs`, `package.json`
+- Error: Pas de vérification unique pour Supabase/Stripe/webhook secret avant tests locaux.
+- Root cause: Vérifications faites manuellement, sans script standardisé.
+- Fix applied: Nouveau script `npm run healthcheck:env` avec chargement `.env.local`, checks format/connectivité et code de sortie non-zéro en cas d’erreur.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-01] — `STRIPE_SECRET_KEY` locale invalide (corrigée)**
+- File(s) affected: `.env.local`
+- Error: Healthcheck échouait sur `Invalid API Key provided` côté Stripe.
+- Root cause: Clé secrète Stripe locale non valide (clé tronquée/obsolète).
+- Fix applied: Synchronisation des clés Stripe test depuis la config Stripe CLI, puis revalidation `npm run healthcheck:env` en vert.
+- Status: ✅ Resolved
+---

@@ -75,6 +75,10 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - `src/app/(dashboard)/promoter/page.tsx`
 - Actions client promoteur (copy/share lien):
   - `src/app/(dashboard)/dashboard/promoter/promoterShareActions.tsx`
+- Script de healthcheck environnement:
+  - `scripts/healthcheck-env.mjs`
+- Migration idempotence webhook Stripe:
+  - `supabase/migrations/010_stripe_webhook_events.sql`
 
 ### Changed
 
@@ -144,6 +148,16 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - conversion `promoter_clicks` + mise à jour `promoter_id` / `promo_code_used` sans blocage du flux principal.
 - Dashboard promoteur connecté données réelles dans `src/app/(dashboard)/dashboard/promoter/page.tsx`:
   - KPI mensuels, historique commissions, lien promo + conversion, copy/share mobile.
+- Checkout public enrichi dans `src/app/(public)/reserve/checkout/checkoutClient.tsx`:
+  - intégration Stripe Elements (`PaymentElement`) + confirmation réelle via `stripe.confirmPayment`.
+- Scripts npm mis à jour dans `package.json`:
+  - ajout `dev:clean` et exécution automatique avant `next dev` pour éviter les locks `.next/dev/lock`.
+- Webhook Stripe renforcé dans `src/app/api/webhooks/stripe/route.ts`:
+  - garde d’idempotence via `stripe_webhook_events` et statut de traitement `processing/processed/failed`.
+- NPM scripts enrichis dans `package.json`:
+  - ajout de `healthcheck:env` pour diagnostic standardisé Supabase/Stripe.
+- Environnement local Stripe aligné:
+  - resynchronisation des clés test (`STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`) dans `.env.local` et validation healthcheck.
 
 ### Fixed
 

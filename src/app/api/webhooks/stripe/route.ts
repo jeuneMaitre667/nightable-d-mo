@@ -5,6 +5,32 @@ import { getStripe } from "@/lib/stripe";
 import { sendSMS } from "@/lib/twilio";
 
 type SubscriptionTier = "starter" | "pro" | "premium";
+type WebhookEventStatus = "processing" | "processed" | "failed";
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message.slice(0, 400);
+  }
+
+  return "Unknown webhook error";
+}
+
+async function updateWebhookEventStatus(
+  eventId: string,
+  status: WebhookEventStatus,
+  errorMessage?: string
+): Promise<void> {
+  const supabase = getAdminSupabaseClient();
+
+  await supabase
+    .from("stripe_webhook_events")
+    .update({
+      status,
+      processed_at: status === "processed" ? new Date().toISOString() : null,
+      last_error: errorMessage ?? null,
+    })
+    .eq("event_id", eventId);
+}
 
 function getAdminSupabaseClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -175,24 +201,32 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent): Prom
   }
 
   if (clientProfile?.phone && event?.title && event?.date && event?.start_time && tableName) {
-    await sendSMS({
-      to: clientProfile.phone,
-      body: `NightTable: réservation confirmée pour ${event.title}, table ${tableName}. Code: ${reservation.qr_code ?? reservation.id}.`,
-    });
+    try {
+      await sendSMS({
+        to: clientProfile.phone,
+        body: `NightTable: réservation confirmée pour ${event.title}, table ${tableName}. Code: ${reservation.qr_code ?? reservation.id}.`,
+      });
+    } catch (error) {
+      console.error("[stripe-webhook] sendSMS failed", error);
+    }
   }
 
   if (profile?.email && event?.title && event?.date && event?.start_time && tableName) {
-    await sendReservationConfirmation({
-      to: profile.email,
-      reservationDetails: {
-        reservationId: reservation.id,
-        eventName: event.title,
-        eventDate: formatEventDate(event.date, event.start_time),
-        tableName,
-        amountPaid: Number(reservation.prepayment_amount),
-        qrCode: reservation.qr_code ?? reservation.id,
-      },
-    });
+    try {
+      await sendReservationConfirmation({
+        to: profile.email,
+        reservationDetails: {
+          reservationId: reservation.id,
+          eventName: event.title,
+          eventDate: formatEventDate(event.date, event.start_time),
+          tableName,
+          amountPaid: Number(reservation.prepayment_amount),
+          qrCode: reservation.qr_code ?? reservation.id,
+        },
+      });
+    } catch (error) {
+      console.error("[stripe-webhook] sendReservationConfirmation failed", error);
+    }
   }
 }
 
@@ -262,6 +296,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription): Pro
 
 export async function POST(req: Request) {
   const stripe = getStripe();
+  const supabase = getAdminSupabaseClient();
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
 
@@ -277,36 +312,84 @@ export async function POST(req: Request) {
     return new Response("Webhook error", { status: 400 });
   }
 
-  switch (event.type) {
-    case "payment_intent.succeeded": {
-      if (event.data.object.object === "payment_intent") {
-        await handlePaymentSucceeded(event.data.object);
-      }
-      break;
-    }
-    case "payment_intent.payment_failed": {
-      if (event.data.object.object === "payment_intent") {
-        await handlePaymentFailed(event.data.object);
-      }
-      break;
-    }
-    case "customer.subscription.created":
-    case "customer.subscription.updated": {
-      if (event.data.object.object === "subscription") {
-        await handleSubscriptionChanged(event.data.object);
-      }
-      break;
-    }
-    case "customer.subscription.deleted": {
-      if (event.data.object.object === "subscription") {
-        await handleSubscriptionDeleted(event.data.object);
-      }
-      break;
-    }
-    case "charge.refunded":
-    default:
-      break;
+  const { data: existingEvent, error: existingEventError } = await supabase
+    .from("stripe_webhook_events")
+    .select("event_id, status")
+    .eq("event_id", event.id)
+    .maybeSingle();
+
+  if (existingEventError) {
+    console.error("[stripe-webhook] lookup stripe_webhook_events failed", existingEventError);
+    return new Response("Webhook persistence error", { status: 500 });
   }
+
+  if (existingEvent?.status === "processed") {
+    return new Response("Already processed", { status: 200 });
+  }
+
+  if (existingEvent) {
+    const { error: markProcessingError } = await supabase
+      .from("stripe_webhook_events")
+      .update({ status: "processing", last_error: null, processed_at: null })
+      .eq("event_id", event.id);
+
+    if (markProcessingError) {
+      console.error("[stripe-webhook] update processing state failed", markProcessingError);
+      return new Response("Webhook persistence error", { status: 500 });
+    }
+  } else {
+    const { error: insertEventError } = await supabase.from("stripe_webhook_events").insert({
+      event_id: event.id,
+      event_type: event.type,
+      status: "processing",
+      received_at: new Date().toISOString(),
+    });
+
+    if (insertEventError) {
+      console.error("[stripe-webhook] insert stripe_webhook_events failed", insertEventError);
+      return new Response("Webhook persistence error", { status: 500 });
+    }
+  }
+
+  try {
+    switch (event.type) {
+      case "payment_intent.succeeded": {
+        if (event.data.object.object === "payment_intent") {
+          await handlePaymentSucceeded(event.data.object);
+        }
+        break;
+      }
+      case "payment_intent.payment_failed": {
+        if (event.data.object.object === "payment_intent") {
+          await handlePaymentFailed(event.data.object);
+        }
+        break;
+      }
+      case "customer.subscription.created":
+      case "customer.subscription.updated": {
+        if (event.data.object.object === "subscription") {
+          await handleSubscriptionChanged(event.data.object);
+        }
+        break;
+      }
+      case "customer.subscription.deleted": {
+        if (event.data.object.object === "subscription") {
+          await handleSubscriptionDeleted(event.data.object);
+        }
+        break;
+      }
+      case "charge.refunded":
+      default:
+        break;
+    }
+  } catch (error) {
+    const errorMessage = getErrorMessage(error);
+    await updateWebhookEventStatus(event.id, "failed", errorMessage);
+    console.error("[stripe-webhook] processing failed", error);
+    return new Response("Webhook processing error", { status: 500 });
+  }
+
+  await updateWebhookEventStatus(event.id, "processed");
 
   return new Response("OK", { status: 200 });
 }

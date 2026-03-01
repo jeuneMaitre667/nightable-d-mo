@@ -6,6 +6,8 @@
 // NightTable usage: multi-step reservation checkout and payment initialization
 
 import { useMemo, useState, useTransition } from "react";
+import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { createReservationAction } from "@/lib/reservation.actions";
 
 import type { ReactElement } from "react";
@@ -44,6 +46,84 @@ type Options = {
   specialRequests: string;
 };
 
+type StripePaymentFormProps = {
+  reservationId: string;
+  eventId: string;
+  tableId: string;
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
+};
+
+const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
+const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
+
+function StripePaymentForm({
+  reservationId,
+  eventId,
+  tableId,
+  onSuccess,
+  onError,
+}: StripePaymentFormProps): ReactElement {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isPaying, setIsPaying] = useState<boolean>(false);
+
+  async function handlePaymentSubmit(eventValue: React.FormEvent<HTMLFormElement>): Promise<void> {
+    eventValue.preventDefault();
+    onError("");
+
+    if (!stripe || !elements) {
+      onError("Le module de paiement n’est pas encore prêt. Réessayez dans quelques secondes.");
+      return;
+    }
+
+    setIsPaying(true);
+
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/reserve/checkout?eventId=${eventId}&tableId=${tableId}`,
+      },
+      redirect: "if_required",
+    });
+
+    setIsPaying(false);
+
+    if (error) {
+      onError(error.message ?? "Le paiement a échoué. Merci de vérifier vos informations.");
+      return;
+    }
+
+    if (paymentIntent?.status === "succeeded") {
+      onSuccess(`Paiement confirmé. Réservation ${reservationId} validée.`);
+      return;
+    }
+
+    if (paymentIntent?.status === "processing") {
+      onSuccess("Paiement en cours de validation. Confirmation imminente.");
+      return;
+    }
+
+    onError("Le paiement n’a pas pu être confirmé. Merci de réessayer.");
+  }
+
+  return (
+    <form className="space-y-3" onSubmit={handlePaymentSubmit}>
+      <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-4">
+        <PaymentElement />
+      </div>
+
+      <button
+        type="submit"
+        className="nt-btn nt-btn-primary min-h-11 w-full px-4 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={isPaying || !stripe || !elements}
+      >
+        {isPaying ? "Paiement en cours..." : "Payer maintenant"}
+      </button>
+    </form>
+  );
+}
+
 function formatEuros(value: number): string {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
@@ -71,6 +151,8 @@ export default function CheckoutClient({
     specialRequests: "",
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [reservationId, setReservationId] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
@@ -85,6 +167,8 @@ export default function CheckoutClient({
 
   function submitReservation(): void {
     setSubmitError(null);
+    setPaymentError(null);
+    setPaymentMessage(null);
 
     if (!clientDetails.firstName || !clientDetails.lastName || !clientDetails.phone) {
       setSubmitError("Merci de compléter vos informations client.");
@@ -218,32 +302,66 @@ export default function CheckoutClient({
           <div className="space-y-4">
             <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-4">
               <p className="text-sm text-[#F7F6F3]">Paiement sécurisé Stripe</p>
-              <p className="mt-1 text-xs text-[#888888]">
-                Le formulaire Stripe final sera injecté ici lors de la prochaine étape backend.
-              </p>
-              <div className="mt-3 rounded-md border border-dashed border-[#C9973A]/30 p-3 text-xs text-[#888888]">
-                Card Number · Expiry · CVC
-              </div>
+              <p className="mt-1 text-xs text-[#888888]">Vos données de paiement sont chiffrées et traitées par Stripe.</p>
             </div>
 
             {submitError ? <p className="text-sm text-[#C4567A]">{submitError}</p> : null}
+            {paymentError ? <p className="text-sm text-[#C4567A]">{paymentError}</p> : null}
+            {paymentMessage ? <p className="text-sm text-[#3A9C6B]">{paymentMessage}</p> : null}
 
-            {clientSecret ? (
-              <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-3 text-xs text-[#888888]">
-                Réservation créée ({reservationId}).
-                <br />
-                Client secret Stripe prêt: {clientSecret.slice(0, 20)}...
+            {!stripePromise ? (
+              <div className="rounded-lg border border-[#C4567A]/30 bg-[#0A0F2E] p-3 text-xs text-[#C4567A]">
+                Clé Stripe publishable absente. Définissez `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
               </div>
             ) : null}
 
-            <button
-              type="button"
-              className="nt-btn nt-btn-primary min-h-11 w-full px-4 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={submitReservation}
-              disabled={isPending}
-            >
-              {isPending ? "Initialisation..." : "Confirmer et payer"}
-            </button>
+            {clientSecret ? (
+              <>
+                <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-3 text-xs text-[#888888]">
+                  Réservation créée ({reservationId}).
+                  <br />
+                  Vous pouvez finaliser votre paiement ci-dessous.
+                </div>
+
+                {stripePromise && reservationId ? (
+                  <Elements
+                    stripe={stripePromise}
+                    options={{
+                      clientSecret,
+                      appearance: {
+                        theme: "night",
+                        variables: {
+                          colorPrimary: "#C9973A",
+                          colorBackground: "#0A0F2E",
+                          colorText: "#F7F6F3",
+                          colorDanger: "#C4567A",
+                          borderRadius: "8px",
+                        },
+                      },
+                    }}
+                  >
+                    <StripePaymentForm
+                      reservationId={reservationId}
+                      eventId={event.id}
+                      tableId={table.eventTableId}
+                      onSuccess={(message) => setPaymentMessage(message)}
+                      onError={(message) => setPaymentError(message)}
+                    />
+                  </Elements>
+                ) : null}
+              </>
+            ) : null}
+
+            {!clientSecret ? (
+              <button
+                type="button"
+                className="nt-btn nt-btn-primary min-h-11 w-full px-4 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={submitReservation}
+                disabled={isPending}
+              >
+                {isPending ? "Initialisation..." : "Initialiser le paiement"}
+              </button>
+            ) : null}
           </div>
         ) : null}
 
