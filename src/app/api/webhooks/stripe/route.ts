@@ -117,35 +117,51 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent): Prom
     : (tableRelation as { name?: string } | null | undefined)?.name;
 
   if (reservation.promoter_id && event?.club_id) {
-    const { data: promoter } = await supabase
-      .from("promoter_profiles")
-      .select("id, commission_rate")
-      .eq("id", reservation.promoter_id)
-      .maybeSingle();
+    try {
+      const { data: promoter } = await supabase
+        .from("promoter_profiles")
+        .select("id, commission_rate")
+        .eq("id", reservation.promoter_id)
+        .maybeSingle();
 
-    if (promoter) {
-      const baseAmount = Number(reservation.prepayment_amount);
-      const commissionRate = Number(promoter.commission_rate ?? 8);
-      const nighttableMicroRate = 1.5;
-      const clubCommissionAmount = Number(((baseAmount * commissionRate) / 100).toFixed(2));
-      const nighttableCommissionAmount = Number(((baseAmount * nighttableMicroRate) / 100).toFixed(2));
-      const totalCommissionAmount = Number((clubCommissionAmount + nighttableCommissionAmount).toFixed(2));
+      if (promoter) {
+        const baseAmount = Number(reservation.prepayment_amount ?? 0);
+        const commissionRate = Number(promoter.commission_rate ?? 8);
+        const commissionAmount = Number(((baseAmount * commissionRate) / 100).toFixed(2));
 
-      await supabase.from("commissions").upsert(
-        {
-          promoter_id: promoter.id,
-          reservation_id: reservation.id,
-          club_id: event.club_id,
-          commission_rate: commissionRate,
-          nighttable_micro_rate: nighttableMicroRate,
-          base_amount: baseAmount,
-          club_commission_amount: clubCommissionAmount,
-          nighttable_commission_amount: nighttableCommissionAmount,
-          total_commission_amount: totalCommissionAmount,
-          status: "pending",
-        },
-        { onConflict: "reservation_id" }
-      );
+        await supabase.from("commissions").upsert(
+          {
+            promoter_id: promoter.id,
+            reservation_id: reservation.id,
+            club_id: event.club_id,
+            commission_rate: commissionRate,
+            nighttable_micro_rate: 0,
+            base_amount: baseAmount,
+            club_commission_amount: commissionAmount,
+            nighttable_commission_amount: 0,
+            total_commission_amount: commissionAmount,
+            amount: commissionAmount,
+            rate: commissionRate,
+            status: "pending",
+          },
+          { onConflict: "reservation_id" }
+        );
+
+        const { data: currentPromoter } = await supabase
+          .from("promoter_profiles")
+          .select("total_earned")
+          .eq("id", promoter.id)
+          .maybeSingle();
+
+        const nextTotalEarned = Number(currentPromoter?.total_earned ?? 0) + commissionAmount;
+
+        await supabase
+          .from("promoter_profiles")
+          .update({ total_earned: Number(nextTotalEarned.toFixed(2)) })
+          .eq("id", promoter.id);
+      }
+    } catch (error) {
+      console.error("[stripe-webhook] commission creation failed", error);
     }
   }
 

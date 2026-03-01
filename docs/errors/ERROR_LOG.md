@@ -20,3 +20,12 @@
 - Fix applied: Ajout des headers composants, harmonisation palette NightTable, renforcement hover/focus/disabled + min 44px, ajouts a11y ciblés, typage strict des props réutilisables.
 - Status: ✅ Resolved
 ---
+
+---
+**[2026-03-01] — Tracking promoteur + commissions non finalisés**
+- File(s) affected: `src/app/(public)/reserve/page.tsx`, `src/lib/reservation.actions.ts`, `src/app/api/webhooks/stripe/route.ts`, `src/app/(dashboard)/dashboard/promoter/page.tsx`
+- Error: Attribution promoteur et reporting commissions incomplets (cookie promo, conversion, KPI promoteur).
+- Root cause: MVP promoteur limité à la guest list sans pipeline complet promo → réservation → commission.
+- Fix applied: Validation promo + cookie 48h, attribution post-réservation non bloquante, création commission au webhook avec fallback non bloquant, dashboard promoteur branché en données réelles.
+- Status: ✅ Resolved
+---

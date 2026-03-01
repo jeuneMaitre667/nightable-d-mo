@@ -137,25 +137,6 @@ export async function createReservationAction(
     const insurancePrice = resolveInsuranceAmount(parsed.data.includeInsurance);
     const amountNow = prepaymentAmount + insurancePrice;
 
-    const promoCookie = (await cookies()).get("nighttable_promo")?.value?.trim();
-    let promoterId: string | null = null;
-    let promoCodeUsed: string | null = null;
-
-    if (promoCookie) {
-      const { data: promoter } = await supabase
-        .from("promoter_profiles")
-        .select("id, promo_code, club_id, is_active")
-        .eq("promo_code", promoCookie)
-        .eq("is_active", true)
-        .eq("club_id", event.club_id)
-        .maybeSingle();
-
-      if (promoter) {
-        promoterId = promoter.id;
-        promoCodeUsed = promoter.promo_code;
-      }
-    }
-
     const { data: lockData, error: lockError } = await supabase
       .from("event_tables")
       .update({ status: "reserved" })
@@ -176,8 +157,8 @@ export async function createReservationAction(
         client_id: contextResult.data.userId,
         event_id: event.id,
         event_table_id: eventTable.id,
-        promoter_id: promoterId,
-        promo_code_used: promoCodeUsed,
+        promoter_id: null,
+        promo_code_used: null,
         status: "payment_pending",
         minimum_consumption: baseAmount,
         dynamic_price_at_booking: baseAmount,
@@ -199,6 +180,38 @@ export async function createReservationAction(
     if (reservationError || !reservation) {
       await supabase.from("event_tables").update({ status: "available" }).eq("id", eventTable.id);
       return { success: false, error: "Impossible de créer la réservation pour le moment." };
+    }
+
+    try {
+      const promoCookie = (await cookies()).get("nighttable_promo")?.value?.trim();
+
+      if (promoCookie) {
+        const { data: promoter } = await supabase
+          .from("promoter_profiles")
+          .select("id, promo_code")
+          .eq("promo_code", promoCookie)
+          .eq("is_active", true)
+          .maybeSingle();
+
+        if (promoter) {
+          await supabase.from("promoter_clicks").insert({
+            promoter_id: promoter.id,
+            promo_code: promoter.promo_code,
+            converted: true,
+            reservation_id: reservation.id,
+          });
+
+          await supabase
+            .from("reservations")
+            .update({
+              promoter_id: promoter.id,
+              promo_code_used: promoter.promo_code,
+            })
+            .eq("id", reservation.id);
+        }
+      }
+    } catch (error) {
+      console.error("[createReservationAction] promoter attribution failed", error);
     }
 
     const paymentIntent = await stripe.paymentIntents.create({

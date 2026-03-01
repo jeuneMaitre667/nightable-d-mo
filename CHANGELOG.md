@@ -69,6 +69,12 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - `docs/errors/incidents/2026-03-01-dashboard-events-jsx-namespace-build.md`
 - Checklist “Session close (obligatoire)” ajoutée au template incident:
   - `docs/errors/templates/incident-template.md`
+- Migration reporting commissions promoteur:
+  - `supabase/migrations/009_commissions_amount_rate.sql`
+- Alias route promoteur:
+  - `src/app/(dashboard)/promoter/page.tsx`
+- Actions client promoteur (copy/share lien):
+  - `src/app/(dashboard)/dashboard/promoter/promoterShareActions.tsx`
 
 ### Changed
 
@@ -124,6 +130,12 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - `src/app/(auth)/register/page.tsx`
 - Gouvernance UI renforcée dans `.github/copilot-instructions.md`:
   - ajout du bloc “Component Development Rules — MANDATORY” (références design, a11y, tokens, checklist).
+- Tracking promo public renforcé dans `src/app/(public)/reserve/page.tsx`:
+  - validation `promo_code` + persistance cookie `nighttable_promo` (48h).
+- Attribution promoteur post-réservation dans `src/lib/reservation.actions.ts`:
+  - conversion `promoter_clicks` + mise à jour `promoter_id` / `promo_code_used` sans blocage du flux principal.
+- Dashboard promoteur connecté données réelles dans `src/app/(dashboard)/dashboard/promoter/page.tsx`:
+  - KPI mensuels, historique commissions, lien promo + conversion, copy/share mobile.
 
 ### Fixed
 
@@ -144,6 +156,10 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 - Correctif build/lint auth:
   - suppression de la dépendance `useSearchParams` responsable du prerender error `/register`,
   - suppression du `setState` synchrone en `useEffect` sur `/login`.
+- Correctif pipeline promoteur/commission:
+  - création commission au webhook `payment_intent.succeeded` avec fallback non bloquant,
+  - synchronisation `promoter_profiles.total_earned`,
+  - compatibilité reporting via colonnes `commissions.amount` et `commissions.rate`.
 
 ## v0.1-docs - 2026-02-28
 

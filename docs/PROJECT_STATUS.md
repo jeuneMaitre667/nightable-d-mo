@@ -149,6 +149,14 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Renforcement a11y (aria-label/aria-pressed, focus ring gold, cibles min-h 44px sur actions critiques) sans impact métier.
 - Validation post-refonte exécutée et réussie: `npm run lint` ✅, `npm run build` ✅.
 
+### 2026-03-01 (promoteur tracking + commissions)
+
+- Implémentation complète du tracking promo: validation `?promo`, cookie `nighttable_promo` 48h, attribution post-réservation non bloquante (`promoter_id`, `promo_code_used`, `promoter_clicks`).
+- Webhook Stripe enrichi pour création commission promoteur à `payment_intent.succeeded` avec calcul sur `prepayment_amount` et mise à jour `promoter_profiles.total_earned` (sans bloquer confirmation réservation).
+- Dashboard promoteur branché sur données réelles (CA mois, clients confirmés, pending commissions, total versé, historique commissions, lien promo copy/share + conversion).
+- Migration `supabase/migrations/009_commissions_amount_rate.sql` ajoutée pour champs `amount`/`rate` compatibles reporting.
+- Validation finale exécutée: `npm run lint` ✅, `npm run build` ✅.
+
 ### 2026-02-28
 
 - Sauvegarde des docs sources (.docx + .txt) dans le repo.

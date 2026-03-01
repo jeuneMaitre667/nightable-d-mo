@@ -3,6 +3,9 @@
 // Inspired by: Shopify Polaris pattern
 // NightTable usage: public reservation configurator before checkout
 
+import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
+
 import type { ReactElement } from "react";
 
 type ReservePageProps = {
@@ -41,8 +44,34 @@ function getById<T extends { id: string }>(items: T[], id: string, fallback: T) 
 
 export default async function ReservePage({ searchParams }: ReservePageProps): Promise<ReactElement> {
   const params = await searchParams;
+  const supabase = await createClient();
 
-  const promoCode = params.promo ?? null;
+  const promoCode = params.promo?.trim() || null;
+
+  if (promoCode) {
+    try {
+      const { data: promoter } = await supabase
+        .from("promoter_profiles")
+        .select("id")
+        .eq("promo_code", promoCode)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (promoter) {
+        const cookieStore = await cookies();
+        cookieStore.set("nighttable_promo", promoCode, {
+          maxAge: 172800,
+          path: "/",
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+          httpOnly: true,
+        });
+      }
+    } catch {
+      // Ignore silently: promo tracking should never block reservation page.
+    }
+  }
+
   const selectedClub = params.club ?? clubs[0].slug;
   const selectedEventId = params.event ?? events[0].id;
   const selectedTableId = params.table ?? tables[0].id;
