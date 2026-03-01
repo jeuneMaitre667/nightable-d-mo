@@ -3,6 +3,10 @@
 ## Project Overview
 NightTable is a premium B2B2C SaaS platform for nightclub table reservations in Paris.
 Stack: Next.js 14 (App Router), TypeScript, Supabase, Stripe, Tailwind CSS, OpenAI.
+5 user roles: client, club, promoter, female_vip, admin.
+Design: dark luxury aesthetic — gold (#C9973A) on near-black (#050508). No light mode.
+
+---
 
 ## Coding Rules — Always follow these
 
@@ -28,6 +32,7 @@ Stack: Next.js 14 (App Router), TypeScript, Supabase, Stripe, Tailwind CSS, Open
 - Never use the service role key on the client side.
 - Always handle both `data` and `error` from Supabase calls.
 - Use `.single()` only when you are certain the row exists — otherwise use `.maybeSingle()`.
+- Never use .select('*') in production — always specify columns explicitly.
 
 ### Stripe
 - All Stripe calls happen server-side only.
@@ -48,7 +53,7 @@ Stack: Next.js 14 (App Router), TypeScript, Supabase, Stripe, Tailwind CSS, Open
 ### Styling
 - Use only Tailwind utility classes. No inline styles except for dynamic values.
 - Never use default Tailwind colors (blue-500, red-400...) — use our custom palette.
-- Always use the design system from DESIGN_SYSTEM.md.
+- Always use the design system tokens defined below.
 - Dark mode is the only mode — no light mode variants needed.
 
 ### Imports order
@@ -63,6 +68,8 @@ Stack: Next.js 14 (App Router), TypeScript, Supabase, Stripe, Tailwind CSS, Open
 - Never comment obvious code.
 - Use TODO: and FIXME: tags for known issues.
 
+---
+
 ## Role-based access — never forget
 - client: can only access /dashboard/client/*
 - club: can only access /dashboard/club/*
@@ -71,24 +78,225 @@ Stack: Next.js 14 (App Router), TypeScript, Supabase, Stripe, Tailwind CSS, Open
 - admin: can access everything
 - Always check role in middleware AND in Server Actions (defense in depth).
 
+---
+
 ## Key business rules to always respect
 - A reservation always requires a prepayment of 30-50% of the minimum.
 - A promoter commission is only created after payment_intent.succeeded webhook.
 - Dynamic price is always rounded to the nearest 25€.
 - Promo codes are valid for 48 hours after the first click (cookie expiry).
 - A table in 'reserved' or 'occupied' status can never be booked again for the same event.
-- Insurance (3-5€) is optional but shown prominently at checkout.
-## Auto-Documentation Rules — MANDATORY
-
-Every time you create, modify, or fix ANY file in this project, 
-you MUST update these 3 files in the same response. No exceptions.
+- Insurance is optional (3€ if minimum < 500€ / 4€ if 500-1000€ / 5€ if > 1000€).
+- NightTable Score: +5 attended / -10 no-show / -5 late cancel / min 0 / max 100.
+- Resale commission: 5% for NightTable on every resale.
+- Auction: only for Pro and Premium clubs, closes 2h before event start.
+- Waitlist: notified client has 30 minutes to confirm before next in line is notified.
 
 ---
 
-### 1. docs/errors/ERROR_LOG.md
-Update when : a bug is fixed, an error is handled, a workaround is added.
+## Server Action Patterns — MANDATORY
 
-Format to append :
+### Standard structure for every Server Action
+```typescript
+'use server'
+
+import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
+
+const Schema = z.object({ ... })
+
+export async function myAction(
+  formData: FormData
+): Promise<{ success: boolean; data?: T; error?: string }> {
+  try {
+    // 1. Validate inputs
+    const parsed = Schema.safeParse(Object.fromEntries(formData))
+    if (!parsed.success) {
+      return { success: false, error: 'Données invalides' }
+    }
+
+    // 2. Check auth
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: 'Non autorisé' }
+
+    // 3. Check role if needed
+    const { data: profile } = await supabase
+      .from('profiles').select('role').eq('id', user.id).maybeSingle()
+    if (profile?.role !== 'club') return { success: false, error: 'Accès refusé' }
+
+    // 4. Business logic
+    const { data, error } = await supabase.from('...').insert({ ... })
+    if (error) return { success: false, error: 'Erreur serveur' }
+
+    // 5. Revalidate cache
+    revalidatePath('/dashboard/club/events')
+
+    return { success: true, data }
+
+  } catch (err) {
+    console.error('[myAction]', err)
+    return { success: false, error: 'Une erreur inattendue est survenue' }
+  }
+}
+```
+
+### Additional rules
+- Always revalidatePath after a mutation that affects a cached page.
+- Always log errors with action name as prefix: [actionName].
+- Never use redirect() inside a try/catch — place it after the block.
+- Always verify auth AND role in sensitive actions.
+- Never trust a client-side ID without verifying ownership in Supabase.
+
+---
+
+## Performance Rules — MANDATORY
+
+### Images
+- Always use next/image with explicit width and height.
+- Always add priority prop on above-the-fold images (hero, cover photos).
+- Always add a descriptive alt — never alt="".
+- Prefer webp or avif format.
+
+### Data fetching
+- Always parallelize independent fetches with Promise.all().
+- Never waterfall fetch (fetch inside fetch) if data is independent.
+- Always limit Supabase columns: .select('id, name, status') — never .select('*').
+
+### Bundle
+- Always dynamic import for heavy non-critical components:
+```typescript
+import dynamic from 'next/dynamic'
+const FloorPlan = dynamic(() => import('@/components/floor-plan/FloorPlan'), {
+  ssr: false // mandatory for Konva.js and any canvas component
+})
+```
+- Always push 'use client' as low as possible in the component tree.
+
+### Skeleton loading
+- Always create a loading skeleton for pages with Supabase fetch.
+- Skeleton must match the visual structure of the real content.
+- Skeleton color: bg-[#12172B] animate-pulse.
+
+---
+
+## Security Rules — MANDATORY
+
+### Validation
+- Always validate inputs server-side with Zod in Server Actions,
+  even if the form is already validated client-side.
+- Always verify that the connected user owns the resource they are modifying —
+  never trust a client-provided ID without Supabase ownership check.
+
+### Sensitive data
+- Never console.log user data, tokens, or keys.
+- Never return full profile data from a public Server Action —
+  return only the fields strictly needed.
+- Always sanitize free-text inputs before DB insertion.
+
+### Public API (/api/v1)
+- Always verify X-NightTable-Key header before any processing.
+- Always verify the key belongs to a club with subscription_tier = 'premium'
+  and subscription_active = true.
+- Rate limit: max 100 requests per minute per api_key.
+- Never expose internal Supabase UUIDs in public API responses.
+
+---
+
+## Git Commit Rules — MANDATORY
+
+Every commit message must follow this format:
+[type]: [short description in French]
+
+Allowed types:
+- feat: nouvelle fonctionnalité
+- fix: correction de bug
+- chore: maintenance, config, dépendances
+- style: changements UI/CSS sans logique métier
+- refactor: réécriture sans changement de comportement
+- docs: documentation uniquement
+- test: ajout ou modification de tests
+
+Correct examples:
+- feat: ajouter dashboard promoteur avec métriques CA
+- fix: corriger RLS sur client_profiles au signup
+- chore: mettre à jour dépendances Stripe vers v14
+- docs: synchroniser PROJECT_STATUS après session promoteur
+
+Never:
+- "update files"
+- "fix bug"
+- "wip"
+- Generic English messages without context
+
+---
+
+## SEO Rules — Public pages only
+
+### Mandatory metadata on each public page
+```typescript
+export const metadata: Metadata = {
+  title: '[Page title] | NightTable',
+  description: '[Description 150 chars max]',
+  openGraph: {
+    title: '[Title]',
+    description: '[Description]',
+    image: '[Club or event image URL]',
+    type: 'website',
+  },
+}
+```
+
+### Pages concerned
+- / (landing)
+- /clubs (club list)
+- /clubs/[slug] (club page)
+- /clubs/[slug]/events/[eventId] (event page)
+
+### Rules
+- Always use generateMetadata() dynamic function for [slug] and [eventId] pages.
+- Title format: "Réserver une table au [Club] — NightTable Paris"
+- Always include og:image (club or event photo).
+- Always add noindex on dashboard pages:
+  export const metadata = { robots: 'noindex' }
+
+---
+
+## Empty States — MANDATORY
+
+Every list or data display must handle 3 states:
+
+1. LOADING — animate-pulse skeleton matching real content structure
+2. ERROR — error message + "Réessayer" button
+3. EMPTY — icon + message + actionable CTA
+
+NightTable empty state standard:
+- Large icon in gold (30% opacity)
+- Title: "[Entity] à venir" or "Aucun[e] [entity] pour le moment"
+- Subtitle: short encouragement message
+- Primary gold CTA button
+
+Examples:
+- No events → "Créez votre première soirée" + "Créer un événement" button
+- No reservations → "Aucune réservation ce soir" + "Voir les événements" button
+- No promoters → "Ajoutez votre premier promoteur" + "Ajouter" button
+
+Never leave an empty state without a CTA.
+Every dead end must guide the user to the next action.
+
+---
+
+## Auto-Documentation Rules — MANDATORY
+
+Every time you create, modify, or fix ANY file in this project,
+you MUST update these 3 files in the same response. No exceptions.
+
+### 1. docs/errors/ERROR_LOG.md
+Update when: a bug is fixed, an error is handled, a workaround is added.
+
+Format to append:
+```
 ---
 **[DATE] — [ERROR TITLE]**
 - File(s) affected: `path/to/file.ts`
@@ -97,49 +305,51 @@ Format to append :
 - Fix applied: [what was changed]
 - Status: ✅ Resolved
 ---
+```
 
 ### 2. docs/PROJECT_STATUS.md
 Update after EVERY coding session or feature addition.
 
-Sections to keep current :
-- **Done** : move completed items here with ✅
-- **In progress** : what is currently being built
-- **Todo** : upcoming tasks in priority order
-- **Session log** : append one line per session :
+Sections to keep current:
+- **Done**: move completed items here with ✅
+- **In progress**: what is currently being built
+- **Todo**: upcoming tasks in priority order
+- **Session log**: append one line per session:
   [DATE] — [what was built or fixed] — [current blockers if any]
 
 ### 3. CHANGELOG.md
-Update when : any file is created, modified, or deleted.
+Update when: any file is created, modified, or deleted.
 
-Format to append under ## Unreleased :
+Format to append under ## Unreleased:
+```
 ### Added
-- [filename or feature] : [one line description]
+- [filename or feature]: [one line description]
 
-### Changed  
-- [filename or feature] : [what changed and why]
+### Changed
+- [filename or feature]: [what changed and why]
 
 ### Fixed
-- [filename or feature] : [bug description + fix summary]
+- [filename or feature]: [bug description + fix summary]
+```
 
----
-
-## Enforcement
-
+### Enforcement
 - Never finish a response that touches code without updating all 3 files.
 - If a file does not exist yet, create it with the correct structure.
 - If you are only answering a question without touching code, skip the updates.
 - Always update docs AFTER the code changes, not before.
-- Keep entries concise — one line per file touched is enough. 
+- Keep entries concise — one line per file touched is enough.
+
+---
 
 ## Component Development Rules — MANDATORY
 
-Every time you create or modify a UI component, you MUST follow this process :
+Every time you create or modify a UI component, follow this full process.
 
 ### Step 1 — Reference component.gallery
-Before writing any component code, identify the component type you are building
-and mentally reference the patterns from https://component.gallery/components/
+Before writing any component code, identify the component type and reference:
+https://component.gallery/components/
 
-Map your component to one of these categories :
+Map your component to one of these categories:
 - Form inputs → /components/text-input /components/select /components/checkbox
 - Navigation → /components/tabs /components/breadcrumb /components/pagination
 - Feedback → /components/toast /components/badge /components/progress-bar
@@ -148,8 +358,7 @@ Map your component to one of these categories :
 - Data → /components/table /components/list /components/avatar
 - Media → /components/carousel /components/image
 
-### Step 2 — Apply these reference design systems for NightTable's aesthetic
-When building components, take inspiration from these systems (dark/premium feel) :
+### Step 2 — Reference design systems for NightTable aesthetic
 - IBM Carbon Design System → data tables, dashboards, dense UIs
 - Atlassian Design System → forms, modals, feedback components
 - Shopify Polaris → cards, badges, navigation patterns
@@ -158,101 +367,186 @@ When building components, take inspiration from these systems (dark/premium feel
 Always adapt to NightTable dark luxury aesthetic — never copy light mode patterns.
 
 ### Step 3 — Component structure to always follow
-Every component file must include :
 
-1. COMPONENT HEADER (comment at top of file) :
-  // Component: [Name]
-  // Reference: component.gallery/components/[type]
-  // Inspired by: [design system name] pattern
-  // NightTable usage: [where it is used in the app]
+Every component file must include:
 
-2. PROPS INTERFACE — fully typed, no `any`
-  - Always include className?: string for composability
-  - Always include children?: React.ReactNode if wrappable
-  - Document each prop with a JSDoc comment
+**1. COMPONENT HEADER** (comment at top of file):
+```typescript
+// Component: [Name]
+// Reference: component.gallery/components/[type]
+// Inspired by: [design system name] pattern
+// NightTable usage: [where it is used in the app]
+```
 
-3. VARIANTS — define all visual states :
-  - default, hover, focus, active, disabled, loading, error
-  - Use NightTable design tokens only (no raw Tailwind colors)
+**2. PROPS INTERFACE** — fully typed, no `any`:
+- Always include className?: string for composability
+- Always include children?: React.ReactNode if wrappable
+- Document each prop with a JSDoc comment
 
-4. ACCESSIBILITY — always include :
-  - Correct ARIA attributes (aria-label, aria-expanded, role...)
-  - Keyboard navigation (Enter, Space, Escape, Arrow keys)
-  - Focus visible styles (ring gold : ring-2 ring-[#C9973A])
-  - Minimum touch target 44x44px on mobile
+**3. VARIANTS** — define all visual states:
+- default, hover, focus, active, disabled, loading, error
+- Use NightTable design tokens only (no raw Tailwind colors)
 
-5. ANIMATION — always include :
-  - transition-all duration-200 ease-in-out minimum
-  - No animation over 300ms
-  - Respect prefers-reduced-motion
+**4. ACCESSIBILITY** — always include:
+- Correct ARIA attributes (aria-label, aria-expanded, role...)
+- Keyboard navigation (Enter, Space, Escape, Arrow keys)
+- Focus visible styles: ring-2 ring-[#C9973A] ring-offset-2 ring-offset-[#050508]
+- Minimum touch target 44x44px on mobile
 
-### Step 4 — NightTable Design Tokens to use (never raw values)
-When Tailwind classes are not enough, use these CSS custom properties :
+**5. ANIMATION** — always include:
+- transition-all duration-200 ease-in-out minimum
+- No animation over 300ms
+- Respect prefers-reduced-motion:
+  @media (prefers-reduced-motion: reduce) { transition: none }
 
---color-bg-primary: #050508
+### Step 4 — NightTable Design Tokens
+
+```css
+--color-bg-primary:   #050508
 --color-bg-secondary: #0A0F2E
---color-bg-card: #12172B
---color-gold: #C9973A
---color-gold-light: #E8C96A
---color-rose: #C4567A
---color-blue: #3A6BC9
---color-green: #3A9C6B
+--color-bg-card:      #12172B
+--color-gold:         #C9973A
+--color-gold-light:   #E8C96A
+--color-rose:         #C4567A
+--color-blue:         #3A6BC9
+--color-green:        #3A9C6B
 --color-text-primary: #F7F6F3
---color-text-muted: #888888
+--color-text-muted:   #888888
+```
 
 ### Step 5 — Component checklist before finishing
-Before returning any component code, verify :
-[ ] Fully typed props interface
+```
+[ ] Fully typed props interface — no `any`
 [ ] All visual states handled (default/hover/focus/disabled/loading/error)
-[ ] 'use client' only if strictly necessary (event handlers or hooks)
+[ ] 'use client' only if strictly necessary
 [ ] No hardcoded colors — only NightTable palette
 [ ] ARIA attributes present
-[ ] Mobile touch targets >= 44px
+[ ] Keyboard navigation handled
+[ ] Mobile touch targets >= 44x44px
 [ ] Transition/animation present
+[ ] prefers-reduced-motion respected
 [ ] Component header comment present
-[ ] CHANGELOG.md updated with new component entry
 [ ] No default Tailwind colors (no blue-500, red-400, gray-100...)
+[ ] CHANGELOG.md updated with new component entry
+```
 
-### Common NightTable Components — Quick Reference
+---
 
-**Button**
+## Common NightTable Components — Quick Reference
+
+### Button
+```
 variants: primary (gold fill) | secondary (gold border) | ghost | danger (rose)
 sizes: sm | md | lg
-states: default | hover | focus | loading (spinner) | disabled
+states: default | hover | focus | loading (gold spinner) | disabled
+primary: bg-[#C9973A] text-[#050508] font-semibold
+secondary: border border-[#C9973A] text-[#C9973A] bg-transparent
+hover: brightness-110 + subtle gold glow shadow
+disabled: opacity-50 cursor-not-allowed pointer-events-none
+```
 
-**Card**
-variants: default | elevated | bordered | interactive (hover effect)
-always: bg-[#12172B] border border-[#C9973A]/15 rounded-xl
+### Card
+```
+variants: default | elevated | bordered | interactive
+always: bg-[#12172B] border border-[#C9973A]/15 rounded-xl p-6
+hover (interactive): border-[#C9973A]/40 shadow-[0_4px_24px_rgba(201,151,58,0.08)]
+transition: transition-all duration-200
+```
 
-**Badge**
-variants: available (green) | reserved (gold) | cancelled (rose) | pending (muted)
-size: always small, uppercase, tracking-wider, font-size 11px
+### Badge
+```
+variants:
+  available: bg-[#3A9C6B]/15 text-[#3A9C6B] border border-[#3A9C6B]/30
+  reserved:  bg-[#C9973A]/15 text-[#C9973A] border border-[#C9973A]/30
+  cancelled: bg-[#C4567A]/15 text-[#C4567A] border border-[#C4567A]/30
+  pending:   bg-[#888888]/15 text-[#888888] border border-[#888888]/30
+size: text-[11px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full
+```
 
-**Input**
-always: dark bg, gold focus ring, muted label uppercase small
-states: default | focus | error | disabled | loading
+### Input
+```
+always: bg-[#0A0F2E] border border-[#2A2F4A] text-[#F7F6F3] rounded-lg
+label: text-[11px] uppercase tracking-widest text-[#888888] mb-1
+focus: border-[#C9973A] ring-2 ring-[#C9973A]/15 outline-none
+error: border-[#C4567A] ring-2 ring-[#C4567A]/15
+disabled: opacity-50 cursor-not-allowed bg-[#12172B]
+```
 
-**Modal**
-always: dark overlay (bg-black/70 backdrop-blur-sm)
-content: bg-[#12172B] border border-[#C9973A]/20 rounded-2xl
-close: top-right X button, also close on overlay click and Escape key
+### Modal
+```
+overlay: fixed inset-0 bg-black/70 backdrop-blur-sm z-50
+content: bg-[#12172B] border border-[#C9973A]/20 rounded-2xl p-6 max-w-lg w-full
+close: top-right X button + close on overlay click + close on Escape key
+animation: scale-95 opacity-0 → scale-100 opacity-100 duration-200
+```
 
-**Toast / Notification**
-position: top-right, stacked
-variants: success (green left border) | error (rose left border) | info (gold left border)
+### Toast / Notification
+```
+position: fixed top-4 right-4 z-50 flex flex-col gap-2
+variants:
+  success: border-l-4 border-[#3A9C6B] bg-[#12172B]
+  error:   border-l-4 border-[#C4567A] bg-[#12172B]
+  info:    border-l-4 border-[#C9973A] bg-[#12172B]
 auto-dismiss: 4000ms
+animation: slide-in from right, fade-out on dismiss
+max visible at once: 3 (stack, oldest auto-dismissed first)
+```
 
-**Table**
-rows: alternating #12172B / #0A0F2E
-header: bg-[#0A0F2E] text-muted uppercase tracking-widest text-xs
-hover row: bg-[#C9973A]/05
+### Table
+```
+container: w-full border border-[#C9973A]/10 rounded-xl overflow-hidden
+header: bg-[#0A0F2E] text-[#888888] text-xs uppercase tracking-widest py-3 px-4
+rows: alternating bg-[#12172B] / bg-[#0A0F2E]
+hover row: bg-[#C9973A]/5 transition-colors duration-150
+border between rows: border-b border-[#C9973A]/5
+```
 
-**Tabs**
-active: gold bottom border 2px + text gold
-inactive: text-muted hover text-primary
-transition: 200ms
+### Tabs
+```
+container: border-b border-[#2A2F4A]
+tab active: text-[#C9973A] border-b-2 border-[#C9973A] font-medium
+tab inactive: text-[#888888] hover:text-[#F7F6F3]
+transition: transition-all duration-200
+```
 
-**Tooltip / Popover**
-bg: #12172B border border-[#C9973A]/20
-arrow: gold tinted
-delay: 300ms on hover
+### Tooltip / Popover
+```
+bg: bg-[#12172B] border border-[#C9973A]/20 rounded-lg p-3 shadow-xl
+text: text-[#F7F6F3] text-sm
+arrow: border-[#C9973A]/20
+delay: 300ms on hover appearance
+z-index: z-50
+```
+
+### Sidebar (dashboard navigation)
+```
+container: bg-[#0A0F2E] border-r border-[#C9973A]/10 w-64 min-h-screen
+logo area: border-b border-[#C9973A]/10 p-6
+nav item inactive: text-[#888888] hover:text-[#F7F6F3] hover:bg-[#C9973A]/5
+nav item active: text-[#C9973A] bg-[#C9973A]/8 border-l-2 border-[#C9973A]
+transition: transition-all duration-150
+mobile: collapses to bottom tab bar (max 5 items) with icons only
+```
+
+### Skeleton
+```
+base: bg-[#12172B] animate-pulse rounded
+text line: h-4 w-full rounded mb-2
+title: h-6 w-3/4 rounded mb-4
+card: h-32 w-full rounded-xl
+avatar: h-10 w-10 rounded-full
+```
+
+### Floor Plan (Konva.js)
+```
+canvas background: #0A0F2E
+table available: stroke #C9973A strokeWidth 1.5 fill transparent
+table reserved:  fill #2A2F4A stroke #444
+table occupied:  fill #1A2A1A stroke #3A9C6B
+table selected:  fill #C9973A stroke #C9973A (text dark)
+table promo:     stroke #C4567A fill transparent
+table size: 80x60px rounded corners (cornerRadius 8)
+tooltip on hover: dark card with name, capacity, price
+mode booking: only 'available' tables are clickable
+mode edit: drag & drop enabled, callback onPositionChange
+```
