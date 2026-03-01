@@ -90,6 +90,8 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 - Pages auth stabilisées sans `useSearchParams`:
   - `src/app/(auth)/login/page.tsx`
   - `src/app/(auth)/register/page.tsx`
+- Gouvernance UI renforcée dans `.github/copilot-instructions.md`:
+  - ajout du bloc “Component Development Rules — MANDATORY” (références design, a11y, tokens, checklist).
 
 ### Fixed
 

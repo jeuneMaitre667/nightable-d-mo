@@ -130,3 +130,129 @@ Format to append under ## Unreleased :
 - If you are only answering a question without touching code, skip the updates.
 - Always update docs AFTER the code changes, not before.
 - Keep entries concise — one line per file touched is enough. 
+
+## Component Development Rules — MANDATORY
+
+Every time you create or modify a UI component, you MUST follow this process :
+
+### Step 1 — Reference component.gallery
+Before writing any component code, identify the component type you are building
+and mentally reference the patterns from https://component.gallery/components/
+
+Map your component to one of these categories :
+- Form inputs → /components/text-input /components/select /components/checkbox
+- Navigation → /components/tabs /components/breadcrumb /components/pagination
+- Feedback → /components/toast /components/badge /components/progress-bar
+- Overlay → /components/modal /components/popover /components/tooltip
+- Layout → /components/accordion /components/card /components/divider
+- Data → /components/table /components/list /components/avatar
+- Media → /components/carousel /components/image
+
+### Step 2 — Apply these reference design systems for NightTable's aesthetic
+When building components, take inspiration from these systems (dark/premium feel) :
+- IBM Carbon Design System → data tables, dashboards, dense UIs
+- Atlassian Design System → forms, modals, feedback components
+- Shopify Polaris → cards, badges, navigation patterns
+- Radix UI → accessibility patterns, overlays, popovers
+
+Always adapt to NightTable dark luxury aesthetic — never copy light mode patterns.
+
+### Step 3 — Component structure to always follow
+Every component file must include :
+
+1. COMPONENT HEADER (comment at top of file) :
+  // Component: [Name]
+  // Reference: component.gallery/components/[type]
+  // Inspired by: [design system name] pattern
+  // NightTable usage: [where it is used in the app]
+
+2. PROPS INTERFACE — fully typed, no `any`
+  - Always include className?: string for composability
+  - Always include children?: React.ReactNode if wrappable
+  - Document each prop with a JSDoc comment
+
+3. VARIANTS — define all visual states :
+  - default, hover, focus, active, disabled, loading, error
+  - Use NightTable design tokens only (no raw Tailwind colors)
+
+4. ACCESSIBILITY — always include :
+  - Correct ARIA attributes (aria-label, aria-expanded, role...)
+  - Keyboard navigation (Enter, Space, Escape, Arrow keys)
+  - Focus visible styles (ring gold : ring-2 ring-[#C9973A])
+  - Minimum touch target 44x44px on mobile
+
+5. ANIMATION — always include :
+  - transition-all duration-200 ease-in-out minimum
+  - No animation over 300ms
+  - Respect prefers-reduced-motion
+
+### Step 4 — NightTable Design Tokens to use (never raw values)
+When Tailwind classes are not enough, use these CSS custom properties :
+
+--color-bg-primary: #050508
+--color-bg-secondary: #0A0F2E
+--color-bg-card: #12172B
+--color-gold: #C9973A
+--color-gold-light: #E8C96A
+--color-rose: #C4567A
+--color-blue: #3A6BC9
+--color-green: #3A9C6B
+--color-text-primary: #F7F6F3
+--color-text-muted: #888888
+
+### Step 5 — Component checklist before finishing
+Before returning any component code, verify :
+[ ] Fully typed props interface
+[ ] All visual states handled (default/hover/focus/disabled/loading/error)
+[ ] 'use client' only if strictly necessary (event handlers or hooks)
+[ ] No hardcoded colors — only NightTable palette
+[ ] ARIA attributes present
+[ ] Mobile touch targets >= 44px
+[ ] Transition/animation present
+[ ] Component header comment present
+[ ] CHANGELOG.md updated with new component entry
+[ ] No default Tailwind colors (no blue-500, red-400, gray-100...)
+
+### Common NightTable Components — Quick Reference
+
+**Button**
+variants: primary (gold fill) | secondary (gold border) | ghost | danger (rose)
+sizes: sm | md | lg
+states: default | hover | focus | loading (spinner) | disabled
+
+**Card**
+variants: default | elevated | bordered | interactive (hover effect)
+always: bg-[#12172B] border border-[#C9973A]/15 rounded-xl
+
+**Badge**
+variants: available (green) | reserved (gold) | cancelled (rose) | pending (muted)
+size: always small, uppercase, tracking-wider, font-size 11px
+
+**Input**
+always: dark bg, gold focus ring, muted label uppercase small
+states: default | focus | error | disabled | loading
+
+**Modal**
+always: dark overlay (bg-black/70 backdrop-blur-sm)
+content: bg-[#12172B] border border-[#C9973A]/20 rounded-2xl
+close: top-right X button, also close on overlay click and Escape key
+
+**Toast / Notification**
+position: top-right, stacked
+variants: success (green left border) | error (rose left border) | info (gold left border)
+auto-dismiss: 4000ms
+
+**Table**
+rows: alternating #12172B / #0A0F2E
+header: bg-[#0A0F2E] text-muted uppercase tracking-widest text-xs
+hover row: bg-[#C9973A]/05
+
+**Tabs**
+active: gold bottom border 2px + text gold
+inactive: text-muted hover text-primary
+transition: 200ms
+
+**Tooltip / Popover**
+bg: #12172B border border-[#C9973A]/20
+arrow: gold tinted
+delay: 300ms on hover

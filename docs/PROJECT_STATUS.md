@@ -135,6 +135,11 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Validation finale exécutée: `npm run lint` ✅ et `npm run build` ✅.
 - Clôture de l’audit avec synchro documentaire obligatoire (`ERROR_LOG`, `PROJECT_STATUS`, `CHANGELOG`).
 
+### 2026-03-01 (durcissement règles composants Copilot)
+
+- Ajout d’un bloc complet “Component Development Rules — MANDATORY” dans `.github/copilot-instructions.md`.
+- Standardisation explicite du process UI (références component.gallery, accessibilité, tokens, checklist de sortie).
+
 ### 2026-02-28
 
 - Sauvegarde des docs sources (.docx + .txt) dans le repo.
