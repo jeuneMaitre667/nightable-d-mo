@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { z } from "zod";
 import { createEventAction } from "@/lib/club.actions";
+
+import type { FormEvent, ReactElement } from "react";
 
 const eventSchema = z.object({
   title: z.string().trim().min(2),
@@ -18,7 +20,7 @@ const eventSchema = z.object({
   notoriety: z.number().min(1).max(2.5),
 });
 
-export default function NewClubEventPage(): JSX.Element {
+export default function NewClubEventPage(): ReactElement {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);

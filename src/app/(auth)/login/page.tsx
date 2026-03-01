@@ -1,17 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState, useTransition } from "react";
 import { loginAction } from "@/lib/auth.actions";
 
 export default function LoginPage() {
   const router = useRouter();
-  const query = useSearchParams();
+  const [queryError] = useState<string | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    return params.get("error");
+  });
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const queryError = useMemo(() => query.get("error"), [query]);
   const visibleError = error ?? queryError;
 
   function onSubmit(event: FormEvent<HTMLFormElement>): void {

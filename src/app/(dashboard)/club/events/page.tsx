@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeRole } from "@/lib/auth";
 
+import type { ReactElement } from "react";
+
 type EventRow = {
   id: string;
   title: string;
@@ -55,7 +57,7 @@ function toHour(value: string): string {
   return value.slice(0, 5);
 }
 
-export default async function ClubEventsPage(): Promise<JSX.Element> {
+export default async function ClubEventsPage(): Promise<ReactElement> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -80,14 +82,13 @@ export default async function ClubEventsPage(): Promise<JSX.Element> {
     .from("events")
     .select("id,title,date,start_time,end_time,dj_lineup,status,event_tables(status)")
     .eq("club_id", user.id)
-    .order("date", { ascending: false })
-    .returns<EventRow[]>();
+    .order("date", { ascending: false });
 
   if (error) {
     throw new Error("Impossible de charger les événements du club.");
   }
 
-  const eventList = events ?? [];
+  const eventList: EventRow[] = (events ?? []) as EventRow[];
 
   return (
     <div className="space-y-6">

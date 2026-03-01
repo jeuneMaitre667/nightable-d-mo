@@ -5,6 +5,22 @@ type ClubDashboardPageProps = {
   searchParams: Promise<{ error?: string }>;
 };
 
+type ClubEventListRow = {
+  id: string;
+  title: string;
+  date: string;
+  start_time: string;
+  status: string;
+};
+
+type ClubTableListRow = {
+  id: string;
+  name: string;
+  capacity: number;
+  base_price: number;
+  zone: string | null;
+};
+
 export default async function ClubDashboardPage({ searchParams }: ClubDashboardPageProps) {
   const params = await searchParams;
   const supabase = await createClient();
@@ -29,6 +45,45 @@ export default async function ClubDashboardPage({ searchParams }: ClubDashboardP
     .order("created_at", { ascending: false })
     .limit(10);
 
+  const eventList: ClubEventListRow[] = (events ?? []) as ClubEventListRow[];
+  const tableList: ClubTableListRow[] = (tables ?? []) as ClubTableListRow[];
+
+  async function createEventFromForm(formData: FormData): Promise<void> {
+    "use server";
+
+    await createEventAction({
+      title: String(formData.get("title") ?? "").trim(),
+      date: String(formData.get("date") ?? "").trim(),
+      startTime: String(formData.get("start_time") ?? "").trim(),
+      endTime: undefined,
+      djLineup: [],
+      dressCode: undefined,
+      description: String(formData.get("description") ?? "").trim() || undefined,
+      coverUrl: undefined,
+      isVipPromoActive: false,
+      isAuction: false,
+      notoriety: 1,
+    });
+  }
+
+  async function createTableFromForm(formData: FormData): Promise<void> {
+    "use server";
+
+    const zoneValue = String(formData.get("zone") ?? "vip").trim().toLowerCase();
+    const zone =
+      zoneValue === "dancefloor" || zoneValue === "vip" || zoneValue === "loge" || zoneValue === "terrasse"
+        ? zoneValue
+        : "vip";
+
+    await createTableAction({
+      name: String(formData.get("name") ?? "").trim(),
+      capacity: Number(formData.get("capacity") ?? 0),
+      basePrice: Number(formData.get("base_price") ?? 0),
+      zone,
+      isPromo: false,
+    });
+  }
+
   return (
     <div className="space-y-10">
       <section>
@@ -40,7 +95,7 @@ export default async function ClubDashboardPage({ searchParams }: ClubDashboardP
       </section>
 
       <section className="grid gap-6 md:grid-cols-2">
-        <form action={createEventAction} className="space-y-3 rounded border border-zinc-800 p-4">
+        <form action={createEventFromForm} className="space-y-3 rounded border border-zinc-800 p-4">
           <h2 className="text-lg font-medium">Créer un événement</h2>
           <input name="title" placeholder="Titre" required className="w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2" />
           <textarea name="description" placeholder="Description" className="w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2" />
@@ -51,7 +106,7 @@ export default async function ClubDashboardPage({ searchParams }: ClubDashboardP
           <button type="submit" className="rounded bg-white px-4 py-2 text-black">Ajouter événement</button>
         </form>
 
-        <form action={createTableAction} className="space-y-3 rounded border border-zinc-800 p-4">
+        <form action={createTableFromForm} className="space-y-3 rounded border border-zinc-800 p-4">
           <h2 className="text-lg font-medium">Créer une table</h2>
           <input name="name" placeholder="Nom table" required className="w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2" />
           <div className="grid grid-cols-2 gap-3">
@@ -67,26 +122,26 @@ export default async function ClubDashboardPage({ searchParams }: ClubDashboardP
         <div className="rounded border border-zinc-800 p-4">
           <h2 className="mb-3 text-lg font-medium">Événements récents</h2>
           <ul className="space-y-2 text-sm text-zinc-300">
-            {(events ?? []).map((event) => (
+            {eventList.map((event) => (
               <li key={event.id} className="rounded bg-zinc-900 px-3 py-2">
                 <p className="font-medium text-zinc-100">{event.title}</p>
                 <p>{event.date} • {event.start_time} • {event.status}</p>
               </li>
             ))}
-            {(events ?? []).length === 0 ? <li className="text-zinc-500">Aucun événement pour le moment.</li> : null}
+            {eventList.length === 0 ? <li className="text-zinc-500">Aucun événement pour le moment.</li> : null}
           </ul>
         </div>
 
         <div className="rounded border border-zinc-800 p-4">
           <h2 className="mb-3 text-lg font-medium">Tables</h2>
           <ul className="space-y-2 text-sm text-zinc-300">
-            {(tables ?? []).map((table) => (
+            {tableList.map((table) => (
               <li key={table.id} className="rounded bg-zinc-900 px-3 py-2">
                 <p className="font-medium text-zinc-100">{table.name}</p>
                 <p>Capacité {table.capacity} • {table.base_price}€ {table.zone ? `• ${table.zone}` : ""}</p>
               </li>
             ))}
-            {(tables ?? []).length === 0 ? <li className="text-zinc-500">Aucune table pour le moment.</li> : null}
+            {tableList.length === 0 ? <li className="text-zinc-500">Aucune table pour le moment.</li> : null}
           </ul>
         </div>
       </section>

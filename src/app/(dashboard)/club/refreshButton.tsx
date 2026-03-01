@@ -2,7 +2,9 @@
 
 import { useRouter } from "next/navigation";
 
-export default function RefreshButton(): JSX.Element {
+import type { ReactElement } from "react";
+
+export default function RefreshButton(): ReactElement {
   const router = useRouter();
 
   return (

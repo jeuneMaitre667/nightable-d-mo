@@ -2,26 +2,33 @@
 
 Index central de la documentation projet.
 
-## Sources métier
+## 1) Pilotage produit & technique
+
+- `ARCHITECTURE.md` — architecture applicative, modules, flux de données.
+- `ROADMAP.md` — plan de livraison et priorités produit.
+- `PROJECT_STATUS.md` — avancement vivant (fait / en cours / à faire).
+- `../CHANGELOG.md` — historique versionné des changements.
+
+## 2) Gestion des incidents
+
+- `errors/README.md` — process de gestion des erreurs.
+- `errors/ERROR_LOG.md` — registre chronologique synthétique.
+- `errors/incidents/` — fiches détaillées par incident.
+- `errors/templates/incident-template.md` — template officiel.
+
+## 3) Sources métier (référence)
 
 - `NightTable_BusinessPlan_V3.docx`
 - `NightTable_BusinessPlan_V3.txt`
 - `NightTable_DevGuide.docx`
 - `NightTable_DevGuide.txt`
 
-## Documentation technique
+## 4) Conventions de rangement
 
-- `ARCHITECTURE.md`
-- `ROADMAP.md`
-- `PROJECT_STATUS.md`
-
-## Releases docs
-
-- `v0.1-docs` : baseline docs
-- `v0.1-docs.1` : baseline docs + changelog
-
-## Convention
-
-- Les documents `.docx` sont les sources d'origine.
-- Les `.txt` sont des extractions pratiques pour recherche/IA.
-- Les `.md` sont la documentation opérationnelle du repo.
+- Les fichiers `.md` sont la documentation opérationnelle maintenue en continu.
+- Les `.docx` restent les sources d'origine métier.
+- Les `.txt` servent d’extraction pour recherche/IA.
+- Toute session qui modifie du code doit synchroniser:
+	- `docs/errors/ERROR_LOG.md`
+	- `docs/PROJECT_STATUS.md`
+	- `CHANGELOG.md`

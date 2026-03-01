@@ -1,14 +1,22 @@
 import Stripe from "stripe";
 
-export function getStripe() {
+let stripeInstance: Stripe | null = null;
+
+export function getStripe(): Stripe {
   const secretKey = process.env.STRIPE_SECRET_KEY;
 
   if (!secretKey) {
     throw new Error("STRIPE_SECRET_KEY manquante");
   }
 
-  return new Stripe(secretKey, {
+  if (stripeInstance) {
+    return stripeInstance;
+  }
+
+  stripeInstance = new Stripe(secretKey, {
     apiVersion: "2026-02-25.clover",
     typescript: true,
   });
+
+  return stripeInstance;
 }

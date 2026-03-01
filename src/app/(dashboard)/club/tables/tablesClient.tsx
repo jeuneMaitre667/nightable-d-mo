@@ -4,6 +4,8 @@ import { useMemo, useState, useTransition } from "react";
 import FloorPlan from "@/components/floor-plan/FloorPlan";
 import { createTableAction, updateTablePositionAction } from "@/lib/club.actions";
 
+import type { ReactElement } from "react";
+
 type ClubTable = {
   id: string;
   name: string;
@@ -19,6 +21,19 @@ type TablesClientProps = {
   initialTables: ClubTable[];
 };
 
+type FloorPlanStatus = "available" | "reserved" | "occupied" | "selected" | "promo" | "disabled" | "sold_out";
+
+type FloorPlanTableRow = {
+  id: string;
+  name: string;
+  capacity: number;
+  base_price: number;
+  zone: string | null;
+  position_x: number | null;
+  position_y: number | null;
+  status: FloorPlanStatus;
+};
+
 function formatEuros(value: number): string {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
@@ -27,14 +42,14 @@ function formatEuros(value: number): string {
   }).format(value);
 }
 
-export default function TablesClient({ initialTables }: TablesClientProps): JSX.Element {
+export default function TablesClient({ initialTables }: TablesClientProps): ReactElement {
   const [tables, setTables] = useState<ClubTable[]>(initialTables);
   const [selectedTableId, setSelectedTableId] = useState<string | undefined>(undefined);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const floorPlanTables = useMemo(
+  const floorPlanTables = useMemo<FloorPlanTableRow[]>(
     () =>
       tables.map((table) => ({
         id: table.id,
@@ -44,7 +59,7 @@ export default function TablesClient({ initialTables }: TablesClientProps): JSX.
         zone: table.zone,
         position_x: table.x_position,
         position_y: table.y_position,
-        status: table.is_promo ? "promo" : "available",
+        status: (table.is_promo ? "promo" : "available") as FloorPlanStatus,
       })),
     [tables]
   );
@@ -98,10 +113,12 @@ export default function TablesClient({ initialTables }: TablesClientProps): JSX.
         return;
       }
 
+      const tableId = result.data.tableId;
+
       setTables((current) => [
         ...current,
         {
-          id: result.data.tableId,
+          id: tableId,
           name: payload.name,
           capacity: payload.capacity,
           base_price: payload.basePrice,

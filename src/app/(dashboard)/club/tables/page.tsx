@@ -3,6 +3,8 @@ import TablesClient from "./tablesClient";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeRole } from "@/lib/auth";
 
+import type { ReactElement } from "react";
+
 type ClubTableRow = {
   id: string;
   name: string;
@@ -14,7 +16,7 @@ type ClubTableRow = {
   is_promo: boolean;
 };
 
-export default async function ClubTablesPage(): Promise<JSX.Element> {
+export default async function ClubTablesPage(): Promise<ReactElement> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -39,12 +41,11 @@ export default async function ClubTablesPage(): Promise<JSX.Element> {
     .from("tables")
     .select("id,name,capacity,base_price,zone,x_position,y_position,is_promo")
     .eq("club_id", user.id)
-    .order("created_at", { ascending: true })
-    .returns<ClubTableRow[]>();
+    .order("created_at", { ascending: true });
 
   if (error) {
     throw new Error("Impossible de charger les tables du club.");
   }
 
-  return <TablesClient initialTables={tables ?? []} />;
+  return <TablesClient initialTables={(tables ?? []) as ClubTableRow[]} />;
 }

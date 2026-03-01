@@ -1,11 +1,13 @@
 "use client";
 
+import type { ReactElement } from "react";
+
 type ClubEventsErrorProps = {
   error: Error;
   reset: () => void;
 };
 
-export default function ClubEventsError({ error, reset }: ClubEventsErrorProps): JSX.Element {
+export default function ClubEventsError({ error, reset }: ClubEventsErrorProps): ReactElement {
   return (
     <section className="rounded-xl border border-[#C4567A]/35 bg-[#12172B] p-8">
       <p className="text-xs uppercase tracking-[0.2em] text-[#C4567A]">Erreur événements</p>

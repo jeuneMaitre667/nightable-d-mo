@@ -1,4 +1,6 @@
-export default function ClubEventsLoading(): JSX.Element {
+import type { ReactElement } from "react";
+
+export default function ClubEventsLoading(): ReactElement {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-6">

@@ -78,3 +78,55 @@ Stack: Next.js 14 (App Router), TypeScript, Supabase, Stripe, Tailwind CSS, Open
 - Promo codes are valid for 48 hours after the first click (cookie expiry).
 - A table in 'reserved' or 'occupied' status can never be booked again for the same event.
 - Insurance (3-5€) is optional but shown prominently at checkout.
+## Auto-Documentation Rules — MANDATORY
+
+Every time you create, modify, or fix ANY file in this project, 
+you MUST update these 3 files in the same response. No exceptions.
+
+---
+
+### 1. docs/errors/ERROR_LOG.md
+Update when : a bug is fixed, an error is handled, a workaround is added.
+
+Format to append :
+---
+**[DATE] — [ERROR TITLE]**
+- File(s) affected: `path/to/file.ts`
+- Error: [exact error message or behavior]
+- Root cause: [why it happened]
+- Fix applied: [what was changed]
+- Status: ✅ Resolved
+---
+
+### 2. docs/PROJECT_STATUS.md
+Update after EVERY coding session or feature addition.
+
+Sections to keep current :
+- **Done** : move completed items here with ✅
+- **In progress** : what is currently being built
+- **Todo** : upcoming tasks in priority order
+- **Session log** : append one line per session :
+  [DATE] — [what was built or fixed] — [current blockers if any]
+
+### 3. CHANGELOG.md
+Update when : any file is created, modified, or deleted.
+
+Format to append under ## Unreleased :
+### Added
+- [filename or feature] : [one line description]
+
+### Changed  
+- [filename or feature] : [what changed and why]
+
+### Fixed
+- [filename or feature] : [bug description + fix summary]
+
+---
+
+## Enforcement
+
+- Never finish a response that touches code without updating all 3 files.
+- If a file does not exist yet, create it with the correct structure.
+- If you are only answering a question without touching code, skip the updates.
+- Always update docs AFTER the code changes, not before.
+- Keep entries concise — one line per file touched is enough. 

@@ -4,6 +4,8 @@ import RefreshButton from "./refreshButton";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeRole } from "@/lib/auth";
 
+import type { ReactElement } from "react";
+
 type EventTableRow = {
   id: string;
   status: "available" | "reserved" | "occupied" | "disabled" | "sold_out";
@@ -41,6 +43,8 @@ type PromoterRow = {
   } | null;
 };
 
+type FloorPlanStatus = "available" | "reserved" | "occupied" | "selected" | "promo" | "disabled" | "sold_out";
+
 function todayKey(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -62,7 +66,7 @@ function fullName(firstName?: string | null, lastName?: string | null): string {
   return value || "Client";
 }
 
-export default async function ClubDashboardHomePage(): Promise<JSX.Element> {
+export default async function ClubDashboardHomePage(): Promise<ReactElement> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -118,25 +122,22 @@ export default async function ClubDashboardHomePage(): Promise<JSX.Element> {
     supabase
       .from("event_tables")
       .select("id,status,dynamic_price,tables(id,name,capacity,base_price,zone,x_position,y_position,is_promo)")
-      .eq("event_id", eventOfTonight.id)
-      .returns<EventTableRow[]>(),
+      .eq("event_id", eventOfTonight.id),
     supabase
       .from("reservations")
       .select("id,status,created_at,event_table_id,prepayment_amount,client_profiles(first_name,last_name)")
       .eq("event_id", eventOfTonight.id)
-      .order("created_at", { ascending: false })
-      .returns<ReservationRow[]>(),
+      .order("created_at", { ascending: false }),
     supabase
       .from("reservations")
       .select("promoter_id,prepayment_amount,promoter_profiles(first_name,last_name)")
       .eq("event_id", eventOfTonight.id)
-      .not("promoter_id", "is", null)
-      .returns<PromoterRow[]>(),
+      .not("promoter_id", "is", null),
   ]);
 
-  const eventTablesList = eventTables ?? [];
-  const reservationsList = reservations ?? [];
-  const promotersList = promoters ?? [];
+  const eventTablesList: EventTableRow[] = (eventTables ?? []) as EventTableRow[];
+  const reservationsList: ReservationRow[] = (reservations ?? []) as ReservationRow[];
+  const promotersList: PromoterRow[] = (promoters ?? []) as PromoterRow[];
 
   const tablesReserved = eventTablesList.filter((item) => item.status === "reserved" || item.status === "occupied");
   const tablesAvailable = eventTablesList.filter((item) => item.status === "available");
@@ -148,7 +149,16 @@ export default async function ClubDashboardHomePage(): Promise<JSX.Element> {
 
   const guestsExpected = tablesReserved.reduce((sum, table) => sum + Number(table.tables?.capacity ?? 0), 0);
 
-  const floorPlanTables = eventTablesList
+  const floorPlanTables: Array<{
+    id: string;
+    name: string;
+    capacity: number;
+    base_price: number;
+    zone: string | null;
+    position_x: number | null;
+    position_y: number | null;
+    status: FloorPlanStatus;
+  }> = eventTablesList
     .filter((item) => item.tables)
     .map((item) => ({
       id: item.tables!.id,
@@ -158,7 +168,7 @@ export default async function ClubDashboardHomePage(): Promise<JSX.Element> {
       zone: item.tables!.zone,
       position_x: item.tables!.x_position,
       position_y: item.tables!.y_position,
-      status: item.tables!.is_promo && item.status === "available" ? "promo" : item.status,
+      status: (item.tables!.is_promo && item.status === "available" ? "promo" : item.status) as FloorPlanStatus,
     }));
 
   const tableNameByEventTableId = new Map(

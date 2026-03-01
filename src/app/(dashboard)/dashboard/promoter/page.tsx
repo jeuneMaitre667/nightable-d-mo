@@ -5,6 +5,21 @@ type PromoterDashboardPageProps = {
   searchParams: Promise<{ error?: string }>;
 };
 
+type PromoterEventRow = {
+  id: string;
+  title: string;
+  date: string;
+};
+
+type GuestListRow = {
+  id: string;
+  guest_name: string;
+  guest_phone: string | null;
+  status: string;
+  added_at: string;
+  events: Array<{ title: string }> | null;
+};
+
 export default async function PromoterDashboardPage({ searchParams }: PromoterDashboardPageProps) {
   const params = await searchParams;
   const supabase = await createClient();
@@ -29,6 +44,9 @@ export default async function PromoterDashboardPage({ searchParams }: PromoterDa
     .order("added_at", { ascending: false })
     .limit(20);
 
+  const eventList: PromoterEventRow[] = (events ?? []) as PromoterEventRow[];
+  const guestListRows: GuestListRow[] = (guestList ?? []) as GuestListRow[];
+
   return (
     <div className="space-y-8">
       <section>
@@ -44,7 +62,7 @@ export default async function PromoterDashboardPage({ searchParams }: PromoterDa
         <form action={addGuestAction} className="mt-4 grid gap-3 md:grid-cols-3">
           <select name="event_id" required className="rounded border border-zinc-700 bg-zinc-900 px-3 py-2">
             <option value="">Sélectionner un événement</option>
-            {(events ?? []).map((event) => (
+            {eventList.map((event) => (
               <option key={event.id} value={event.id}>
                 {event.title} — {event.date}
               </option>
@@ -59,7 +77,7 @@ export default async function PromoterDashboardPage({ searchParams }: PromoterDa
       <section className="rounded border border-zinc-800 p-4">
         <h2 className="mb-3 text-lg font-medium">Mes invités récents</h2>
         <ul className="space-y-2 text-sm text-zinc-300">
-          {(guestList ?? []).map((guest) => (
+          {guestListRows.map((guest) => (
             <li key={guest.id} className="rounded bg-zinc-900 px-3 py-2">
               <p className="font-medium text-zinc-100">{guest.guest_name}</p>
               <p>
@@ -68,7 +86,7 @@ export default async function PromoterDashboardPage({ searchParams }: PromoterDa
               </p>
             </li>
           ))}
-          {(guestList ?? []).length === 0 ? <li className="text-zinc-500">Aucun invité ajouté pour le moment.</li> : null}
+          {guestListRows.length === 0 ? <li className="text-zinc-500">Aucun invité ajouté pour le moment.</li> : null}
         </ul>
       </section>
     </div>

@@ -20,13 +20,13 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## Dernière mise à jour
 
-- Date: 2026-02-28
+- Date: 2026-03-01
 - Auteur: GitHub Copilot
 
 ## Vue synthèse
 
-- Progression MVP (estimation): 35%
-- Axe prioritaire actuel: finaliser le flux Réservation + Paiement Stripe
+- Progression MVP (estimation): 62%
+- Axe prioritaire actuel: finaliser le checkout Stripe côté front (Elements) + stabiliser config env locale
 
 ## Fait
 
@@ -48,29 +48,42 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Action promoteur de base (guest list) implémentée.
 - Endpoint bot IA opérationnel.
 - Endpoint webhook Stripe présent (base de traitement).
+- Dashboard Club — événements/tables opérationnels (création, listing, floor plan).
+- Parcours public réservation événement en place:
+  - page événement publique avec sélection table via floor plan,
+  - tunnel checkout 3 étapes,
+  - création réservation server action + PaymentIntent.
+- Webhook Stripe étendu:
+  - `payment_intent.succeeded` (confirmation réservation + verrouillage table),
+  - `payment_intent.payment_failed` (annulation + libération table),
+  - `customer.subscription.created/updated/deleted` (sync abonnement club).
+- Wrappers notifications transactionnelles ajoutés:
+  - `src/lib/twilio.ts` (`sendSMS`),
+  - `src/lib/resend.ts` (`sendReservationConfirmation`).
+- Migration checkout appliquée:
+  - `supabase/migrations/008_reservations_checkout_fields.sql`.
+- Tests E2E webhook exécutés et validés (succès + échec paiement), puis fixtures nettoyées.
 
 ## En cours
 
-- Structuration du pilotage produit via ce document vivant.
-- Clarification du périmètre MVP prioritaire (réservation/paiement/webhook).
+- Intégration Stripe Elements côté checkout client (remplacer le placeholder actuel).
+- Stabilisation des variables d’environnement locales (Stripe secret key valide, healthcheck de session).
+- Formalisation du runbook E2E local (ordre des commandes et critères de succès).
 
 ## À faire (priorité)
 
 ### P0 — Critique MVP
 
-- Implémenter `POST /api/reservations` (validation + création réservation).
-- Ajouter migration `003_reservations.sql` (tables réservations + waitlist minimal).
-- Ajouter policies RLS associées aux réservations.
-- Finaliser le webhook Stripe:
-  - `payment_intent.succeeded` → confirmation réservation.
-  - `payment_intent.payment_failed` → annulation réservation.
-- Ajouter idempotence et logs sur le webhook.
+- Intégrer Stripe Elements réel dans `checkout` et finaliser confirmation côté client.
+- Renforcer l’idempotence webhook (journal d’événements Stripe traités).
+- Ajouter script de healthcheck env (`Supabase`, `Stripe`, webhook secret).
 
 ### P1 — Important après P0
 
 - Lier les réservations aux promoteurs via `promo_code`.
 - Démarrer le calcul et suivi des commissions promoteurs.
 - Ajouter notifications transactionnelles (email + SMS).
+- Connecter les notifications à des templates métier complets (contenu + branding + fallback).
 - Renforcer la validation serveur (inputs/API) sur endpoints critiques.
 
 ### P2 — Itérations suivantes
@@ -87,6 +100,40 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Risque dérive de scope si P1/P2 démarrés avant clôture P0.
 
 ## Journal de sessions
+
+### 2026-03-01 (booking/checkout/webhook)
+
+- Implémentation du parcours public événement avec sélection de table interactive (`FloorPlan` mode booking).
+- Mise en place du checkout 3 étapes (`infos client`, `options`, `paiement`) et raccordement Server Action.
+- Création de `src/lib/reservation.actions.ts` (validation Zod, disponibilité table, prépaiement, PaymentIntent, persist réservation).
+- Extension majeure du webhook Stripe (`succeeded`, `payment_failed`, subscriptions) + hooks notifications SMS/email.
+- Ajout migration `008_reservations_checkout_fields.sql`, push Supabase effectué.
+- Exécution tests E2E webhook (scénarios succès/échec), validation des statuts DB, puis nettoyage des fixtures.
+
+### 2026-03-01 (incidents & mitigation)
+
+- Diagnostic d’un décalage schéma (`events.notoriety` absent en DB distante), correctif code appliqué.
+- Constat `STRIPE_SECRET_KEY` locale invalide (`401`), mitigation via `stripe trigger` + metadata `reservation_id`.
+- Mise à jour de la base de connaissance erreurs (`docs/errors/*`) avec nouveaux incidents.
+
+### 2026-03-01 (process doc renforcé)
+
+- Ajout d’une checklist “Session close (obligatoire)” dans le template incident (`docs/errors/templates/incident-template.md`).
+- Alignement avec la règle auto-documentation ajoutée dans `.github/copilot-instructions.md`.
+- Synchronisation immédiate `ERROR_LOG` + `PROJECT_STATUS` + `CHANGELOG` pour verrouiller le process.
+
+### 2026-03-01 (audit complet dossier)
+
+- Audit global exécuté (`lint` + `build`) pour vérifier erreurs réelles du repo.
+- Correctif build appliqué globalement sur les composants/pages en erreur (`ReactElement` explicite au lieu de `JSX.Element`).
+- Classement documentaire renforcé via refonte de `docs/README.md` (pilotage, incidents, sources métier, conventions).
+- Incident build documenté dans `docs/errors/incidents/2026-03-01-dashboard-events-jsx-namespace-build.md`.
+
+### 2026-03-01 (audit final auth + validation verte)
+
+- Correctif `login/register` pour supprimer la dépendance `useSearchParams` au build/prerender et éviter le warning lint sur `setState` dans `useEffect`.
+- Validation finale exécutée: `npm run lint` ✅ et `npm run build` ✅.
+- Clôture de l’audit avec synchro documentaire obligatoire (`ERROR_LOG`, `PROJECT_STATUS`, `CHANGELOG`).
 
 ### 2026-02-28
 

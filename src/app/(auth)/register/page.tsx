@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState, useTransition } from "react";
 import {
   registerClientAction,
   registerClubAction,
@@ -21,12 +21,24 @@ function normalizeRegisterRole(value: string | null): RegisterRole {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const query = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [selectedRole, setSelectedRole] = useState<RegisterRole>(normalizeRegisterRole(query.get("role")));
+  const [selectedRole, setSelectedRole] = useState<RegisterRole>(() => {
+    if (typeof window === "undefined") {
+      return "client";
+    }
 
-  const queryError = useMemo(() => query.get("error"), [query]);
+    const params = new URLSearchParams(window.location.search);
+    return normalizeRegisterRole(params.get("role"));
+  });
+  const [queryError] = useState<string | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    return params.get("error");
+  });
   const visibleError = error ?? queryError;
 
   function onSubmit(event: FormEvent<HTMLFormElement>): void {

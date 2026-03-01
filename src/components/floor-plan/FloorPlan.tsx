@@ -3,6 +3,8 @@
 import { Fragment, useMemo, useState } from "react";
 import { Layer, Rect, Stage, Text } from "react-konva";
 
+import type { ReactElement } from "react";
+
 type FloorPlanTable = {
   id: string;
   name: string;
@@ -71,7 +73,7 @@ export default function FloorPlan({
   selectedTableId,
   mode,
   onPositionChange,
-}: FloorPlanProps): JSX.Element {
+}: FloorPlanProps): ReactElement {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
 
   const positionedTables = useMemo(
