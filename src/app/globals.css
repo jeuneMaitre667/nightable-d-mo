@@ -114,3 +114,153 @@ body {
   color: var(--gold);
   font-variant-numeric: tabular-nums;
 }
+
+/* ─── Landing page animations ──────────────────────────────── */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.04; }
+  50% { opacity: 0.08; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease both;
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+/* Stagger children */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-shimmer,
+  .animate-glow-pulse {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ─── Smooth scrolling ─────────────────────────────────────── */
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ─── Selection highlight ──────────────────────────────────── */
+
+::selection {
+  background: rgba(201, 151, 58, 0.3);
+  color: var(--foreground);
+}
+
+/* ─── Custom scrollbar ─────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 151, 58, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 151, 58, 0.35);
+}
+
+/* ─── Global form text clarity (HeroUI + native inputs) ───── */
+
+:where(input, textarea, select, [data-slot="input"]) {
+  text-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-font-smoothing: antialiased;
+  background-clip: padding-box !important;
+  -webkit-background-clip: padding-box !important;
+}
+
+:where([data-slot="input-wrapper"], [data-slot="inner-wrapper"]) {
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+:where([data-slot="input-wrapper"])::before,
+:where([data-slot="input-wrapper"])::after,
+:where([data-slot="inner-wrapper"])::before,
+:where([data-slot="inner-wrapper"])::after {
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  background: transparent !important;
+}
+
+:where(input, textarea, select, [data-slot="input"]):focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+:where([data-slot="input"]) {
+  color: var(--foreground) !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+  background-color: transparent !important;
+}
+
+:where(input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill, [data-slot="input"]:-webkit-autofill),
+:where(input:-webkit-autofill:hover, textarea:-webkit-autofill:hover, select:-webkit-autofill:hover, [data-slot="input"]:-webkit-autofill:hover),
+:where(input:-webkit-autofill:focus, textarea:-webkit-autofill:focus, select:-webkit-autofill:focus, [data-slot="input"]:-webkit-autofill:focus) {
+  -webkit-text-fill-color: var(--foreground) !important;
+  caret-color: var(--foreground) !important;
+  background-color: var(--background-secondary) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--background-secondary) inset !important;
+  box-shadow: 0 0 0 1000px var(--background-secondary) inset !important;
+}

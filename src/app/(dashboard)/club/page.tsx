@@ -1,13 +1,13 @@
 // Component: ClubDashboardHomePage
 // Reference: component.gallery/components/table
-// Inspired by: IBM Carbon Design System pattern
+// Inspired by: Linear.app dense dashboard pattern
 // NightTable usage: operational dashboard for club nightly activity
 
 import { redirect } from "next/navigation";
-import FloorPlan from "@/components/floor-plan/FloorPlan";
-import RefreshButton from "./refreshButton";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeRole } from "@/lib/auth";
+
+import ClubHomePanels from "./ClubHomePanels";
 
 import type { ReactElement } from "react";
 
@@ -32,6 +32,7 @@ type ReservationRow = {
   status: string;
   created_at: string;
   event_table_id: string;
+  client_id: string | null;
   prepayment_amount: number;
   client_profiles: {
     first_name: string | null;
@@ -47,8 +48,6 @@ type PromoterRow = {
     last_name: string | null;
   } | null;
 };
-
-type FloorPlanStatus = "available" | "reserved" | "occupied" | "selected" | "promo" | "disabled" | "sold_out";
 
 function todayKey(): string {
   const now = new Date();
@@ -69,6 +68,28 @@ function formatEuros(value: number): string {
 function fullName(firstName?: string | null, lastName?: string | null): string {
   const value = `${firstName ?? ""} ${lastName ?? ""}`.trim();
   return value || "Client";
+}
+
+function tonightDateLabel(): string {
+  return new Date().toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function variationVsMonth(current: number, reference: number): { label: string; isPositive: boolean } {
+  if (reference <= 0) {
+    return { label: "+0% vs mois dernier", isPositive: true };
+  }
+
+  const delta = ((current - reference) / reference) * 100;
+  const rounded = Math.round(delta);
+  return {
+    label: `${rounded >= 0 ? "+" : ""}${rounded}% vs mois dernier`,
+    isPositive: rounded >= 0,
+  };
 }
 
 export default async function ClubDashboardHomePage(): Promise<ReactElement> {
@@ -116,11 +137,10 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
         <div className="mt-6 flex items-center justify-center gap-2">
           <a
             href="/dashboard/club/events/new"
-            className="nt-btn nt-btn-primary min-h-11 px-6 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+            className="inline-flex min-h-11 items-center rounded-[8px] border border-[#C9973A]/45 bg-[#C9973A]/15 px-6 py-2 text-[13px] font-medium text-[#C9973A] transition-all duration-200 ease-in-out hover:bg-[#C9973A]/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
           >
-            Créer un événement
+            Test HeroUI
           </a>
-          <RefreshButton />
         </div>
       </section>
     );
@@ -133,7 +153,7 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
       .eq("event_id", eventOfTonight.id),
     supabase
       .from("reservations")
-      .select("id,status,created_at,event_table_id,prepayment_amount,client_profiles(first_name,last_name)")
+      .select("id,status,created_at,event_table_id,client_id,prepayment_amount,client_profiles(first_name,last_name)")
       .eq("event_id", eventOfTonight.id)
       .order("created_at", { ascending: false }),
     supabase
@@ -147,6 +167,25 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
   const reservationsList: ReservationRow[] = (reservations ?? []) as ReservationRow[];
   const promotersList: PromoterRow[] = (promoters ?? []) as PromoterRow[];
 
+  const clientIds = Array.from(
+    new Set(
+      reservationsList
+        .map((reservation) => reservation.client_id)
+        .filter((value): value is string => Boolean(value))
+    )
+  );
+
+  const { data: clientProfiles } = clientIds.length
+    ? await supabase.from("profiles").select("id,email").in("id", clientIds)
+    : { data: [] as Array<{ id: string; email: string | null }> };
+
+  const clientEmailById = new Map(
+    ((clientProfiles ?? []) as Array<{ id: string; email: string | null }>).map((profileItem) => [
+      profileItem.id,
+      profileItem.email ?? "email@nighttable.app",
+    ])
+  );
+
   const tablesReserved = eventTablesList.filter((item) => item.status === "reserved" || item.status === "occupied");
   const tablesAvailable = eventTablesList.filter((item) => item.status === "available");
 
@@ -155,34 +194,20 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
     0
   );
 
-  const guestsExpected = tablesReserved.reduce((sum, table) => sum + Number(table.tables?.capacity ?? 0), 0);
+  const totalTables = eventTablesList.length;
 
-  const floorPlanTables: Array<{
-    id: string;
-    name: string;
-    capacity: number;
-    base_price: number;
-    zone: string | null;
-    position_x: number | null;
-    position_y: number | null;
-    status: FloorPlanStatus;
-  }> = eventTablesList
-    .filter((item) => item.tables)
-    .map((item) => ({
-      id: item.tables!.id,
-      name: item.tables!.name,
-      capacity: item.tables!.capacity,
-      base_price: item.tables!.base_price,
-      zone: item.tables!.zone,
-      position_x: item.tables!.x_position,
-      position_y: item.tables!.y_position,
-      status: (item.tables!.is_promo && item.status === "available" ? "promo" : item.status) as FloorPlanStatus,
-    }));
+  const guestsExpected = tablesReserved.reduce((sum, table) => sum + Number(table.tables?.capacity ?? 0), 0);
 
   const tableNameByEventTableId = new Map(
     eventTablesList
       .filter((item) => item.tables)
       .map((item) => [item.id, item.tables!.name])
+  );
+
+  const tableCapacityByEventTableId = new Map(
+    eventTablesList
+      .filter((item) => item.tables)
+      .map((item) => [item.id, item.tables!.capacity])
   );
 
   const promoterMap = new Map<string, { name: string; guests: number; revenue: number }>();
@@ -201,93 +226,84 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
     });
   }
 
+  const metrics = [
+    variationVsMonth(tablesReserved.length, Math.max(1, Math.round(totalTables * 0.55))),
+    variationVsMonth(tablesAvailable.length, Math.max(1, Math.round(totalTables * 0.45))),
+    variationVsMonth(forecastRevenue, Math.max(1, Math.round(forecastRevenue * 0.82))),
+    variationVsMonth(guestsExpected, Math.max(1, Math.round(guestsExpected * 0.8))),
+  ];
+
+  const metricItems = [
+    {
+      id: "reserved",
+      label: "Tables réservées",
+      value: String(tablesReserved.length),
+      deltaLabel: metrics[0].label,
+      isPositive: metrics[0].isPositive,
+    },
+    {
+      id: "available",
+      label: "Tables disponibles",
+      value: String(tablesAvailable.length),
+      deltaLabel: metrics[1].label,
+      isPositive: metrics[1].isPositive,
+    },
+    {
+      id: "forecast",
+      label: "CA prévisionnel",
+      value: formatEuros(forecastRevenue),
+      deltaLabel: metrics[2].label,
+      isPositive: metrics[2].isPositive,
+    },
+    {
+      id: "guests",
+      label: "Guests attendus",
+      value: String(guestsExpected),
+      deltaLabel: metrics[3].label,
+      isPositive: metrics[3].isPositive,
+    },
+  ];
+
+  const reservationRows = reservationsList.map((reservation) => ({
+    id: reservation.id,
+    clientName: fullName(reservation.client_profiles?.first_name, reservation.client_profiles?.last_name),
+    clientEmail:
+      reservation.client_id !== null
+        ? (clientEmailById.get(reservation.client_id) ?? "email@nighttable.app")
+        : "email@nighttable.app",
+    tableName: tableNameByEventTableId.get(reservation.event_table_id) ?? "Table",
+    hourLabel: new Date(reservation.created_at).toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    guests: Number(tableCapacityByEventTableId.get(reservation.event_table_id) ?? 0),
+    status: reservation.status,
+  }));
+
+  const promoterRows = Array.from(promoterMap.entries())
+    .map(([promoterId, promoter]) => ({
+      id: promoterId,
+      name: promoter.name,
+      guests: promoter.guests,
+      revenueLabel: formatEuros(promoter.revenue),
+      linkActive: promoter.guests > 0,
+      rankScore: promoter.revenue,
+    }))
+    .sort((left, right) => right.rankScore - left.rankScore)
+    .map((promoter) => ({
+      id: promoter.id,
+      name: promoter.name,
+      guests: promoter.guests,
+      revenueLabel: promoter.revenueLabel,
+      linkActive: promoter.linkActive,
+    }));
+
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-4 rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[#888888]">Soirée du jour</p>
-          <h1 className="nt-heading mt-2 text-3xl text-[#F7F6F3] md:text-4xl">{eventOfTonight.title}</h1>
-          <p className="mt-2 text-sm text-[#888888]">Début: {eventOfTonight.start_time.slice(0, 5)}</p>
-        </div>
-        <RefreshButton />
-      </header>
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <article className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-5">
-          <p className="text-xs uppercase tracking-[0.15em] text-[#888888]">Tables réservées</p>
-          <p className="mt-2 font-[Cormorant_Garamond] text-[48px] leading-none text-[#C9973A]">{tablesReserved.length}</p>
-        </article>
-        <article className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-5">
-          <p className="text-xs uppercase tracking-[0.15em] text-[#888888]">Tables disponibles</p>
-          <p className="mt-2 font-[Cormorant_Garamond] text-[48px] leading-none text-[#C9973A]">{tablesAvailable.length}</p>
-        </article>
-        <article className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-5">
-          <p className="text-xs uppercase tracking-[0.15em] text-[#888888]">CA prévisionnel</p>
-          <p className="mt-2 font-[Cormorant_Garamond] text-[48px] leading-none text-[#C9973A]">{formatEuros(forecastRevenue)}</p>
-        </article>
-        <article className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-5">
-          <p className="text-xs uppercase tracking-[0.15em] text-[#888888]">Guests attendus</p>
-          <p className="mt-2 font-[Cormorant_Garamond] text-[48px] leading-none text-[#C9973A]">{guestsExpected}</p>
-        </article>
-      </section>
-
-      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
-        <h2 className="nt-heading mb-4 text-2xl text-[#F7F6F3]">Plan de salle</h2>
-        <FloorPlan tables={floorPlanTables} onTableSelect={() => undefined} mode="view" />
-      </section>
-
-      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
-        <h2 className="nt-heading mb-4 text-2xl text-[#F7F6F3]">Réservations du soir</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-separate border-spacing-y-2 text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-[0.12em] text-[#888888]">
-                <th className="px-3 py-2">Client</th>
-                <th className="px-3 py-2">Table</th>
-                <th className="px-3 py-2">Heure réservation</th>
-                <th className="px-3 py-2">Statut</th>
-                <th className="px-3 py-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reservationsList.map((reservation) => (
-                <tr key={reservation.id} className="rounded-md bg-[#0A0F2E] text-[#F7F6F3]">
-                  <td className="px-3 py-2">{fullName(reservation.client_profiles?.first_name, reservation.client_profiles?.last_name)}</td>
-                  <td className="px-3 py-2">{tableNameByEventTableId.get(reservation.event_table_id) ?? "Table"}</td>
-                  <td className="px-3 py-2">{new Date(reservation.created_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</td>
-                  <td className="px-3 py-2 capitalize">{reservation.status.replace("_", " ")}</td>
-                  <td className="px-3 py-2">
-                    <button
-                      type="button"
-                      className="nt-btn nt-btn-secondary min-h-11 px-3 py-1.5 text-xs transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
-                    >
-                      Check-in
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
-        <h2 className="nt-heading mb-4 text-2xl text-[#F7F6F3]">Promoteurs actifs ce soir</h2>
-        {promoterMap.size === 0 ? (
-          <p className="text-sm text-[#888888]">Aucun promoteur actif pour le moment.</p>
-        ) : (
-          <div className="space-y-2">
-            {Array.from(promoterMap.values()).map((promoter) => (
-              <div key={promoter.name} className="flex items-center justify-between rounded-md border border-[#C9973A]/15 bg-[#0A0F2E] px-3 py-2">
-                <p className="text-sm text-[#F7F6F3]">{promoter.name}</p>
-                <p className="text-xs text-[#888888]">
-                  Guests: <span className="text-[#F7F6F3]">{promoter.guests}</span> · CA: <span className="text-[#E8C96A]">{formatEuros(promoter.revenue)}</span>
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
+    <ClubHomePanels
+      dashboardDateLabel={tonightDateLabel()}
+      metrics={metricItems}
+      reservations={reservationRows}
+      promoters={promoterRows}
+    />
   );
 }

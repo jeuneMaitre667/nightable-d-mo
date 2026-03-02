@@ -5,7 +5,8 @@
 // Inspired by: Atlassian modal form pattern
 // NightTable usage: Club dashboard promoter creation flow
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Slider } from "@heroui/react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -18,22 +19,6 @@ export function AddPromoterModal() {
   const [commissionRate, setCommissionRate] = useState<number>(10);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
-
-  useEffect(() => {
-    function handleEscape(event: KeyboardEvent): void {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    }
-
-    if (isOpen) {
-      window.addEventListener("keydown", handleEscape);
-    }
-
-    return () => {
-      window.removeEventListener("keydown", handleEscape);
-    };
-  }, [isOpen]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -59,13 +44,15 @@ export function AddPromoterModal() {
 
   return (
     <>
-      <button
+      <Button
         type="button"
-        onClick={() => setIsOpen(true)}
-        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-[#C9973A] px-4 py-2 text-sm font-semibold text-[#050508] transition-all duration-200 ease-in-out hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050508]"
+        onPress={() => setIsOpen(true)}
+        color="primary"
+        radius="none"
+        className="min-h-11 px-4 text-xs font-semibold uppercase tracking-widest"
       >
         Ajouter un promoteur
-      </button>
+      </Button>
 
       {successMessage ? (
         <p className="mt-3 rounded-lg border border-[#3A9C6B]/30 bg-[#3A9C6B]/10 px-3 py-2 text-sm text-[#3A9C6B]">
@@ -73,96 +60,133 @@ export function AddPromoterModal() {
         </p>
       ) : null}
 
-      {isOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Ajouter un promoteur"
-          onClick={() => setIsOpen(false)}
-        >
-          <div
-            className="w-full max-w-lg rounded-2xl border border-[#C9973A]/20 bg-[#12172B] p-6 transition-all duration-200 ease-in-out"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="mb-4 flex items-start justify-between">
-              <h2 className="text-xl font-semibold text-[#F7F6F3]">Nouveau promoteur</h2>
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#2A2F4A] text-[#888888] transition-all duration-200 ease-in-out hover:border-[#C9973A]/30 hover:text-[#F7F6F3] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050508]"
-                aria-label="Fermer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={(open: boolean) => {
+          setIsOpen(open);
+          if (!open) {
+            setErrorMessage("");
+          }
+        }}
+        backdrop="blur"
+        classNames={{
+          base: "bg-[#12172B] border border-[#C9973A]/20 text-[#F7F6F3]",
+          header: "border-b border-[#C9973A]/10",
+          footer: "border-t border-[#C9973A]/10",
+        }}
+      >
+        <ModalContent>
+          <form onSubmit={handleSubmit}>
+            <ModalHeader>Nouveau promoteur</ModalHeader>
+            <ModalBody className="space-y-4">
               <div className="grid gap-3 md:grid-cols-2">
-                <input
+                <Input
                   name="first_name"
-                  required
+                  isRequired
                   placeholder="Prénom"
-                  className="h-11 rounded-lg border border-[#2A2F4A] bg-[#0A0F2E] px-3 text-[#F7F6F3] transition-all duration-200 ease-in-out focus:border-[#C9973A] focus:outline-none focus:ring-2 focus:ring-[#C9973A]/15"
+                  label="Prénom"
+                  labelPlacement="outside"
+                  variant="bordered"
+                  color="primary"
+                  classNames={{
+                    label: "text-[11px] uppercase tracking-widest text-[#888888]",
+                    inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                    input: "text-[#F7F6F3]",
+                  }}
                 />
-                <input
+                <Input
                   name="last_name"
-                  required
+                  isRequired
                   placeholder="Nom"
-                  className="h-11 rounded-lg border border-[#2A2F4A] bg-[#0A0F2E] px-3 text-[#F7F6F3] transition-all duration-200 ease-in-out focus:border-[#C9973A] focus:outline-none focus:ring-2 focus:ring-[#C9973A]/15"
+                  label="Nom"
+                  labelPlacement="outside"
+                  variant="bordered"
+                  color="primary"
+                  classNames={{
+                    label: "text-[11px] uppercase tracking-widest text-[#888888]",
+                    inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                    input: "text-[#F7F6F3]",
+                  }}
                 />
               </div>
 
-              <input
+              <Input
                 type="email"
                 name="email"
-                required
+                isRequired
                 placeholder="Email"
-                className="h-11 w-full rounded-lg border border-[#2A2F4A] bg-[#0A0F2E] px-3 text-[#F7F6F3] transition-all duration-200 ease-in-out focus:border-[#C9973A] focus:outline-none focus:ring-2 focus:ring-[#C9973A]/15"
+                label="Email"
+                labelPlacement="outside"
+                variant="bordered"
+                color="primary"
+                classNames={{
+                  label: "text-[11px] uppercase tracking-widest text-[#888888]",
+                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  input: "text-[#F7F6F3]",
+                }}
               />
 
-              <input
+              <Input
                 name="phone"
                 placeholder="Téléphone (optionnel)"
-                className="h-11 w-full rounded-lg border border-[#2A2F4A] bg-[#0A0F2E] px-3 text-[#F7F6F3] transition-all duration-200 ease-in-out focus:border-[#C9973A] focus:outline-none focus:ring-2 focus:ring-[#C9973A]/15"
+                label="Téléphone"
+                labelPlacement="outside"
+                variant="bordered"
+                color="primary"
+                classNames={{
+                  label: "text-[11px] uppercase tracking-widest text-[#888888]",
+                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  input: "text-[#F7F6F3]",
+                }}
               />
 
-              <div>
-                <label
-                  htmlFor="commission-rate"
-                  className="mb-2 block text-[11px] uppercase tracking-widest text-[#888888]"
-                >
-                  Commission: {commissionRate}%
-                </label>
-                <input
-                  id="commission-rate"
-                  type="range"
-                  min={5}
-                  max={15}
-                  step={1}
-                  value={commissionRate}
-                  onChange={(event) => setCommissionRate(Number(event.target.value))}
-                  className="h-11 w-full accent-[#C9973A]"
-                />
-              </div>
+              <Slider
+                label="Taux de commission"
+                minValue={5}
+                maxValue={15}
+                step={0.5}
+                showSteps={false}
+                showTooltip
+                value={commissionRate}
+                onChange={(value) => setCommissionRate(Number(value))}
+                classNames={{
+                  label: "text-[11px] uppercase tracking-widest text-[#888888]",
+                  track: "bg-[#2A2F4A]",
+                  filler: "bg-[#C9973A]",
+                }}
+              />
+
+              <p className="text-xs text-[#888888]">Commission sélectionnée: {commissionRate}%</p>
 
               {errorMessage ? (
                 <p className="rounded-lg border border-[#C4567A]/30 bg-[#C4567A]/10 px-3 py-2 text-sm text-[#C4567A]">
                   {errorMessage}
                 </p>
               ) : null}
-
-              <button
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                type="button"
+                variant="bordered"
+                className="min-h-11 border-[#C9973A]/30 text-[#C9973A]"
+                onPress={() => setIsOpen(false)}
+              >
+                Annuler
+              </Button>
+              <Button
                 type="submit"
-                disabled={isSubmitting}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-[#C9973A] px-4 py-2 text-sm font-semibold text-[#050508] transition-all duration-200 ease-in-out hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050508] disabled:cursor-not-allowed disabled:opacity-50"
+                color="primary"
+                radius="none"
+                className="min-h-11 font-semibold"
+                isDisabled={isSubmitting}
+                isLoading={isSubmitting}
               >
                 {isSubmitting ? "Création..." : "Créer"}
-              </button>
-            </form>
-          </div>
-        </div>
-      ) : null}
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

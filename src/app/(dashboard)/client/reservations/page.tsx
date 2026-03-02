@@ -3,12 +3,12 @@
 // Inspired by: IBM Carbon table pattern
 // NightTable usage: Client reservation history and actions
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { normalizeRole } from "@/lib/auth";
 import { cancelReservationAction } from "@/lib/reservation.actions";
 import { createClient } from "@/lib/supabase/server";
+import { ClientReservationsTable } from "./ClientReservationsTable";
 
 type ReservationRow = {
   id: string;
@@ -35,18 +35,6 @@ type EventTableRow = {
   id: string;
   table: { name: string } | { name: string }[] | null;
 };
-
-function statusBadge(status: string): string {
-  if (status === "confirmed") {
-    return "border border-[#3A9C6B]/30 bg-[#3A9C6B]/15 text-[#3A9C6B]";
-  }
-
-  if (status === "cancelled") {
-    return "border border-[#C4567A]/30 bg-[#C4567A]/15 text-[#C4567A]";
-  }
-
-  return "border border-[#C9973A]/30 bg-[#C9973A]/15 text-[#C9973A]";
-}
 
 function statusLabel(status: string): string {
   if (status === "confirmed") return "Confirmée";
@@ -123,6 +111,24 @@ export default async function ClientReservationsPage() {
     })
   );
   const nowTimestamp = new Date().getTime();
+  const reservationRows = reservations.map((reservation) => {
+    const event = eventById.get(reservation.event_id);
+    const clubName = event ? clubById.get(event.club_id) : "Club";
+    const tableName = tableNameByEventTableId.get(reservation.event_table_id) ?? "Table";
+    const eventStart = new Date(reservation.event_starts_at).getTime();
+
+    return {
+      id: reservation.id,
+      eventTitle: event?.title ?? "Événement",
+      clubName: clubName ?? "Club",
+      dateLabel: new Date(reservation.event_starts_at).toLocaleString("fr-FR"),
+      tableName,
+      status: reservation.status,
+      statusLabel: statusLabel(reservation.status),
+      canResell: reservation.status === "confirmed" && eventStart > nowTimestamp + 3 * 60 * 60 * 1000,
+      canCancel: eventStart > nowTimestamp + 48 * 60 * 60 * 1000,
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -133,90 +139,10 @@ export default async function ClientReservationsPage() {
         </p>
       </div>
 
-      {reservations.length === 0 ? (
-        <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-8 text-center">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-full border border-[#C9973A]/30 bg-[#C9973A]/10" />
-          <h2 className="text-lg font-semibold text-[#F7F6F3]">Aucune réservation pour le moment</h2>
-          <p className="mt-2 text-sm text-[#888888]">
-            Découvrez les meilleures soirées à Paris et réservez votre première table.
-          </p>
-          <Link
-            href="/clubs"
-            className="mt-5 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-[#C9973A] px-4 py-2 text-sm font-semibold text-[#050508] transition-all duration-200 ease-in-out hover:brightness-110"
-          >
-            Voir les clubs
-          </Link>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-xl border border-[#C9973A]/10">
-          <table className="w-full">
-            <thead className="bg-[#0A0F2E] text-xs uppercase tracking-widest text-[#888888]">
-              <tr>
-                <th className="px-4 py-3 text-left">Événement</th>
-                <th className="px-4 py-3 text-left">Club</th>
-                <th className="px-4 py-3 text-left">Date</th>
-                <th className="px-4 py-3 text-left">Table</th>
-                <th className="px-4 py-3 text-left">Statut</th>
-                <th className="px-4 py-3 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reservations.map((reservation) => {
-                const event = eventById.get(reservation.event_id);
-                const clubName = event ? clubById.get(event.club_id) : "Club";
-                const tableName = tableNameByEventTableId.get(reservation.event_table_id) ?? "Table";
-                const eventStart = new Date(reservation.event_starts_at).getTime();
-                const canResell =
-                  reservation.status === "confirmed" &&
-                  eventStart > nowTimestamp + 3 * 60 * 60 * 1000;
-                const canCancel = eventStart > nowTimestamp + 48 * 60 * 60 * 1000;
-
-                return (
-                  <tr
-                    key={reservation.id}
-                    className="border-t border-[#C9973A]/5 bg-[#12172B] text-sm text-[#F7F6F3]"
-                  >
-                    <td className="px-4 py-3">{event?.title ?? "Événement"}</td>
-                    <td className="px-4 py-3 text-[#888888]">{clubName ?? "Club"}</td>
-                    <td className="px-4 py-3 text-[#888888]">
-                      {new Date(reservation.event_starts_at).toLocaleString("fr-FR")}
-                    </td>
-                    <td className="px-4 py-3 text-[#888888]">{tableName}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${statusBadge(reservation.status)}`}
-                      >
-                        {statusLabel(reservation.status)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          disabled={!canResell}
-                          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#C9973A]/40 px-3 py-2 text-xs font-semibold text-[#C9973A] transition-all duration-200 ease-in-out hover:bg-[#C9973A]/10 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          Revendre
-                        </button>
-                        <form action={cancelReservationFormAction}>
-                          <input type="hidden" name="reservation_id" value={reservation.id} />
-                          <button
-                            type="submit"
-                            disabled={!canCancel}
-                            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#C4567A]/40 px-3 py-2 text-xs font-semibold text-[#C4567A] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/10 disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            Annuler
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <ClientReservationsTable
+        reservations={reservationRows}
+        cancelReservationFormAction={cancelReservationFormAction}
+      />
     </div>
   );
 }

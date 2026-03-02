@@ -69,6 +69,31 @@ function buildPromoCode(firstName: string, userId: string): string {
   return `${base}${suffix}`;
 }
 
+async function inferRoleFromRoleProfiles(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string
+): Promise<UserRole> {
+  const [clubResult, promoterResult, vipResult] = await Promise.all([
+    supabase.from("club_profiles").select("id").eq("id", userId).maybeSingle(),
+    supabase.from("promoter_profiles").select("id").eq("id", userId).maybeSingle(),
+    supabase.from("female_vip_profiles").select("id").eq("id", userId).maybeSingle(),
+  ]);
+
+  if (clubResult.data?.id) {
+    return "club";
+  }
+
+  if (promoterResult.data?.id) {
+    return "promoter";
+  }
+
+  if (vipResult.data?.id) {
+    return "female_vip";
+  }
+
+  return "client";
+}
+
 async function waitForOwnProfileRow(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
@@ -360,11 +385,27 @@ export async function loginAction(formData: FormData): Promise<ActionResult<{ re
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role,email")
       .eq("id", signInData.user.id)
       .maybeSingle();
 
-    const role = normalizeRole(profile?.role);
+    let role = normalizeRole(profile?.role);
+
+    if (!profile?.role || role === "client") {
+      const inferredRole = await inferRoleFromRoleProfiles(supabase, signInData.user.id);
+      if (inferredRole !== role) {
+        role = inferredRole;
+
+        await supabase.from("profiles").upsert(
+          {
+            id: signInData.user.id,
+            email: profile?.email ?? signInData.user.email ?? parsed.data.email,
+            role,
+          },
+          { onConflict: "id" }
+        );
+      }
+    }
 
     return {
       success: true,

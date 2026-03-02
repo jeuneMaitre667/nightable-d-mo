@@ -3,12 +3,12 @@
 // Inspired by: Atlassian list row pattern
 // NightTable usage: Client waitlist management
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { normalizeRole } from "@/lib/auth";
 import { leaveWaitlistAction } from "@/lib/reservation.actions";
 import { createClient } from "@/lib/supabase/server";
+import { ClientWaitlistList } from "./ClientWaitlistList";
 
 type WaitlistRow = {
   id: string;
@@ -84,6 +84,20 @@ export default async function ClientWaitlistPage() {
   const clubs = (rawClubs ?? []) as ClubRow[];
   const eventById = new Map(events.map((eventItem) => [eventItem.id, eventItem]));
   const clubById = new Map(clubs.map((club) => [club.id, club.club_name]));
+  const waitlistRows = waitlistEntries.map((entry) => {
+    const eventItem = eventById.get(entry.event_id);
+    const clubName = eventItem ? clubById.get(eventItem.club_id) : "Club";
+
+    return {
+      id: entry.id,
+      title: eventItem?.title ?? "Événement",
+      clubName: clubName ?? "Club",
+      dateLabel: eventItem
+        ? new Date(`${eventItem.date}T${eventItem.start_time}`).toLocaleString("fr-FR")
+        : "Date à confirmer",
+      position: entry.position,
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -94,59 +108,7 @@ export default async function ClientWaitlistPage() {
         </p>
       </div>
 
-      {waitlistEntries.length === 0 ? (
-        <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-8 text-center">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-full border border-[#C9973A]/30 bg-[#C9973A]/10" />
-          <h2 className="text-lg font-semibold text-[#F7F6F3]">Aucune waitlist active</h2>
-          <p className="mt-2 text-sm text-[#888888]">
-            Explorez les événements et rejoignez une waitlist pour augmenter vos chances.
-          </p>
-          <Link
-            href="/clubs"
-            className="mt-5 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-[#C9973A] px-4 py-2 text-sm font-semibold text-[#050508] transition-all duration-200 ease-in-out hover:brightness-110"
-          >
-            Voir les événements
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {waitlistEntries.map((entry) => {
-            const eventItem = eventById.get(entry.event_id);
-            const clubName = eventItem ? clubById.get(eventItem.club_id) : "Club";
-
-            return (
-              <div
-                key={entry.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#C9973A]/10 bg-[#12172B] p-4"
-              >
-                <div>
-                  <p className="text-sm font-medium text-[#F7F6F3]">
-                    {eventItem?.title ?? "Événement"} — {clubName ?? "Club"}
-                  </p>
-                  <p className="text-sm text-[#888888]">
-                    {eventItem
-                      ? new Date(`${eventItem.date}T${eventItem.start_time}`).toLocaleString("fr-FR")
-                      : "Date à confirmer"}
-                  </p>
-                  <p className="text-xs uppercase tracking-wider text-[#C9973A]">
-                    Position #{entry.position}
-                  </p>
-                </div>
-
-                <form action={leaveWaitlistFormAction}>
-                  <input type="hidden" name="waitlist_id" value={entry.id} />
-                  <button
-                    type="submit"
-                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#C4567A]/40 px-3 py-2 text-xs font-semibold text-[#C4567A] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/10"
-                  >
-                    Quitter
-                  </button>
-                </form>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <ClientWaitlistList entries={waitlistRows} leaveWaitlistFormAction={leaveWaitlistFormAction} />
     </div>
   );
 }

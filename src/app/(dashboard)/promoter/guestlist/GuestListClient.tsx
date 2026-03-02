@@ -8,6 +8,21 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import {
+  Button,
+  Card,
+  CardBody,
+  Chip,
+  Input,
+  Select,
+  SelectItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@heroui/react";
+import {
   addGuestListEntryAction,
   markGuestArrivedAction,
 } from "@/lib/promoter.actions";
@@ -36,16 +51,16 @@ type GuestListClientProps = {
   initialEventId: string | null;
 };
 
-function statusClasses(status: GuestItem["status"]): string {
+function statusChip(status: GuestItem["status"]): { color: "default" | "success" | "danger"; variant: "flat" } {
   if (status === "arrived") {
-    return "border border-[#3A9C6B]/30 bg-[#3A9C6B]/15 text-[#3A9C6B]";
+    return { color: "success", variant: "flat" };
   }
 
   if (status === "no_show") {
-    return "border border-[#C4567A]/30 bg-[#C4567A]/15 text-[#C4567A]";
+    return { color: "danger", variant: "flat" };
   }
 
-  return "border border-[#C9973A]/30 bg-[#C9973A]/15 text-[#C9973A]";
+  return { color: "default", variant: "flat" };
 }
 
 function statusLabel(status: GuestItem["status"]): string {
@@ -159,35 +174,43 @@ export function GuestListClient({
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-4">
-          <p className="text-[11px] uppercase tracking-widest text-[#888888]">Événement</p>
-          <select
-            value={selectedEventId}
-            onChange={(event) => setSelectedEventId(event.target.value)}
-            className="mt-2 h-11 w-full rounded-lg border border-[#2A2F4A] bg-[#0A0F2E] px-3 text-[#F7F6F3] transition-all duration-200 ease-in-out focus:border-[#C9973A] focus:outline-none focus:ring-2 focus:ring-[#C9973A]/15"
-            aria-label="Sélectionner un événement"
-          >
-            {events.map((eventItem) => (
-              <option key={eventItem.id} value={eventItem.id}>
-                {eventItem.title} — {new Date(eventItem.date).toLocaleDateString("fr-FR")}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Card className="border border-[#C9973A]/15 bg-[#12172B] shadow-none">
+          <CardBody>
+            <p className="text-[11px] uppercase tracking-widest text-[#888888]">Événement</p>
+            <Select
+              aria-label="Sélectionner un événement"
+              selectedKeys={selectedEventId ? [selectedEventId] : []}
+              onChange={(event) => setSelectedEventId(event.target.value)}
+              className="mt-2"
+              classNames={{
+                trigger: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                value: "text-[#F7F6F3]",
+              }}
+            >
+              {events.map((eventItem) => (
+                <SelectItem key={eventItem.id}>
+                  {eventItem.title} — {new Date(eventItem.date).toLocaleDateString("fr-FR")}
+                </SelectItem>
+              ))}
+            </Select>
+          </CardBody>
+        </Card>
 
-        <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-4">
-          <p className="text-[11px] uppercase tracking-widest text-[#888888]">Compteurs live</p>
-          <div className="mt-3 flex items-end gap-6">
-            <div>
-              <p className="text-xs text-[#888888]">Invités ajoutés</p>
-              <p className="text-2xl font-semibold text-[#F7F6F3]">{totalGuests}</p>
+        <Card className="border border-[#C9973A]/15 bg-[#12172B] shadow-none">
+          <CardBody>
+            <p className="text-[11px] uppercase tracking-widest text-[#888888]">Compteurs live</p>
+            <div className="mt-3 flex items-end gap-6">
+              <div>
+                <p className="text-xs text-[#888888]">Invités ajoutés</p>
+                <p className="text-2xl font-semibold text-[#F7F6F3]">{totalGuests}</p>
+              </div>
+              <div>
+                <p className="text-xs text-[#888888]">Invités arrivés</p>
+                <p className="text-2xl font-semibold text-[#3A9C6B]">{arrivedGuests}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-[#888888]">Invités arrivés</p>
-              <p className="text-2xl font-semibold text-[#3A9C6B]">{arrivedGuests}</p>
-            </div>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       </div>
 
       <form
@@ -196,34 +219,44 @@ export function GuestListClient({
       >
         <p className="text-[11px] uppercase tracking-widest text-[#888888]">Ajouter un invité</p>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
-          <input
+          <Input
             value={firstName}
             onChange={(event) => setFirstName(event.target.value)}
             placeholder="Prénom"
             required
-            className="h-11 rounded-lg border border-[#2A2F4A] bg-[#0A0F2E] px-3 text-[#F7F6F3] transition-all duration-200 ease-in-out focus:border-[#C9973A] focus:outline-none focus:ring-2 focus:ring-[#C9973A]/15"
+            classNames={{
+              inputWrapper: "h-11 bg-[#0A0F2E] border border-[#2A2F4A]",
+              input: "text-[#F7F6F3]",
+            }}
           />
-          <input
+          <Input
             value={lastName}
             onChange={(event) => setLastName(event.target.value)}
             placeholder="Nom"
             required
-            className="h-11 rounded-lg border border-[#2A2F4A] bg-[#0A0F2E] px-3 text-[#F7F6F3] transition-all duration-200 ease-in-out focus:border-[#C9973A] focus:outline-none focus:ring-2 focus:ring-[#C9973A]/15"
+            classNames={{
+              inputWrapper: "h-11 bg-[#0A0F2E] border border-[#2A2F4A]",
+              input: "text-[#F7F6F3]",
+            }}
           />
-          <input
+          <Input
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
             placeholder="Téléphone (optionnel)"
-            className="h-11 rounded-lg border border-[#2A2F4A] bg-[#0A0F2E] px-3 text-[#F7F6F3] transition-all duration-200 ease-in-out focus:border-[#C9973A] focus:outline-none focus:ring-2 focus:ring-[#C9973A]/15"
+            classNames={{
+              inputWrapper: "h-11 bg-[#0A0F2E] border border-[#2A2F4A]",
+              input: "text-[#F7F6F3]",
+            }}
           />
         </div>
-        <button
+        <Button
           type="submit"
-          disabled={isSubmitting || !selectedEventId}
-          className="mt-4 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-[#C9973A] px-4 py-2 text-sm font-semibold text-[#050508] transition-all duration-200 ease-in-out hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050508] disabled:cursor-not-allowed disabled:opacity-50"
+          isDisabled={isSubmitting || !selectedEventId}
+          isLoading={isSubmitting}
+          className="mt-4 min-h-11 bg-[#C9973A] px-4 text-sm font-semibold text-[#050508]"
         >
           {isSubmitting ? "Ajout..." : "Ajouter"}
-        </button>
+        </Button>
       </form>
 
       {feedback ? (
@@ -232,55 +265,57 @@ export function GuestListClient({
         </p>
       ) : null}
 
-      <div className="overflow-hidden rounded-xl border border-[#C9973A]/10">
-        <table className="w-full">
-          <thead className="bg-[#0A0F2E] text-xs uppercase tracking-widest text-[#888888]">
-            <tr>
-              <th className="px-4 py-3 text-left">Invité</th>
-              <th className="px-4 py-3 text-left">Téléphone</th>
-              <th className="px-4 py-3 text-left">Statut</th>
-              <th className="px-4 py-3 text-left">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleGuests.length === 0 ? (
-              <tr className="bg-[#12172B]">
-                <td colSpan={4} className="px-4 py-8 text-center text-sm text-[#888888]">
-                  Aucun invité pour cet événement.
-                </td>
-              </tr>
-            ) : (
-              visibleGuests.map((guest) => {
+      <div className="rounded-xl border border-[#C9973A]/10 bg-[#12172B] p-3">
+        <div className="overflow-x-auto">
+          <Table
+            removeWrapper
+            aria-label="Guest list promoteur"
+            classNames={{
+              th: "bg-[#0A0F2E] text-xs uppercase tracking-widest text-[#888888]",
+              td: "border-b border-[#C9973A]/8 text-sm text-[#F7F6F3]",
+              tr: "hover:bg-[#C9973A]/5 transition-colors duration-150",
+            }}
+          >
+            <TableHeader>
+              <TableColumn>INVITÉ</TableColumn>
+              <TableColumn>TÉLÉPHONE</TableColumn>
+              <TableColumn>STATUT</TableColumn>
+              <TableColumn>ACTION</TableColumn>
+            </TableHeader>
+            <TableBody emptyContent={"Aucun invité pour cet événement."}>
+              {visibleGuests.map((guest) => {
                 const isPendingArrival = pendingArrivalIds.has(guest.id);
+                const status = statusChip(guest.status);
 
                 return (
-                  <tr
-                    key={guest.id}
-                    className="border-t border-[#C9973A]/5 bg-[#12172B] text-sm text-[#F7F6F3]"
-                  >
-                    <td className="px-4 py-3">{guest.guestName}</td>
-                    <td className="px-4 py-3 text-[#888888]">{guest.guestPhone ?? "—"}</td>
-                    <td className="px-4 py-3">
-                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${statusClasses(guest.status)}`}>
-                        {statusLabel(guest.status)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
+                  <TableRow key={guest.id}>
+                    <TableCell>{guest.guestName}</TableCell>
+                    <TableCell className="text-[#888888]">{guest.guestPhone ?? "—"}</TableCell>
+                    <TableCell>
+                      <Chip color={status.color} variant={status.variant} size="sm">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider">
+                          {statusLabel(guest.status)}
+                        </span>
+                      </Chip>
+                    </TableCell>
+                    <TableCell>
+                      <Button
                         type="button"
-                        onClick={() => void handleMarkArrived(guest.id)}
-                        disabled={guest.status === "arrived" || isPendingArrival}
-                        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#C9973A]/40 px-3 py-2 text-xs font-semibold text-[#C9973A] transition-all duration-200 ease-in-out hover:bg-[#C9973A]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050508] disabled:cursor-not-allowed disabled:opacity-50"
+                        size="sm"
+                        variant="bordered"
+                        onPress={() => void handleMarkArrived(guest.id)}
+                        isDisabled={guest.status === "arrived" || isPendingArrival}
+                        className="min-h-11 border-[#C9973A]/40 px-3 text-xs font-semibold text-[#C9973A]"
                       >
                         {isPendingArrival ? "Mise à jour..." : "Marquer arrivé"}
-                      </button>
-                    </td>
-                  </tr>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 );
-              })
-            )}
-          </tbody>
-        </table>
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

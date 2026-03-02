@@ -20,16 +20,58 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## Dernière mise à jour
 
-- Date: 2026-03-01
+- Date: 2026-03-02
 - Auteur: GitHub Copilot
 
 ## Vue synthèse
 
-- Progression MVP (estimation): 80%
-- Axe prioritaire actuel: préparer itérations post-MVP (landing marketing finale + runbook démo)
+- Progression MVP (estimation): 85%
+- Axe prioritaire actuel: design polish des pages publiques + landing marketing
 
 ## Fait
 
+- Correctif UX mobile dashboard club: suppression de la barre d’onglets du haut pour conserver une seule navigation (barre fixe du bas) et éviter le doublon.
+- Correctif définitif auth inputs: champs de connexion/inscription migrés en inputs natifs stylés (sans couche HeroUI Input) pour éliminer la superposition persistante du texte.
+- Correctif visibilité onglets club: fallback rôle embarqué dans le layout dashboard pour afficher les onglets club même si `profiles.role` est temporairement erroné.
+- Correctif final zones de texte: suppression de la superposition des caractères sur les champs HeroUI (auth + global) en neutralisant les pseudo-couches input et en forçant le text fill net.
+- Navigation dashboard club corrigée en viewport étroit: barre d’onglets mobile ajoutée dans le header avec tous les accès (dashboard/events/tables/promoters/vip/analytics) lorsque la sidebar desktop est masquée.
+- Fix critique auth routing: un compte club ne retombe plus sur `/dashboard/client` quand `profiles.role` est vide/désynchronisé; fallback dynamique sur les tables rôle + resync du rôle profil.
+- Correctif global formulaires: suppression de la zone grisée/floue lors de la saisie sur tout le site (inputs HeroUI + natifs, états autofill inclus) via `src/app/globals.css`.
+- Auth polish complémentaire: suppression totale du highlight jaune au focus sur les champs de connexion/inscription + bouton inscription “Créer mon compte” rendu fortement visible.
+- Correction UX auth: focus des champs de connexion adouci (plus de rendu jaune agressif en saisie) + bouton “Se connecter” renforcé visuellement pour un CTA immédiatement lisible.
+- Harmonisation UI des pages club internes (`events`, `tables`, `promoters`, `vip`, `analytics`) pour reprendre le même langage visuel que la home club et la sidebar (headers compacts, blocs homogènes, densité tableau alignée).
+- Recentrage du shell dashboard club sur l’objectif UX validé: sidebar gauche unifiée avec tous les onglets attendus (Dashboard, Événements, Tables, Promoteurs, Femmes VIP, Analytics) dans `src/app/(dashboard)/layout.tsx`.
+- Correction de mapping route club: `/dashboard/club` sert désormais la page refondue via re-export alias (`src/app/(dashboard)/dashboard/club/page.tsx`), suppression de l’ancienne vue legacy visible en browser.
+- Refonte Page 1 `/dashboard/club` livrée (style Velvet Rope Analytics NightTable): header cible, 4 KPI cards harmonisées, table réservations avec avatar+email, table promoteurs avec indicateur lien actif.
+- Passe mobile étendue finalisée sur les vues tableaux dashboard (club home/analytics/promoters, client reservations, promoter guestlist) avec wrappers `overflow-x-auto` + KPI home club responsive; validation globale `npm run lint` + `npm run build` ✅.
+- Audit mobile ciblé exécuté + correctifs critiques appliqués (auth split-screen scroll-safe, grille activité promoteur, cartes VIP pending) avec validation lint/build ✅.
+- Refonte complète auth UI (`/login`, `/register`) en split-screen inspiré Velvet Rope avec composant partagé `src/app/(auth)/AuthSplitPage.tsx` (tabs HeroUI, formulaire connexion, formulaire inscription à rôles, animations et responsive mobile full-form).
+- Lint warnings résiduels nettoyés dans `scripts/fix-rgpd-col.mjs` (suppression imports/constantes non utilisées).
+- Build global stabilisé: correction du `loading.tsx` analytics pour éviter l’import HeroUI en composant serveur (fix `createContext is not a function` au prerender).
+- Correction globale lint: erreur bloquante `react/no-unescaped-entities` résolue dans `src/app/(dashboard)/promoter/commissions/PromoterCommissionsPanel.tsx`.
+- `/dashboard/club/analytics` finalisée selon le prompt complexe: Tabs période (`7 jours`, `30 jours`, `3 mois`, `Tout`), 6 metric cards HeroUI avec variation `Chip`, table top promoteurs, table événements passés, empty state et loading skeleton.
+- Validation browser effectuée sur `/dashboard/club/analytics` après refactor.
+- `src/app/(dashboard)/club/tables/page.tsx` et `src/app/(dashboard)/club/tables/tablesClient.tsx` alignés sur la spec HeroUI détaillée (colonnes, chips zone, switch promo, modal inputs/select, CTA primaire uppercase, actions icon-only, loading rows Skeleton).
+- Pages promoteur migrées vers HeroUI (`guestlist`, `commissions`, `promo`) avec composants dédiés pour les panneaux commissions et promo.
+- Refactor HeroUI renforcé de `src/app/(dashboard)/club/tables/tablesClient.tsx` terminé: chips zone/promo, action de sélection icon-only, et loading dédié avec `Skeleton` par cellule.
+- Refactor ciblé HeroUI de `src/app/(dashboard)/club/events/page.tsx` terminé selon cahier précis: table `Table*`, statuts en `Chip`, DJ lineup en chips, actions row `Button isIconOnly`, CTA création en `Button` HeroUI et loading en `Skeleton` cellule par cellule.
+- Dashboard client migré vers HeroUI (`src/app/(dashboard)/client/page.tsx`, `src/app/(dashboard)/client/reservations/page.tsx`, `src/app/(dashboard)/client/waitlist/page.tsx`) avec composants dédiés home/réservations/waitlist.
+- Dashboard club analytics migré vers HeroUI (`src/app/(dashboard)/club/analytics/page.tsx`, `src/app/(dashboard)/club/analytics/AnalyticsPanels.tsx`) avec cartes KPI et tableau réservations.
+- Dashboard club promoteurs migré vers HeroUI (`src/app/(dashboard)/club/promoters/page.tsx`, `src/app/(dashboard)/club/promoters/PromotersTable.tsx`, `src/app/(dashboard)/club/promoters/AddPromoterModal.tsx`).
+- Dashboard club tables migré vers HeroUI (`src/app/(dashboard)/club/tables/tablesClient.tsx`) avec table de sélection, modal d’ajout et switch promo.
+- Dashboard club events migré vers HeroUI (`src/app/(dashboard)/club/events/page.tsx`, `src/app/(dashboard)/club/events/EventListTable.tsx`) avec tableau, badges de statut et modal détails.
+- Intégration HeroUI de base complétée: dépendances installées (`@heroui/react`, `framer-motion`), `tailwind.config.ts` créé (plugin + thème NightTable), provider client ajouté via `src/app/providers.tsx` et branché dans `src/app/layout.tsx`.
+- Sidebar dashboard refondue en style Linear v2 dans `src/app/(dashboard)/layout.tsx` (bloc brand/version, liens plus lisibles, navigation mobile harmonisée).
+- Route `/dashboard/club/events/new` rendue accessible via alias `src/app/(dashboard)/dashboard/club/events/new/page.tsx`.
+- Dashboard club events (itération visuelle v2) renforcé sur `src/app/(dashboard)/club/events/page.tsx` : header gradient, badge version, toolbar table et empty state plus distincts.
+- Page club events stabilisée (`src/app/(dashboard)/club/events/page.tsx`) : gestion défensive des valeurs nulles (`event_tables`, `dj_lineup`) pour éviter le crash runtime.
+- Alias dashboard club manquants créés pour `/dashboard/club/events` et `/dashboard/club/tables` (`src/app/(dashboard)/dashboard/club/events/page.tsx`, `src/app/(dashboard)/dashboard/club/tables/page.tsx`).
+- Navigation dashboard club corrigée (`src/app/(dashboard)/layout.tsx`) : boutons Événements, Tables, Promoteurs, Analytics redirigent vers leurs routes dédiées.
+- Page `/dashboard/club/analytics` créée (`src/app/(dashboard)/club/analytics/page.tsx`) + alias dashboard (`src/app/(dashboard)/dashboard/club/analytics/page.tsx`).
+- Dashboard club events (itération page 3) refondu en style Linear sur `src/app/(dashboard)/club/events/page.tsx` : header compact, KPIs de suivi, table dense avec statut/tables/actions.
+- Dashboard club home (itération page 2) refondu en style Linear sur `src/app/(dashboard)/club/page.tsx` : header compact, métriques denses, table réservations compacte avec actions au hover.
+- Landing page itération 1 (mode page par page) finalisée en style Soho House: hero plein écran éditorial, section clubs partenaires image-first, CTA final minimal, validation visuelle locale sur `/`.
+- Landing page v2 complète (Navbar, Hero, Stats, 3 étapes, Events featured, 4 sections rôle, CTA final, Footer) + animations CSS (fade-in-up, glow-pulse, stagger) + a11y + responsive.
 - Refonte UI cohérente (Dashboard/Public/Auth + FloorPlan): headers composants, palette NightTable, états interactifs et a11y harmonisés sur le périmètre TSX prioritaire.
 - Ajout des règles “Token Optimization Rules — MANDATORY” dans `.github/copilot-instructions.md` (sélection modèle, discipline prompt, #file, hygiène de contexte, templates).
 - Intégration Stripe Elements finalisée dans le checkout public (`PaymentElement` + `confirmPayment`) avec retour d’état paiement côté client.
@@ -60,6 +102,14 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Seed Supabase démo implémenté et exécuté:
   - script `scripts/seed-demo-data.mjs` + commande `npm run seed:demo`,
   - provisioning comptes démo (club/promoteurs/clients/vip), événements/tables, réservations, waitlist, commissions, guest list.
+- Module femmes validées complété:
+  - page principale `src/app/(dashboard)/vip/page.tsx` (statut, clubs validants, soirées, profil),
+  - action serveur `src/lib/vip.actions.ts` pour mise à jour sécurisée du profil,
+  - états `loading.tsx` / `error.tsx` et alias `/dashboard/dashboard/vip` redirigé vers `/dashboard/vip`.
+- Module femmes validées finalisé end-to-end:
+  - pages dédiées `invitations`, `profile`, `safety`,
+  - page club `vip` avec validation/refus + invitations + toggles promo,
+  - alias de cohérence `/dashboard/dashboard/vip/*` et `/dashboard/dashboard/club/vip`.
 - Note de release prête pour tag:
   - `docs/v0.3-mvp-complete.md`.
 
@@ -99,7 +149,17 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## En cours
 
-- Consolidation post-release `v0.3-mvp-complete` (release GitHub, communication, backlog v0.4).
+- Synchronisation documentaire post-refactor HeroUI (changelog + error log + suivi de session).
+- Verification manuelle des 7 items restants (Stripe checkout, emails Resend, SMS Twilio, check-in browser).
+
+## Fait (session E2E)
+
+- Test E2E complet execute (39/46 pass - 7 items manuels restants).
+- Fix schema `vip_invitations`: colonnes legacy rendues nullable + default invited_at.
+- Seed VIP invitations corrige (2 invitations inserees: 1 pending, 1 accepted).
+- Script `scripts/e2e-test.mjs` cree couvrant 7 sections (Landing, Auth, Dashboard Club, Reservation, Retour Club, Promoteur, VIP).
+- Pages promoteur (4 routes distinctes) et VIP (4 pages) toutes verifiees HTTP 200 avec auth.
+- Cross-role access verifie (client bloque sur /dashboard/club -> redirect /dashboard/client).
 
 ## À faire (priorité)
 
@@ -130,6 +190,207 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 - Risque dérive de scope si P1/P2 démarrés avant clôture P0.
 
 ## Journal de sessions
+
+### 2026-03-02 (stabilisation lint globale après livraison analytics)
+
+- Ajustement mobile final (`src/app/(dashboard)/layout.tsx`): retrait de la nav top pour supprimer le doublon d’onglets sur smartphone, conservation de la nav fixe basse; validation `npm run lint` ✅.
+- Passage final auth vers inputs natifs (`src/app/(auth)/AuthSplitPage.tsx`) pour supprimer définitivement la superposition de texte observée côté utilisateur; validation `npm run lint` ✅.
+- Renforcement layout dashboard (`src/app/(dashboard)/layout.tsx`) avec inférence de rôle fallback pour garantir l’affichage des onglets club dans tous les cas de désynchronisation profil; validation `npm run lint` ✅.
+- Fix ciblé superposition texte inputs (`src/app/(auth)/AuthSplitPage.tsx`, `src/app/globals.css`): suppression des layers visuels HeroUI parasites (`before/after`) + text rendering unifié (`-webkit-text-fill-color`) pour éliminer le doublon visuel; validation `npm run lint` ✅.
+- Correctif UX navigation (`src/app/(dashboard)/layout.tsx`): ajout d’une nav club horizontale en mobile/viewport réduit pour garder les onglets visibles même sans sidebar; validation `npm run lint` ✅.
+- Correction du flux login club (`src/lib/auth.actions.ts`, `src/proxy.ts`): résolution de rôle avec fallback métier (`club_profiles`/`promoter_profiles`/`female_vip_profiles`) + resynchronisation `profiles.role` pour éviter la redirection erronée vers `/dashboard/client`; validation `npm run lint` ✅.
+- Fix global rendu texte formulaires (`src/app/globals.css`): neutralisation des effets blur/backdrop et de l’overlay autofill WebKit pour éliminer l’effet grisé sous le texte en saisie sur login/register et le reste de l’app; validation `npm run lint` ✅.
+- Correctif final auth (`src/app/(auth)/AuthSplitPage.tsx`): neutralisation complète du focus jaune sur tous les champs (login/register) + CTA inscription gold explicite “Créer mon compte”; validation `npm run lint` ✅.
+- Ajustement UI de la connexion (`src/app/(auth)/AuthSplitPage.tsx`): focus fields recalibré et CTA “Se connecter” en style gold contrasté; validation `npm run lint` ✅.
+- Harmonisation visuelle des pages internes club (`events`, `promoters`, `tables`, `analytics`, `vip`) avec headers/sections/tables alignés sur le nouveau design sidebar; validation `npm run lint` ✅.
+- Recentrage layout dashboard club (`src/app/(dashboard)/layout.tsx`) pour garantir la présence permanente des onglets latéraux cibles: Dashboard, Événements, Tables, Promoteurs, Femmes VIP, Analytics.
+- Fix de vérification visuelle: route alias `/dashboard/club` (namespace `(dashboard)/dashboard`) redirigée vers la nouvelle page home club refondue pour éviter l’affichage de l’ancienne version.
+- Refonte Page 1 dashboard club (`src/app/(dashboard)/club/page.tsx`, `src/app/(dashboard)/club/ClubHomePanels.tsx`) selon le nouveau système cible (header, KPI cards, sections Réservations/Promoteurs).
+- Validation technique post-page 1: `npm run lint` ✅.
+- Passe mobile élargie: sécurisation du rendu sur petit écran des tableaux dashboard (`ClubHomePanels`, `AnalyticsPanels`, `PendingCommissionsTable`, `PromotersTable`, `ClientReservationsTable`, `GuestListClient`) via `overflow-x-auto`, et KPI home club rendues responsives.
+- Validation post-correctifs: `npm run lint` ✅, `npm run build` ✅.
+- Exécution `npm run lint` sur la workspace et correction de l’erreur bloquante `react/no-unescaped-entities` dans `PromoterCommissionsPanel`.
+- Synchronisation documentaire post-fix sur `CHANGELOG.md`, `docs/PROJECT_STATUS.md` et `docs/errors/ERROR_LOG.md`.
+- Correction build/prerender analytics: remplacement des `Skeleton` HeroUI par un skeleton Tailwind natif dans `src/app/(dashboard)/club/analytics/loading.tsx`.
+- Nettoyage des warnings ESLint restants dans `scripts/fix-rgpd-col.mjs`.
+- Refonte auth login/register livrée selon spec split-screen (layout 60/40, tabs underlined, cards rôles, champs conditionnels) sans toucher `auth.actions.ts`.
+- Passe mobile ciblée post-refonte: `AuthSplitPage` ajusté pour claviers mobiles, densité de grille améliorée sur `PromoterPromoPanel` et `ClubVipPanels`.
+
+### 2026-03-02 (alignement strict spec HeroUI sur page tables)
+
+- Refactor des fichiers `src/app/(dashboard)/club/tables/page.tsx` et `src/app/(dashboard)/club/tables/tablesClient.tsx` selon la spec fournie (ordre de colonnes, mapping zone chips, switch promo, style CTA/actions).
+- Maintien explicite du composant `FloorPlan` Konva et des Server Actions existantes, sans modification métier.
+- Validation technique: diagnostics OK + `npx next build` ✅.
+
+### 2026-03-02 (finalisation analytics HeroUI + validation browser)
+
+- `src/app/(dashboard)/club/analytics/page.tsx`: filtre période par query param (`7d|30d|3m|all`) et fetch Supabase filtré par période pour le club connecté.
+- `src/app/(dashboard)/club/analytics/AnalyticsPanels.tsx`: Tabs underlined HeroUI, 6 KPI cards, table top promoteurs et table événements passés avec chips conditionnels.
+- `src/app/(dashboard)/club/analytics/loading.tsx` créé pour skeleton complet cards/tables.
+- Validation browser exécutée sur `/dashboard/club/analytics` + diagnostics ciblés sans erreur ✅.
+
+### 2026-03-02 (migration HeroUI pages promoteur)
+
+- `src/app/(dashboard)/promoter/guestlist/GuestListClient.tsx`: refonte HeroUI des contrôles/form/tableau en conservant les actions serveur existantes.
+- `src/app/(dashboard)/promoter/commissions/PromoterCommissionsPanel.tsx` créé et branché depuis la page serveur commissions.
+- `src/app/(dashboard)/promoter/promo/PromoterPromoPanel.tsx` créé et branché depuis la page serveur promo.
+- Validation technique: diagnostics OK + `npx next build` ✅.
+
+### 2026-03-02 (refactor HeroUI renforcé page club tables)
+
+- `src/app/(dashboard)/club/tables/tablesClient.tsx`: densification du tableau HeroUI, ajout chips `zone`/`promo`, action row convertie en `Button isIconOnly`.
+- Ajout d’un loading state dédié route tables avec `TablesSkeleton` (`Skeleton` cellule par cellule) dans `src/app/(dashboard)/club/tables/loading.tsx`.
+- Validation technique: diagnostics OK + `npx next build` ✅.
+
+### 2026-03-02 (refactor HeroUI ciblé page club events)
+
+- `src/app/(dashboard)/club/events/EventListTable.tsx` aligné strictement sur la spec: colonnes demandées, badges statut HeroUI par mapping exact, DJ lineup en chips multiples, bouton action par row en `isIconOnly`.
+- `src/app/(dashboard)/club/events/page.tsx`: CTA “Créer un événement” migré vers `Button color='primary' variant='solid' radius='none'` via composant client `CreateEventButton`.
+- `src/app/(dashboard)/club/events/loading.tsx`: ajout d’un loading table avec `Skeleton` sur chaque cellule via `EventTableSkeleton`.
+- Validation technique: diagnostics OK + `npx next build` ✅.
+
+### 2026-03-02 (migration HeroUI pages dashboard client)
+
+- Création des composants client HeroUI:
+  - `src/app/(dashboard)/client/ClientDashboardPanels.tsx`
+  - `src/app/(dashboard)/client/reservations/ClientReservationsTable.tsx`
+  - `src/app/(dashboard)/client/waitlist/ClientWaitlistList.tsx`
+- Pages serveur client conservées pour auth/role/fetch/agrégations et branchées sur ces composants.
+- Actions serveur inchangées (`cancelReservationAction`, `leaveWaitlistAction`) avec formulaires toujours actifs.
+- Validation technique: diagnostics OK + `npx next build` ✅.
+
+### 2026-03-02 (migration HeroUI page analytics)
+
+- Création de `src/app/(dashboard)/club/analytics/AnalyticsPanels.tsx` avec composants HeroUI (`Card`, `Table`, `Chip`).
+- `src/app/(dashboard)/club/analytics/page.tsx` converti en orchestration serveur (guards + fetch + agrégations) puis rendu délégué au composant client.
+- Validation technique: diagnostics OK + `npx next build` ✅.
+
+### 2026-03-02 (migration HeroUI page promoteurs)
+
+- Création de `src/app/(dashboard)/club/promoters/PromotersTable.tsx` pour le tableau classements/statuts en HeroUI (`Table`, `Chip`).
+- Migration de `src/app/(dashboard)/club/promoters/AddPromoterModal.tsx` vers HeroUI (`Modal`, `Input`, `Slider`, `Button`) avec conservation de `createPromoterAction`.
+- `src/app/(dashboard)/club/promoters/page.tsx` branché sur le nouveau composant client sans modification des agrégations serveur.
+- Validation technique: diagnostics OK + `npx next build` ✅.
+
+### 2026-03-02 (migration HeroUI page tables)
+
+- Refonte de `src/app/(dashboard)/club/tables/tablesClient.tsx` avec composants HeroUI (`Button`, `Table`, `Modal`, `Input`, `Select`, `Switch`).
+- Conservation de la logique métier existante (`createTableAction`, `updateTablePositionAction`) et du floor plan en mode édition.
+- Validation technique: diagnostics fichier OK + `npx next build` ✅.
+
+### 2026-03-02 (migration HeroUI page events)
+
+- Création de `src/app/(dashboard)/club/events/EventListTable.tsx` en composant client HeroUI (`Table`, `Chip`, `Modal`).
+- Adaptation de `src/app/(dashboard)/club/events/page.tsx` pour garder les guards/fetch serveur et déléguer uniquement le rendu interactif à HeroUI.
+- Fix build après migration: suppression des imports HeroUI directs des pages serveur (`src/app/(dashboard)/club/page.tsx`, `src/app/(dashboard)/club/events/page.tsx`).
+- Validation: `npx next build` ✅.
+
+### 2026-03-02 (intégration HeroUI + fix server/client provider)
+
+- Installation de `@heroui/react` et `framer-motion`, puis création de `tailwind.config.ts` avec plugin HeroUI et tokens NightTable.
+- Ajout du provider client `src/app/providers.tsx` et branchement dans `src/app/layout.tsx`.
+- Correction runtime Next.js (`createContext only works in Client Components`) en retirant `HeroUIProvider` direct du layout serveur.
+- Test de présence HeroUI lancé sur `/dashboard/club` via un bouton `Button color="primary"`.
+
+### 2026-03-02 (sidebar v2 + activation route events/new)
+
+- Refonte visuelle de la sidebar dashboard (`src/app/(dashboard)/layout.tsx`) pour alignement avec le style Linear v2 des pages club.
+- Ajout de l’alias `src/app/(dashboard)/dashboard/club/events/new/page.tsx` pour activer l’URL `/dashboard/club/events/new`.
+- Validation technique: aucun diagnostic sur les fichiers modifiés.
+
+### 2026-03-02 (ajustement design visible page club events)
+
+- Refonte visuelle accentuée sur `src/app/(dashboard)/club/events/page.tsx` pour rendre le changement immédiatement perceptible côté utilisateur.
+- Ajout d’un header gradient avec badge version, d’une toolbar dense au-dessus du tableau et d’un empty state enrichi.
+
+### 2026-03-02 (fix runtime page club events)
+
+- Diagnostic runtime sur `/dashboard/club/events`: `TypeError` causé par des tableaux Supabase potentiellement `null`.
+- Correctif appliqué dans `src/app/(dashboard)/club/events/page.tsx` avec fallback `?? []` pour `event_tables` et `dj_lineup`.
+- Résultat: la page ne crash plus quand un événement n’a pas encore de tables liées ou de DJ lineup.
+
+### 2026-03-02 (fix alias routes dashboard club)
+
+- Création des alias manquants sous `src/app/(dashboard)/dashboard/club/` pour `events` et `tables`.
+- Les URLs testées par l’utilisateur (`/dashboard/club/events`, `/dashboard/club/tables`) sont maintenant mappées vers les pages existantes côté club.
+- Vérification diagnostics: aucun problème TypeScript sur les nouveaux fichiers.
+
+### 2026-03-02 (fix chemins dashboard club + ajout analytics)
+
+- Correction du menu rôle `club` dans `src/app/(dashboard)/layout.tsx` : les 5 entrées ne pointent plus toutes sur `/dashboard/club`.
+- Mise en place des routes dédiées dans la navigation: `/dashboard/club/events`, `/dashboard/club/tables`, `/dashboard/club/promoters`, `/dashboard/club/analytics`.
+- Création de la page analytics club (KPIs + réservations récentes) et alias `/dashboard/dashboard/club/analytics`.
+- Validation technique: diagnostics sans erreur sur les fichiers modifiés.
+
+### 2026-03-01 (refonte dashboard club events — itération Linear)
+
+- Refonte UI de `src/app/(dashboard)/club/events/page.tsx` en style dense (sans changement de logique Supabase).
+- Passage d’une grille de cartes vers une table opérationnelle compacte (événement, date, horaire, DJ, tables disponibles, statut, action).
+- Ajout d’un bandeau KPI minimal (soirées publiées, tables disponibles, capacité totale) pour lecture rapide.
+- Validation technique: diagnostics TypeScript/ESLint OK sur le fichier modifié.
+
+### 2026-03-01 (refonte dashboard club home — itération Linear)
+
+- Refonte UI de `src/app/(dashboard)/club/page.tsx` sans toucher la logique métier ni les fetch Supabase.
+- Header densifié (20px semibold + sous-meta slash), actions alignées à droite.
+- Cards métriques passées au format dense (radius 8, padding 16, valeurs Cormorant 32px, micro-variations).
+- Table réservations alignée sur style Linear (rows 40px, checkbox colonne gauche, badges inline, actions visibles au hover, pagination sobre en pied).
+- Validation locale: serveur dev relancé proprement et ouverture browser sur `/dashboard/club` (redirection login attendue hors session).
+
+### 2026-03-01 (refonte landing page — itération Soho House)
+
+- Refonte ciblée de `src/app/page.tsx` en approche page-par-page, sans changement de logique métier.
+- Hero reconstruit en plein écran avec overlay premium, typo Cormorant light 72/48 et CTA carré gold.
+- Section "Clubs partenaires" créée en grille 3/1 avec hover reveal (nom, ville, lien), ratios 16/9 et transitions 400ms.
+- Correction d’une URL image Unsplash invalide (404) sur la première carte club.
+- Validation effectuée dans le navigateur intégré sur `http://localhost:3000`.
+
+### 2026-03-01 (smoke test VIP module + fix alias redirect)
+
+- Fix: alias VIP redirect infini corrigé (re-export pattern à la place de `redirect()`)
+- Seed enrichi: 2 VIP invitations + 1 safety check-in ajoutés à `seed-demo-data.mjs`
+- Smoke test: `scripts/smoke-test-vip.mjs` — 7/7 routes OK (5×200, 2× role guard redirect)
+- Build + lint verts après correction aliases
+
+### 2026-03-01 (fix RLS + colonne manquante female_vip_profiles)
+
+- Diagnostic: pages VIP affichaient "Module indisponible" / "Profil indisponible" en navigateur
+- Cause racine 1: colonne `rgpd_consent_at` absente en DB distante → Postgres error 42703 sur tous les SELECT
+- Cause racine 2: policies RLS SELECT et UPDATE jamais appliquées sur `female_vip_profiles` (seules 2 INSERT existaient)
+- Fix DB: script `scripts/apply-missing-rls.mjs` connecté en direct Postgres, ajout colonne + 2 policies (SELECT/UPDATE)
+
+### 2026-03-01 (dashboard promoteur — pages dédiées)
+
+- Correction sidebar promoteur: liens Guest list, Commissions et Lien promo pointent vers des routes distinctes
+- Création page commissions `/dashboard/promoter/commissions` (KPIs CA/pending/versé + table historique)
+- Création page lien promo `/dashboard/promoter/promo` (lien, copier/partager, clics, conversion, mini-graph 7j)
+- Alias routes créées sous `(dashboard)/dashboard/promoter/`
+- Build vert, 4 routes promoteur actives
+- Fix code: restauration `rgpd_consent_at` dans types, SELECT queries et update payload
+- État final: 4 policies (2 INSERT + 1 SELECT + 1 UPDATE), colonne présente, code aligné
+
+### 2026-03-01 (seed démo aligné + diagnostic dérive schéma)
+
+- Seed démo enrichi pour 3 événements futurs, 5 tables, 2 promoteurs, 3 réservations, avec fallback tolérant si objets floor plan absents.
+- Script de vérification seed ajouté/renforcé (`scripts/verify-demo-seed.mjs`) avec diagnostics explicites des erreurs de schéma.
+- Migration de rattrapage créée (`supabase/migrations/011_floor_plan_positions.sql`) pour ajouter `floor_plans` et colonnes positions.
+- Vérification actuelle: club/events/tables/promoters/réservations ✅ ; positions floor plan ❌ (objets absents en DB distante tant que migration non appliquée).
+
+### 2026-03-01 (module femmes validées + validation tag)
+
+- Vérification tag MVP confirmée: `v0.3-mvp-complete` existe et pointe sur `8a04f9d`.
+- Implémentation du module `female_vip` terminée: dashboard complet avec statut de validation, clubs validants, événements à venir et formulaire de profil.
+- Ajout d’une Server Action dédiée `updateVipProfileAction` avec validation Zod, contrôle rôle/auth et revalidation cache.
+- Ajout des états `loading`/`error` pour la route VIP et redirection de l’alias `dashboard/dashboard/vip`.
+- Validation exécutée: `npm run lint` ✅.
+
+### 2026-03-01 (prompts VIP restants implémentés)
+
+- Prompt migration: `supabase/migrations/012_female_vip_module.sql` appliquée sur la base distante (`vip_invitations`, `vip_safety_checkins`, colonnes contact d’urgence + RLS).
+- Prompt pages VIP: création de `src/app/(dashboard)/vip/invitations/page.tsx`, `src/app/(dashboard)/vip/profile/page.tsx`, `src/app/(dashboard)/vip/safety/page.tsx`.
+- Prompt validation club: création de `src/app/(dashboard)/club/vip/page.tsx` (pending/validated/invitations/tables promos).
+- Prompt navigation/alias: ajout des routes alias `src/app/(dashboard)/dashboard/vip/invitations/page.tsx`, `src/app/(dashboard)/dashboard/vip/profile/page.tsx`, `src/app/(dashboard)/dashboard/vip/safety/page.tsx`, `src/app/(dashboard)/dashboard/club/vip/page.tsx`.
+- Validations techniques exécutées: `npm run lint` ✅, `npm run build` ✅, contrôle schéma Supabase VIP ✅.
 
 ### 2026-03-01 (publication tag v0.3)
 

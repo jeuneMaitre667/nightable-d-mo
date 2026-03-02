@@ -52,5 +52,7 @@ export default async function ClubTablesPage(): Promise<ReactElement> {
     throw new Error("Impossible de charger les tables du club.");
   }
 
-  return <TablesClient initialTables={(tables ?? []) as ClubTableRow[]} />;
+  const initialTables = (tables ?? []) as ClubTableRow[];
+
+  return <TablesClient initialTables={initialTables} />;
 }

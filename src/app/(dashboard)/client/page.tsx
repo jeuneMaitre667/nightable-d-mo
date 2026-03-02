@@ -3,11 +3,11 @@
 // Inspired by: Shopify Polaris dashboard summary pattern
 // NightTable usage: Client dashboard home
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { normalizeRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { ClientDashboardPanels } from "./ClientDashboardPanels";
 
 type ClientProfileRow = {
   first_name: string | null;
@@ -38,9 +38,9 @@ type EventTableRow = {
 };
 
 function scoreTone(score: number): string {
-  if (score >= 70) return "#3A9C6B";
-  if (score >= 40) return "#C9973A";
-  return "#C4567A";
+  if (score >= 70) return "high";
+  if (score >= 40) return "medium";
+  return "low";
 }
 
 export default async function ClientDashboardHomePage() {
@@ -126,71 +126,23 @@ export default async function ClientDashboardHomePage() {
   }
 
   const score = Math.max(0, Math.min(100, Number(client.nighttable_score ?? 50)));
-  const scoreColor = scoreTone(score);
+  const scoreToneValue = scoreTone(score) as "high" | "medium" | "low";
+  const nextReservationData = nextReservation && nextEvent
+    ? {
+        eventTitle: nextEvent.title,
+        clubName: nextClub?.club_name ?? "Club",
+        dateLabel: new Date(nextReservation.event_starts_at).toLocaleString("fr-FR"),
+        tableLabel: nextTableName ? `Table ${nextTableName}` : "Table",
+        prepaymentLabel: `${Number(nextReservation.prepayment_amount).toFixed(2)} €`,
+      }
+    : null;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-[#F7F6F3]">
-          Bonjour {client.first_name ?? ""}
-        </h1>
-        <p className="text-sm text-[#888888]">Voici votre dashboard NightTable.</p>
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-2">
-        <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-5">
-          <p className="text-[11px] uppercase tracking-widest text-[#888888]">NightTable Score</p>
-          <div className="mt-3 flex items-end gap-3">
-            <p className="text-4xl font-semibold" style={{ color: scoreColor }}>
-              {score}
-            </p>
-            <p className="pb-1 text-sm text-[#888888]">/ 100</p>
-          </div>
-          <div className="mt-4 h-3 w-full rounded-full bg-[#0A0F2E]">
-            <div
-              className="h-3 rounded-full transition-all duration-200 ease-in-out"
-              style={{ width: `${score}%`, backgroundColor: scoreColor }}
-            />
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-5">
-          <p className="text-[11px] uppercase tracking-widest text-[#888888]">Prochaine réservation</p>
-          {nextReservation && nextEvent ? (
-            <div className="mt-3 space-y-1">
-              <p className="text-lg font-semibold text-[#F7F6F3]">{nextEvent.title}</p>
-              <p className="text-sm text-[#888888]">{nextClub?.club_name ?? "Club"}</p>
-              <p className="text-sm text-[#888888]">
-                {new Date(nextReservation.event_starts_at).toLocaleString("fr-FR")}
-              </p>
-              <p className="text-sm text-[#888888]">{nextTableName ? `Table ${nextTableName}` : "Table"}</p>
-              <p className="text-sm text-[#C9973A]">
-                Acompte: {Number(nextReservation.prepayment_amount).toFixed(2)} €
-              </p>
-            </div>
-          ) : (
-            <p className="mt-3 text-sm text-[#888888]">Aucune réservation à venir.</p>
-          )}
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-5">
-        <p className="text-[11px] uppercase tracking-widest text-[#888888]">Raccourcis</p>
-        <div className="mt-3 flex flex-wrap gap-3">
-          <Link
-            href="/clubs"
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#C9973A]/40 px-4 py-2 text-sm font-semibold text-[#C9973A] transition-all duration-200 ease-in-out hover:bg-[#C9973A]/10"
-          >
-            Explorer les clubs
-          </Link>
-          <Link
-            href="/dashboard/client/reservations"
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-[#C9973A] px-4 py-2 text-sm font-semibold text-[#050508] transition-all duration-200 ease-in-out hover:brightness-110"
-          >
-            Mes réservations
-          </Link>
-        </div>
-      </div>
-    </div>
+    <ClientDashboardPanels
+      firstName={client.first_name ?? ""}
+      score={score}
+      scoreTone={scoreToneValue}
+      nextReservation={nextReservationData}
+    />
   );
 }

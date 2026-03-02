@@ -3,6 +3,8 @@
 // Inspired by: IBM Carbon Design System pattern
 // NightTable usage: loading skeleton for club events list
 
+import { EventTableSkeleton } from "./EventTableSkeleton";
+
 import type { ReactElement } from "react";
 
 export default function ClubEventsLoading(): ReactElement {
@@ -24,6 +26,8 @@ export default function ClubEventsLoading(): ReactElement {
           </div>
         ))}
       </div>
+
+      <EventTableSkeleton rows={8} />
     </div>
   );
 }

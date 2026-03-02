@@ -6,6 +6,25 @@
 // NightTable usage: interactive table management with floor-plan editing
 
 import { useMemo, useState, useTransition } from "react";
+import {
+  Button,
+  Chip,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Select,
+  SelectItem,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@heroui/react";
 import FloorPlan from "@/components/floor-plan/FloorPlan";
 import { createTableAction, updateTablePositionAction } from "@/lib/club.actions";
 
@@ -50,10 +69,18 @@ function formatEuros(value: number): string {
   }).format(value);
 }
 
+function zoneChipColor(zone: string | null): "default" | "secondary" | "success" | "primary" {
+  if (zone === "dancefloor") return "primary";
+  if (zone === "vip") return "secondary";
+  if (zone === "terrasse") return "success";
+  return "default";
+}
+
 export default function TablesClient({ initialTables, className }: TablesClientProps): ReactElement {
   const [tables, setTables] = useState<ClubTable[]>(initialTables);
   const [selectedTableId, setSelectedTableId] = useState<string | undefined>(undefined);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [isPromoSelected, setIsPromoSelected] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -136,34 +163,38 @@ export default function TablesClient({ initialTables, className }: TablesClientP
           is_promo: payload.isPromo,
         },
       ]);
+      setIsPromoSelected(false);
       setShowModal(false);
     });
   }
 
   return (
-    <div className={`space-y-6 ${className ?? ""}`.trim()}>
-      <header className="flex flex-col gap-4 rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-6 md:flex-row md:items-center md:justify-between">
+    <div className={`space-y-5 ${className ?? ""}`.trim()}>
+      <header className="flex flex-col gap-4 rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[#888888]">Club Dashboard</p>
-          <h1 className="nt-heading mt-2 text-3xl text-[#F7F6F3] md:text-4xl">Gestion des tables</h1>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-[#888888]">Gestion</p>
+          <h1 className="nt-heading mt-1 text-3xl text-[#F7F6F3] md:text-4xl">Tables</h1>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button
+          <Button
             type="button"
-            className="nt-btn nt-btn-secondary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
-            onClick={() => setShowModal(true)}
+            color="primary"
+            radius="none"
+            className="min-h-11 px-4 uppercase tracking-widest text-xs"
+            onPress={() => setShowModal(true)}
           >
             Ajouter une table
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="nt-btn nt-btn-primary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={onSavePositions}
-            disabled={isPending}
+            className="min-h-11 bg-[#C9973A] px-4 font-semibold text-[#050508] transition-all duration-200 ease-in-out disabled:cursor-not-allowed disabled:opacity-60"
+            onPress={onSavePositions}
+            isDisabled={isPending}
+            isLoading={isPending}
           >
             Sauvegarder positions
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -172,7 +203,7 @@ export default function TablesClient({ initialTables, className }: TablesClientP
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
-        <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
+        <section className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-3">
           <FloorPlan
             tables={floorPlanTables}
             mode="edit"
@@ -182,82 +213,198 @@ export default function TablesClient({ initialTables, className }: TablesClientP
           />
         </section>
 
-        <aside className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
-          <h2 className="nt-heading text-2xl text-[#F7F6F3]">Tables</h2>
-          <div className="mt-4 space-y-2">
-            {tables.map((table) => (
-              <div
-                key={table.id}
-                className={`rounded-md border px-3 py-2 ${selectedTableId === table.id ? "border-[#C9973A]/55 bg-[#C9973A]/10" : "border-[#C9973A]/15 bg-[#0A0F2E]"}`}
+        <aside className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-3">
+          <h2 className="px-1 text-[15px] font-medium text-[#F7F6F3]">Tables du club</h2>
+          <div className="mt-4">
+            <div className="overflow-x-auto">
+              <Table
+                removeWrapper
+                aria-label="Liste des tables du club"
+                classNames={{
+                  th: "bg-[#0A0F2E] text-[#888888] uppercase text-[11px] tracking-[0.05em]",
+                  td: "text-[#F7F6F3] border-b border-[#C9973A]/8",
+                  tr: "hover:bg-[#C9973A]/5 transition-colors duration-150",
+                }}
               >
-                <p className="text-sm font-medium text-[#F7F6F3]">{table.name}</p>
-                <p className="text-xs text-[#888888]">
-                  {table.zone ?? "zone inconnue"} · {table.capacity} pers. · {formatEuros(table.base_price)}
-                </p>
-              </div>
-            ))}
+                <TableHeader>
+                  <TableColumn>TABLE</TableColumn>
+                  <TableColumn>ZONE</TableColumn>
+                  <TableColumn>CAPACITÉ</TableColumn>
+                  <TableColumn>PRIX DE BASE</TableColumn>
+                  <TableColumn>PROMO</TableColumn>
+                  <TableColumn>ACTIONS</TableColumn>
+                </TableHeader>
+                <TableBody emptyContent={"Aucune table disponible"}>
+                  {tables.map((table) => (
+                    <TableRow key={table.id}>
+                      <TableCell className="font-medium">{table.name}</TableCell>
+                      <TableCell>
+                        <Chip color={zoneChipColor(table.zone)} variant="flat" size="sm">
+                          <span className="text-[10px] uppercase tracking-[0.04em]">
+                            {table.zone ?? "inconnue"}
+                          </span>
+                        </Chip>
+                      </TableCell>
+                      <TableCell className="text-[#888888]">{table.capacity}</TableCell>
+                      <TableCell>{formatEuros(table.base_price)}</TableCell>
+                      <TableCell>
+                        <Switch
+                          isSelected={table.is_promo}
+                          isDisabled
+                          color="secondary"
+                          size="sm"
+                          aria-label={`Promo ${table.name}`}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="light"
+                          isIconOnly
+                          aria-label={`Sélectionner ${table.name}`}
+                          className={
+                            selectedTableId === table.id
+                              ? "bg-[#C9973A] text-[#050508]"
+                              : "text-[#C9973A]"
+                          }
+                          onPress={() => setSelectedTableId(table.id)}
+                        >
+                          {selectedTableId === table.id ? "✓" : "◎"}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </aside>
       </div>
 
-      {showModal ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#050508]/80 px-4">
-          <form
-            action={onCreateTable}
-            className="w-full max-w-lg rounded-xl border border-[#C9973A]/30 bg-[#12172B] p-6"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Ajouter une table"
-          >
-            <h3 className="nt-heading text-2xl text-[#F7F6F3]">Ajouter une table</h3>
+      <Modal
+        isOpen={showModal}
+        onOpenChange={(isOpen: boolean) => {
+          setShowModal(isOpen);
+          if (!isOpen) {
+            setIsPromoSelected(false);
+          }
+        }}
+        backdrop="blur"
+        classNames={{
+          base: "bg-[#12172B] border border-[#C9973A]/20 text-[#F7F6F3]",
+          header: "border-b border-[#C9973A]/10",
+          footer: "border-t border-[#C9973A]/10",
+        }}
+      >
+        <ModalContent>
+          <form action={onCreateTable}>
+            <ModalHeader>Ajouter une table</ModalHeader>
+            <ModalBody>
+              <Input
+                name="name"
+                label="Nom"
+                labelPlacement="outside"
+                placeholder="Table Or 1"
+                isRequired
+                color="primary"
+                variant="bordered"
+                classNames={{
+                  label: "text-[11px] uppercase tracking-[0.08em] text-[#888888]",
+                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  input: "text-[#F7F6F3]",
+                }}
+              />
 
-            <div className="mt-4 grid gap-3">
-              <div>
-                <label htmlFor="name" className="nt-label mb-1 block">Nom</label>
-                <input id="name" name="name" type="text" required className="nt-input" />
-              </div>
-              <div>
-                <label htmlFor="capacity" className="nt-label mb-1 block">Capacité</label>
-                <input id="capacity" name="capacity" type="number" min={1} required className="nt-input" />
-              </div>
-              <div>
-                <label htmlFor="basePrice" className="nt-label mb-1 block">Prix de base</label>
-                <input id="basePrice" name="basePrice" type="number" min={1} required className="nt-input" />
-              </div>
-              <div>
-                <label htmlFor="zone" className="nt-label mb-1 block">Zone</label>
-                <select id="zone" name="zone" className="nt-input">
-                  <option value="dancefloor">dancefloor</option>
-                  <option value="vip">vip</option>
-                  <option value="loge">loge</option>
-                  <option value="terrasse">terrasse</option>
-                </select>
-              </div>
-              <label className="flex items-center gap-2 text-sm text-[#F7F6F3]">
-                <input type="checkbox" name="isPromo" className="h-4 w-4 accent-[#C4567A]" />
-                is_promo
-              </label>
-            </div>
+              <Input
+                name="capacity"
+                label="Capacité"
+                labelPlacement="outside"
+                type="number"
+                min={1}
+                isRequired
+                color="primary"
+                variant="bordered"
+                classNames={{
+                  label: "text-[11px] uppercase tracking-[0.08em] text-[#888888]",
+                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  input: "text-[#F7F6F3]",
+                }}
+              />
 
-            <div className="mt-6 flex justify-end gap-2">
-              <button
+              <Input
+                name="basePrice"
+                label="Prix de base"
+                labelPlacement="outside"
+                type="number"
+                min={1}
+                isRequired
+                color="primary"
+                variant="bordered"
+                classNames={{
+                  label: "text-[11px] uppercase tracking-[0.08em] text-[#888888]",
+                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  input: "text-[#F7F6F3]",
+                }}
+              />
+
+              <Select
+                name="zone"
+                label="Zone"
+                labelPlacement="outside"
+                defaultSelectedKeys={["vip"]}
+                color="primary"
+                variant="bordered"
+                classNames={{
+                  label: "text-[11px] uppercase tracking-[0.08em] text-[#888888]",
+                  trigger: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  value: "text-[#F7F6F3]",
+                }}
+              >
+                <SelectItem key="dancefloor" variant="bordered">dancefloor</SelectItem>
+                <SelectItem key="vip" variant="bordered">vip</SelectItem>
+                <SelectItem key="loge" variant="bordered">loge</SelectItem>
+                <SelectItem key="terrasse" variant="bordered">terrasse</SelectItem>
+              </Select>
+
+              <div className="flex items-center justify-between rounded-lg border border-[#C9973A]/15 bg-[#0A0F2E] p-3">
+                <div>
+                  <p className="text-sm text-[#F7F6F3]">Table promotionnelle</p>
+                  <p className="text-xs text-[#888888]">Met en avant cette table dans le floor plan.</p>
+                </div>
+                <Switch
+                  isSelected={isPromoSelected}
+                  onValueChange={setIsPromoSelected}
+                  color="secondary"
+                  size="sm"
+                  aria-label="Activer table promotionnelle"
+                />
+                <input type="hidden" name="isPromo" value={isPromoSelected ? "on" : "off"} />
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button
                 type="button"
-                className="nt-btn nt-btn-secondary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
-                onClick={() => setShowModal(false)}
+                variant="bordered"
+                className="min-h-11 border-[#C9973A]/30 text-[#C9973A]"
+                onPress={() => {
+                  setIsPromoSelected(false);
+                  setShowModal(false);
+                }}
               >
                 Annuler
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="nt-btn nt-btn-primary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={isPending}
+                className="min-h-11 bg-[#C9973A] font-semibold text-[#050508]"
+                isLoading={isPending}
+                isDisabled={isPending}
               >
                 Ajouter
-              </button>
-            </div>
+              </Button>
+            </ModalFooter>
           </form>
-        </div>
-      ) : null}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

@@ -6,6 +6,7 @@
 // NightTable usage: refresh triggers on club dashboard screens
 
 import { useRouter } from "next/navigation";
+import { Button } from "@heroui/react";
 
 import type { ReactElement } from "react";
 
@@ -18,13 +19,18 @@ export default function RefreshButton({ className }: RefreshButtonProps): ReactE
   const router = useRouter();
 
   return (
-    <button
+    <Button
       type="button"
-      className={`nt-btn nt-btn-secondary min-h-11 px-4 py-2 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] ${className ?? ""}`.trim()}
+      variant="bordered"
+      color="default"
+      size="sm"
+      radius="none"
+      startContent={<span aria-hidden="true">↻</span>}
+      className={`min-h-11 border-[#C9973A]/20 px-4 text-[#F7F6F3] ${className ?? ""}`.trim()}
       onClick={() => router.refresh()}
       aria-label="Rafraîchir le dashboard"
     >
       Rafraîchir
-    </button>
+    </Button>
   );
 }

@@ -64,6 +64,13 @@ async function ensureUser(adminSupabase, { email, role, password }) {
   );
 
   if (existingUser) {
+    // Update password if user already exists
+    const updated = await adminSupabase.auth.admin.updateUserById(existingUser.id, {
+      password,
+    });
+    if (updated.error) {
+      console.warn(`  ⚠️  Mot de passe non mis à jour pour ${normalizedEmail}: ${updated.error.message}`);
+    }
     return existingUser;
   }
 
@@ -98,32 +105,32 @@ async function run() {
     club: await ensureUser(adminSupabase, {
       email: "demo.club@nighttable.app",
       role: "club",
-      password: "NighttableDemo!2026",
+      password: "ClubNight!2026",
     }),
     promoter1: await ensureUser(adminSupabase, {
       email: "demo.promoter1@nighttable.app",
       role: "promoter",
-      password: "NighttableDemo!2026",
+      password: "PromoNight!2026",
     }),
     promoter2: await ensureUser(adminSupabase, {
       email: "demo.promoter2@nighttable.app",
       role: "promoter",
-      password: "NighttableDemo!2026",
+      password: "PromoNight!2026",
     }),
     client1: await ensureUser(adminSupabase, {
       email: "demo.client1@nighttable.app",
       role: "client",
-      password: "NighttableDemo!2026",
+      password: "ClientNight!2026",
     }),
     client2: await ensureUser(adminSupabase, {
       email: "demo.client2@nighttable.app",
       role: "client",
-      password: "NighttableDemo!2026",
+      password: "ClientNight!2026",
     }),
     vip: await ensureUser(adminSupabase, {
       email: "demo.vip@nighttable.app",
       role: "female_vip",
-      password: "NighttableDemo!2026",
+      password: "VipNight!2026",
     }),
   };
 
@@ -252,6 +259,24 @@ async function run() {
       is_promo: true,
       is_active: true,
     },
+    {
+      club_id: demoUsers.club.id,
+      name: "DEMO-T4",
+      zone: "VIP Backstage",
+      capacity: 10,
+      base_price: 1500,
+      is_promo: false,
+      is_active: true,
+    },
+    {
+      club_id: demoUsers.club.id,
+      name: "DEMO-T5",
+      zone: "Rooftop",
+      capacity: 5,
+      base_price: 780,
+      is_promo: true,
+      is_active: true,
+    },
   ];
 
   for (const tableDefinition of tableDefinitions) {
@@ -287,9 +312,9 @@ async function run() {
     .from("tables")
     .select("id, name, base_price")
     .eq("club_id", demoUsers.club.id)
-    .in("name", ["DEMO-T1", "DEMO-T2", "DEMO-T3"]);
+    .in("name", ["DEMO-T1", "DEMO-T2", "DEMO-T3", "DEMO-T4", "DEMO-T5"]);
 
-  if (tableError || !tableRows || tableRows.length < 3) {
+  if (tableError || !tableRows || tableRows.length < 5) {
     throw new Error(
       `Impossible de récupérer les tables démo${tableError ? `: ${tableError.message}` : ""}`
     );
@@ -299,9 +324,90 @@ async function run() {
   const t1 = tableByName.get("DEMO-T1");
   const t2 = tableByName.get("DEMO-T2");
   const t3 = tableByName.get("DEMO-T3");
+  const t4 = tableByName.get("DEMO-T4");
+  const t5 = tableByName.get("DEMO-T5");
 
-  if (!t1 || !t2 || !t3) {
+  if (!t1 || !t2 || !t3 || !t4 || !t5) {
     throw new Error("Tables démo introuvables après création");
+  }
+
+  const floorPlanLayout = {
+    tables: [
+      { tableName: "DEMO-T1", x: 180, y: 250 },
+      { tableName: "DEMO-T2", x: 360, y: 250 },
+      { tableName: "DEMO-T3", x: 540, y: 250 },
+      { tableName: "DEMO-T4", x: 280, y: 420 },
+      { tableName: "DEMO-T5", x: 500, y: 420 },
+    ],
+  };
+
+  const tablePositionByName = new Map(
+    floorPlanLayout.tables.map((item) => [item.tableName, { x: item.x, y: item.y }])
+  );
+
+  for (const tableItem of tableRows) {
+    const position = tablePositionByName.get(tableItem.name);
+    if (!position) {
+      continue;
+    }
+
+    const { error: updatePositionError } = await adminSupabase
+      .from("tables")
+      .update({
+        x_position: position.x,
+        y_position: position.y,
+      })
+      .eq("id", tableItem.id)
+      .eq("club_id", demoUsers.club.id);
+
+    const missingPositionColumns =
+      updatePositionError?.message?.includes("x_position") ||
+      updatePositionError?.message?.includes("y_position") ||
+      updatePositionError?.message?.includes("Could not find the") ||
+      updatePositionError?.message?.includes("column") ||
+      updatePositionError?.message?.includes("does not exist");
+
+    if (updatePositionError && !missingPositionColumns) {
+      throw new Error(`Mise à jour position table impossible: ${updatePositionError.message}`);
+    }
+  }
+
+  const { data: floorPlanRow, error: floorPlanReadError } = await adminSupabase
+    .from("floor_plans")
+    .select("id")
+    .eq("club_id", demoUsers.club.id)
+    .eq("name", "DEMO-FLOORPLAN")
+    .maybeSingle();
+
+  const missingFloorPlanTable =
+    floorPlanReadError?.message?.includes("Could not find the table 'public.floor_plans'") ?? false;
+
+  if (floorPlanReadError && !missingFloorPlanTable) {
+    throw new Error(`Lecture floor plan impossible: ${floorPlanReadError.message}`);
+  }
+
+  if (missingFloorPlanTable) {
+    console.warn("⚠️ Table floor_plans absente, positions démo appliquées uniquement sur public.tables");
+  } else if (floorPlanRow?.id) {
+    const { error: floorPlanUpdateError } = await adminSupabase
+      .from("floor_plans")
+      .update({ layout_json: floorPlanLayout })
+      .eq("id", floorPlanRow.id)
+      .eq("club_id", demoUsers.club.id);
+
+    if (floorPlanUpdateError) {
+      throw new Error(`Mise à jour floor plan impossible: ${floorPlanUpdateError.message}`);
+    }
+  } else {
+    const { error: floorPlanInsertError } = await adminSupabase.from("floor_plans").insert({
+      club_id: demoUsers.club.id,
+      name: "DEMO-FLOORPLAN",
+      layout_json: floorPlanLayout,
+    });
+
+    if (floorPlanInsertError) {
+      throw new Error(`Création floor plan impossible: ${floorPlanInsertError.message}`);
+    }
   }
 
   const eventDefinitions = [
@@ -318,6 +424,13 @@ async function run() {
       date: isoDateFromNow(8),
       start_time: "23:45",
       end_time: "05:30",
+    },
+    {
+      title: "DEMO · Sunday Closing",
+      description: "Scénario final de démonstration multi-rôles.",
+      date: isoDateFromNow(9),
+      start_time: "22:45",
+      end_time: "04:30",
     },
   ];
 
@@ -364,6 +477,18 @@ async function run() {
         table_id: t3.id,
         status: "available",
         dynamic_price: 700,
+      },
+      {
+        event_id: eventItem.id,
+        table_id: t4.id,
+        status: "available",
+        dynamic_price: 1600,
+      },
+      {
+        event_id: eventItem.id,
+        table_id: t5.id,
+        status: "available",
+        dynamic_price: 820,
       }
     );
   }
@@ -379,6 +504,7 @@ async function run() {
 
   const firstEvent = createdEvents[0];
   const secondEvent = createdEvents[1] ?? createdEvents[0];
+  const thirdEvent = createdEvents[2] ?? createdEvents[0];
 
   const firstEventMainTable = eventTables.find(
     (row) => row.event_id === firstEvent.id && row.table_id === t1.id
@@ -386,8 +512,11 @@ async function run() {
   const secondEventMainTable = eventTables.find(
     (row) => row.event_id === secondEvent.id && row.table_id === t2.id
   );
+  const thirdEventMainTable = eventTables.find(
+    (row) => row.event_id === thirdEvent.id && row.table_id === t4.id
+  );
 
-  if (!firstEventMainTable || !secondEventMainTable) {
+  if (!firstEventMainTable || !secondEventMainTable || !thirdEventMainTable) {
     throw new Error("Event tables principales introuvables");
   }
 
@@ -436,6 +565,28 @@ async function run() {
       stripe_payment_intent_id: `pi_demo_${secondEvent.id.slice(0, 12)}`,
       paid_at: new Date().toISOString(),
     },
+    {
+      client_id: demoUsers.client1.id,
+      event_id: thirdEvent.id,
+      event_table_id: thirdEventMainTable.id,
+      promoter_id: demoUsers.promoter2.id,
+      promo_code_used: "DEMO02",
+      status: "payment_pending",
+      minimum_consumption: 1600,
+      dynamic_price_at_booking: 1600,
+      prepayment_percent: 40,
+      prepayment_amount: 640,
+      insurance_purchased: true,
+      insurance_price: 5,
+      event_starts_at: eventStartsAt(thirdEvent.date, thirdEvent.start_time),
+      qr_code: `NT-DEMO-${thirdEvent.id.slice(0, 8)}`,
+      guests_count: 5,
+      contact_phone: "+33611111111",
+      client_first_name: "Emma",
+      client_last_name: "Dubois",
+      stripe_payment_intent_id: `pi_demo_${thirdEvent.id.slice(0, 12)}`,
+      paid_at: new Date().toISOString(),
+    },
   ];
 
   const { data: reservations, error: reservationsError } = await adminSupabase
@@ -444,7 +595,9 @@ async function run() {
     .select("id, event_id, promoter_id, prepayment_amount");
 
   if (reservationsError || !reservations || reservations.length === 0) {
-    throw new Error("Impossible de créer les réservations démo");
+    throw new Error(
+      `Impossible de créer les réservations démo${reservationsError ? `: ${reservationsError.message}` : ""}`
+    );
   }
 
   const promoterReservation = reservations.find((reservation) => reservation.promoter_id);
@@ -500,6 +653,13 @@ async function run() {
       guest_phone: "+33666666666",
       status: "pending",
     },
+    {
+      event_id: thirdEvent.id,
+      promoter_id: demoUsers.promoter2.id,
+      guest_name: "Yanis Moreau",
+      guest_phone: "+33677777777",
+      status: "pending",
+    },
   ]);
 
   await adminSupabase.from("waitlist").insert([
@@ -519,14 +679,54 @@ async function run() {
     },
   ]);
 
+  // --- VIP invitations seed ---
+  // Invitation 1: from promoter1 on first reservation → pending
+  // Invitation 2: from club on second reservation → accepted (for demo variety)
+  const firstReservation = reservations.find((r) => r.event_id === firstEvent.id);
+  const secondReservation = reservations.find((r) => r.event_id === secondEvent.id);
+
+  if (firstReservation && secondReservation) {
+    await adminSupabase.from("vip_invitations").upsert(
+      [
+        {
+          reservation_id: firstReservation.id,
+          vip_id: demoUsers.vip.id,
+          invited_by: demoUsers.promoter1.id,
+          status: "pending",
+        },
+        {
+          reservation_id: secondReservation.id,
+          vip_id: demoUsers.vip.id,
+          invited_by: demoUsers.club.id,
+          status: "accepted",
+          responded_at: new Date().toISOString(),
+        },
+      ],
+      { onConflict: "reservation_id,vip_id", ignoreDuplicates: true }
+    );
+
+    console.log("  ↪ 2 VIP invitations créées (1 pending, 1 accepted)");
+  }
+
+  // --- VIP safety check-in seed ---
+  // One arrived check-in from today to show an active safety session
+  await adminSupabase.from("vip_safety_checkins").insert({
+    vip_id: demoUsers.vip.id,
+    reservation_id: secondReservation?.id ?? null,
+    checkin_type: "arrived",
+    emergency_contact_notified: false,
+  });
+
+  console.log("  ↪ 1 VIP safety check-in créé (arrived — session active)");
+
   console.log("✅ Seed démo terminé");
   console.log("Comptes créés/confirmés:");
-  console.log("- demo.club@nighttable.app / NighttableDemo!2026");
-  console.log("- demo.promoter1@nighttable.app / NighttableDemo!2026");
-  console.log("- demo.promoter2@nighttable.app / NighttableDemo!2026");
-  console.log("- demo.client1@nighttable.app / NighttableDemo!2026");
-  console.log("- demo.client2@nighttable.app / NighttableDemo!2026");
-  console.log("- demo.vip@nighttable.app / NighttableDemo!2026");
+  console.log("- demo.club@nighttable.app / ClubNight!2026");
+  console.log("- demo.promoter1@nighttable.app / PromoNight!2026");
+  console.log("- demo.promoter2@nighttable.app / PromoNight!2026");
+  console.log("- demo.client1@nighttable.app / ClientNight!2026");
+  console.log("- demo.client2@nighttable.app / ClientNight!2026");
+  console.log("- demo.vip@nighttable.app / VipNight!2026");
 }
 
 run().catch((error) => {

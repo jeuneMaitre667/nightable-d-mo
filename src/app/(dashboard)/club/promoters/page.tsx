@@ -10,6 +10,8 @@ import { validateCommissionAction } from "@/lib/promoter.actions";
 import { createClient } from "@/lib/supabase/server";
 
 import { AddPromoterModal } from "./AddPromoterModal";
+import { PendingCommissionsTable } from "./PendingCommissionsTable";
+import { PromotersTable } from "./PromotersTable";
 
 type PromoterProfileRow = {
   id: string;
@@ -24,8 +26,20 @@ type CommissionRow = {
   id: string;
   promoter_id: string;
   amount: number;
+  rate: number | null;
+  reservation_id: string | null;
   status: "pending" | "validated" | "paid";
   created_at: string;
+};
+
+type ReservationEventRow = {
+  id: string;
+  event_id: string;
+};
+
+type EventTitleRow = {
+  id: string;
+  title: string;
 };
 
 function rankBadge(index: number): string {
@@ -78,7 +92,7 @@ export default async function ClubPromotersPage() {
   const { data: rawCommissions } = promoterIds.length
     ? await supabase
         .from("commissions")
-        .select("id, promoter_id, amount, status, created_at")
+        .select("id, promoter_id, amount, rate, reservation_id, status, created_at")
         .eq("club_id", clubId)
         .in("promoter_id", promoterIds)
     : { data: [] as CommissionRow[] };
@@ -97,8 +111,6 @@ export default async function ClubPromotersPage() {
       (monthlyRevenueByPromoter[right.id] ?? 0) - (monthlyRevenueByPromoter[left.id] ?? 0)
   );
 
-  const topFivePromoters = sortedPromoters.slice(0, 5);
-
   const pendingCommissions = commissions
     .filter((row) => row.status === "pending")
     .sort(
@@ -106,144 +118,93 @@ export default async function ClubPromotersPage() {
         new Date(right.created_at).getTime() - new Date(left.created_at).getTime()
     );
 
+  const reservationIds = Array.from(
+    new Set(pendingCommissions.map((commission) => commission.reservation_id).filter(Boolean) as string[])
+  );
+
+  const { data: reservationEvents } = reservationIds.length
+    ? await supabase
+        .from("reservations")
+        .select("id,event_id")
+        .in("id", reservationIds)
+    : { data: [] as ReservationEventRow[] };
+
+  const reservationEventList = (reservationEvents ?? []) as ReservationEventRow[];
+  const eventIds = Array.from(new Set(reservationEventList.map((row) => row.event_id)));
+
+  const { data: eventTitles } = eventIds.length
+    ? await supabase
+        .from("events")
+        .select("id,title")
+        .in("id", eventIds)
+    : { data: [] as EventTitleRow[] };
+
+  const reservationById = new Map(reservationEventList.map((row) => [row.id, row]));
+  const eventById = new Map(((eventTitles ?? []) as EventTitleRow[]).map((row) => [row.id, row.title]));
+
   const promoterNameById = new Map(
     promoters.map((promoter) => [
       promoter.id,
       `${promoter.first_name ?? ""} ${promoter.last_name ?? ""}`.trim() || "Promoteur",
     ])
   );
+  const promoterRows = sortedPromoters.map((promoter, index) => ({
+    id: promoter.id,
+    rank: index + 1,
+    rankLabel: rankBadge(index),
+    fullName: promoterNameById.get(promoter.id) ?? "Promoteur",
+    promoCode: promoter.promo_code,
+    commissionRate: promoter.commission_rate,
+    monthlyRevenue: monthlyRevenueByPromoter[promoter.id] ?? 0,
+    isActive: promoter.is_active,
+  }));
+
+  const pendingRows = pendingCommissions.map((commission) => {
+    const reservation = commission.reservation_id ? reservationById.get(commission.reservation_id) : null;
+    const eventTitle = reservation ? eventById.get(reservation.event_id) ?? "Événement" : "Événement";
+
+    return {
+      id: commission.id,
+      promoterName: promoterNameById.get(commission.promoter_id) ?? "Promoteur",
+      eventTitle,
+      amountLabel: `${Number(commission.amount).toFixed(2)} €`,
+      rateLabel: `${Number(commission.rate ?? 0)}%`,
+    };
+  });
+
+  const activePromoters = promoterRows.filter((row) => row.isActive).length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-5">
+      <header className="flex flex-wrap items-start justify-between gap-3 rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
         <div>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-[#888888]">Gestion</p>
           <h1 className="text-2xl font-semibold text-[#F7F6F3]">Promoteurs</h1>
           <p className="text-sm text-[#888888]">
             Suivez les performances, créez de nouveaux comptes et validez les commissions en attente.
           </p>
         </div>
         <AddPromoterModal />
-      </div>
+      </header>
 
-      <div className="overflow-hidden rounded-xl border border-[#C9973A]/10">
-        <table className="w-full">
-          <thead className="bg-[#0A0F2E] text-xs uppercase tracking-widest text-[#888888]">
-            <tr>
-              <th className="px-4 py-3 text-left">Rang</th>
-              <th className="px-4 py-3 text-left">Promoteur</th>
-              <th className="px-4 py-3 text-left">Code</th>
-              <th className="px-4 py-3 text-left">Commission</th>
-              <th className="px-4 py-3 text-left">CA du mois</th>
-              <th className="px-4 py-3 text-left">Statut</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedPromoters.length === 0 ? (
-              <tr className="bg-[#12172B]">
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-[#888888]">
-                  Aucun promoteur pour le moment.
-                </td>
-              </tr>
-            ) : (
-              sortedPromoters.map((promoter, index) => {
-                const monthlyRevenue = monthlyRevenueByPromoter[promoter.id] ?? 0;
+      <section className="grid gap-3 md:grid-cols-3">
+        <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
+          <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">Promoteurs</p>
+          <p className="mt-2 nt-heading text-[30px] leading-none text-[#C9973A] md:text-[32px]">{promoterRows.length}</p>
+        </article>
+        <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
+          <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">Actifs</p>
+          <p className="mt-2 nt-heading text-[30px] leading-none text-[#C9973A] md:text-[32px]">{activePromoters}</p>
+        </article>
+        <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
+          <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">Commissions pending</p>
+          <p className="mt-2 nt-heading text-[30px] leading-none text-[#C9973A] md:text-[32px]">{pendingRows.length}</p>
+        </article>
+      </section>
 
-                return (
-                  <tr
-                    key={promoter.id}
-                    className="border-t border-[#C9973A]/5 bg-[#12172B] text-sm text-[#F7F6F3]"
-                  >
-                    <td className="px-4 py-3 font-semibold text-[#C9973A]">{rankBadge(index)}</td>
-                    <td className="px-4 py-3">
-                      {`${promoter.first_name ?? ""} ${promoter.last_name ?? ""}`.trim() ||
-                        "Promoteur"}
-                    </td>
-                    <td className="px-4 py-3 text-[#C9973A]">{promoter.promo_code}</td>
-                    <td className="px-4 py-3">{promoter.commission_rate}%</td>
-                    <td className="px-4 py-3">{monthlyRevenue.toFixed(2)} €</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${
-                          promoter.is_active
-                            ? "border border-[#3A9C6B]/30 bg-[#3A9C6B]/15 text-[#3A9C6B]"
-                            : "border border-[#888888]/30 bg-[#888888]/15 text-[#888888]"
-                        }`}
-                      >
-                        {promoter.is_active ? "Actif" : "Inactif"}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+      <PromotersTable rows={promoterRows} />
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-5">
-          <h2 className="text-lg font-semibold text-[#F7F6F3]">Commissions en attente</h2>
-          <div className="mt-4 space-y-3">
-            {pendingCommissions.length === 0 ? (
-              <p className="text-sm text-[#888888]">Aucune commission en attente de validation.</p>
-            ) : (
-              pendingCommissions.map((commission) => (
-                <div
-                  key={commission.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#C9973A]/10 bg-[#0A0F2E] p-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-[#F7F6F3]">
-                      {promoterNameById.get(commission.promoter_id) ?? "Promoteur"}
-                    </p>
-                    <p className="text-xs text-[#888888]">
-                      {new Date(commission.created_at).toLocaleDateString("fr-FR")}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-[#C9973A]">
-                      {Number(commission.amount).toFixed(2)} €
-                    </span>
-                    <form action={validateCommissionFormAction}>
-                      <input type="hidden" name="commission_id" value={commission.id} />
-                      <button
-                        type="submit"
-                        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#C9973A]/40 px-3 py-2 text-xs font-semibold text-[#C9973A] transition-all duration-200 ease-in-out hover:bg-[#C9973A]/10"
-                      >
-                        Valider
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-5">
-          <h2 className="text-lg font-semibold text-[#F7F6F3]">Top 5 du mois</h2>
-          <div className="mt-4 space-y-3">
-            {topFivePromoters.length === 0 ? (
-              <p className="text-sm text-[#888888]">Pas encore de données ce mois-ci.</p>
-            ) : (
-              topFivePromoters.map((promoter, index) => (
-                <div
-                  key={promoter.id}
-                  className="flex items-center justify-between rounded-lg border border-[#C9973A]/10 bg-[#0A0F2E] px-3 py-2"
-                >
-                  <p className="text-sm text-[#F7F6F3]">
-                    <span className="mr-2 text-[#C9973A]">{rankBadge(index)}</span>
-                    {promoterNameById.get(promoter.id) ?? "Promoteur"}
-                  </p>
-                  <p className="text-sm font-semibold text-[#C9973A]">
-                    {(monthlyRevenueByPromoter[promoter.id] ?? 0).toFixed(2)} €
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
+      <PendingCommissionsTable rows={pendingRows} validateCommissionFormAction={validateCommissionFormAction} />
     </div>
   );
 }
