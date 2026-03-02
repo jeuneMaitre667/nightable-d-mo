@@ -50,6 +50,179 @@
 | 2026-03-02 | ERR-2026-046 | Auth text overlap persistent after HeroUI overrides | Medium | resolved | Les overlays CSS ne suffisaient pas: superposition encore visible sur certains environnements | N/A |
 | 2026-03-02 | ERR-2026-047 | Club tabs missing due stale role in layout | High | resolved | Le layout dashboard pouvait afficher un menu non-club malgré le login club | N/A |
 | 2026-03-02 | ERR-2026-048 | Mobile dashboard / duplicated tab bars | Low | resolved | Deux barres d’onglets visibles en même temps sur mobile | N/A |
+| 2026-03-02 | ERR-2026-049 | Club dashboard baseline layout drift | Low | resolved | La structure sidebar/layout n’était pas suffisamment calée sur la nouvelle direction Velvet Rope | N/A |
+| 2026-03-02 | ERR-2026-050 | Club dashboard page 1 parity gap | Low | resolved | La home club ne respectait pas la structure cible KPI + revenus + espaces + réservations | N/A |
+
+---
+**[2026-03-02] — Dernière mini passe cohérence CTA sur dashboards promoteur**
+- File(s) affected: `src/app/(dashboard)/promoter/commissions/PromoterCommissionsPanel.tsx`, `src/app/(dashboard)/promoter/promo/PromoterPromoPanel.tsx`, `src/app/(dashboard)/promoter/guestlist/GuestListClient.tsx`
+- Error: Les CTA promoteur restaient légèrement hétérogènes visuellement par rapport au standard iconographique appliqué sur club.
+- Root cause: Harmonisation iconographique déployée par vagues, pages promoteur partiellement exclues de la dernière passe.
+- Fix applied: Ajout de repères icônes sur les CTA clés (`Lien promo`, `Commissions`, `Ajouter`, `Marquer arrivé`, `Voir mes commissions`).
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Incohérence visuelle des CTA entre `Clients & VIPs` et `Réservations`**
+- File(s) affected: `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`
+- Error: Les CTA de la page Réservations n’avaient pas les mêmes repères iconographiques que ceux appliqués sur la page Clients.
+- Root cause: Harmonisation CTA réalisée d’abord sur la page clients uniquement.
+- Fix applied: Alignement des labels CTA Réservations avec icônes (`＋ Nouvelle réservation`, `↺ Réinitialiser`) pour cohérence dashboard globale.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — CTA de ligne peu différenciés visuellement (Clients & VIPs)**
+- File(s) affected: `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`
+- Error: Les actions `Voir fiche`, `Appeler`, `Email` avaient une hiérarchie visuelle proche, réduisant la lisibilité rapide en table dense.
+- Root cause: Labels textuels sans repère iconographique distinct par type d’action.
+- Fix applied: Ajout d’icônes dédiées sur chaque CTA (fiche/contact téléphone/contact email) en desktop et mobile.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Actions de contact direct absentes sur les lignes clients**
+- File(s) affected: `src/app/(dashboard)/club/clients/page.tsx`, `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`
+- Error: Le tableau clients permettait la navigation métier (`Voir fiche`) mais pas de contact direct opérationnel par ligne.
+- Root cause: Données de contact non exposées séparément côté panel + absence de CTA `tel:`/`mailto:`.
+- Fix applied: Ajout des champs `phone`/`email` dans le mapping serveur et CTA conditionnels `Appeler` / `Email` sur desktop et mobile.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Boutons ligne client sans accès direct à la fiche de réservation**
+- File(s) affected: `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`, `src/app/(dashboard)/club/reservations/page.tsx`, `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`
+- Error: Le tableau clients n’offrait pas d’action directe pour ouvrir la fiche opérationnelle d’un client dans les réservations.
+- Root cause: Les CTA globaux étaient configurés, mais aucune action par ligne n’était reliée au moteur de recherche réservations.
+- Fix applied: Ajout du bouton `Voir fiche` (desktop + mobile) vers `/dashboard/club/reservations?q=<client>` + prise en charge de `searchParams.q` pour pré-remplir automatiquement la recherche.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Boutons `Clients & VIPs` partiellement configurés (actions implicites)**
+- File(s) affected: `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`
+- Error: Certains boutons de la page reposaient sur un comportement implicite/non explicite (navigation ancre et état vide sans CTA d’action complet).
+- Root cause: Première passe orientée visuel avant finalisation UX des interactions.
+- Fix applied: Configuration complète des boutons (focus/scroll filtres avancés, CTA état vide `Réinitialiser` + `Voir les réservations`, actions explicites sur interactions clés).
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — État actif sidebar `Clients & VIPs` non aligné à la maquette**
+- File(s) affected: `src/app/(dashboard)/DashboardSidebarNav.tsx`, `src/app/(dashboard)/DashboardMobileNav.tsx`
+- Error: L’item actif `Clients & VIPs` utilisait la couleur active gold générique au lieu du violet attendu sur la maquette.
+- Root cause: Style actif global partagé sur tous les items sans exception contextuelle.
+- Fix applied: Ajout d’une variante active violette ciblée pour l’item `/dashboard/club/clients` en desktop et mobile, sans modifier les autres états actifs.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Ajustements pixel-perfect `Clients & VIPs` (typo/densité/métriques)**
+- File(s) affected: `src/app/(dashboard)/club/clients/page.tsx`, `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`
+- Error: Écart visuel résiduel avec la maquette (densité de la toolbar filtres, hiérarchie typo des blocs, signal “nouveaux ce mois”).
+- Root cause: Première version fonctionnelle priorisant la structure avant la finesse visuelle.
+- Fix applied: Ajustement des tailles/espacements, alignement toolbar recherche+tabs, ajout de la métrique dynamique “+X nouveaux ce mois” calculée côté serveur.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Nouvelle page manquante `Clients & VIPs` dans le dashboard club**
+- File(s) affected: `src/app/(dashboard)/club/clients/page.tsx`, `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`, `src/app/(dashboard)/club/clients/loading.tsx`, `src/app/(dashboard)/club/clients/error.tsx`, `src/app/(dashboard)/dashboard/club/clients/page.tsx`, `src/app/(dashboard)/layout.tsx`
+- Error: La page CRM “Clients & VIPs” demandée n’existait pas dans le dashboard club.
+- Root cause: Route et navigation non implémentées dans le shell dashboard malgré le besoin produit.
+- Fix applied: Création complète de la page (fetch serveur + segmentation clients/VIP + table desktop/cards mobile + filtres) avec alias route et entrée sidebar dédiée.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — CTA secondaires manquants sur sous-pages dashboard VIP**
+- File(s) affected: `src/app/(dashboard)/vip/invitations/page.tsx`, `src/app/(dashboard)/vip/profile/page.tsx`, `src/app/(dashboard)/vip/safety/page.tsx`
+- Error: Navigation d’actions rapide incomplète entre les sous-pages VIP, créant un parcours moins fluide que les dashboards club/promoter.
+- Root cause: Harmonisation visuelle appliquée sur les headers sans finaliser les liens d’actions contextuelles sur chaque écran.
+- Fix applied: Ajout de CTA d’en-tête croisés (invitations/profil/safety) et alignement mobile-first des grilles formulaires VIP.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Harmonisation visuelle `promoter` + `vip` (style dashboard unifié)**
+- File(s) affected: `src/app/(dashboard)/promoter/commissions/PromoterCommissionsPanel.tsx`, `src/app/(dashboard)/promoter/promo/PromoterPromoPanel.tsx`, `src/app/(dashboard)/promoter/guestlist/GuestListClient.tsx`, `src/app/(dashboard)/vip/page.tsx`, `src/app/(dashboard)/vip/invitations/page.tsx`, `src/app/(dashboard)/vip/profile/page.tsx`, `src/app/(dashboard)/vip/safety/page.tsx`
+- Error: Écarts visuels persistants entre les dashboards `club` et `promoter/vip` (headers, densité sections, hiérarchie actions).
+- Root cause: Refontes effectuées en plusieurs vagues avec styles convergents mais non totalement alignés.
+- Fix applied: Passage “pixel closer” sur promoteur/vip (headers gradient cohérents, quick actions, densité sections/cartes harmonisée) sans modification des règles métier.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Bouton `Revendre` client non opérationnel + submit commissions explicite**
+- File(s) affected: `src/lib/reservation.actions.ts`, `src/app/(dashboard)/client/reservations/page.tsx`, `src/app/(dashboard)/client/reservations/ClientReservationsTable.tsx`, `src/app/(dashboard)/club/promoters/PendingCommissionsTable.tsx`
+- Error: Le bouton `Revendre` sur le dashboard client n’exécutait aucune action métier; sur les commissions club, le bouton de validation n’était pas explicitement configuré en `submit`.
+- Root cause: CTA partiellement câblés après les passes UI successives.
+- Fix applied: Ajout de la server action `createResaleListingAction` (création d’une revente dans `resales` avec contrôles ownership/délai/statut), branchement du bouton `Revendre` sur un form action serveur, et ajout de `type="submit"` sur le bouton de validation commissions.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Configuration des boutons dashboard club (CTA non actionnables)**
+- File(s) affected: `src/app/(dashboard)/club/events/EventListTable.tsx`, `src/app/(dashboard)/club/promoters/PromotersTable.tsx`, `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`
+- Error: Plusieurs boutons restaient purement visuels (actions “Voir/Gérer” sans valeur fonctionnelle explicite).
+- Root cause: Itérations UI priorisées sur le design avant configuration finale des CTA secondaires.
+- Fix applied: Boutons événements reliés à la duplication (`/dashboard/club/events/new?duplicate=...`), boutons promoteurs convertis en action utile “Copier” (clipboard promo code), CTA principal réservations relié au flux de création d’événement.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Micro-passe typographique et densité tableau sur réservations**
+- File(s) affected: `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`
+- Error: La page réservations restait légèrement éloignée du rendu cible sur la hiérarchie typographique et la densité des lignes.
+- Root cause: Derniers écarts UI (weights, paddings, contraste labels/chips) après la passe de structure principale.
+- Fix applied: Ajustement fin des tailles/weights/espacements (header, pills filtres, tabs, en-têtes de colonnes et rows desktop) sans impact métier.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Alignement visuel de `/dashboard/club/reservations` au mock de référence**
+- File(s) affected: `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`
+- Error: La première version de la page réservations était fonctionnelle mais pas suffisamment alignée au rendu visuel cible (header/toolbar/table shell).
+- Root cause: Implémentation initiale orientée structure fonctionnelle avant passe de finition UI.
+- Fix applied: Recomposition de la page (header horizontal, barre filtres type pills, tabs compactes, bloc "Liste des réservations" avec action Colonnes, table desktop et cards mobile harmonisées).
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Runtime error chargement réservations club (`club_id` invalide)**
+- File(s) affected: `src/app/(dashboard)/club/reservations/page.tsx`
+- Error: La page `/dashboard/club/reservations` plantait avec `Impossible de charger les réservations du club.`
+- Root cause: Requête Supabase sur `reservations` filtrée avec `.eq("club_id", clubId)` alors que la table `reservations` ne contient pas de colonne `club_id`.
+- Fix applied: Chargement des événements du club puis récupération des réservations via `.in("event_id", eventIds)`; conservation des mappings UI existants.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Ajout de la page `/dashboard/club/reservations`**
+- File(s) affected: `src/app/(dashboard)/layout.tsx`, `src/app/(dashboard)/club/reservations/page.tsx`, `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`, `src/app/(dashboard)/club/reservations/loading.tsx`, `src/app/(dashboard)/club/reservations/error.tsx`, `src/app/(dashboard)/dashboard/club/reservations/page.tsx`
+- Error: La vue opérationnelle “Réservations” demandée n’existait pas dans le dashboard club.
+- Root cause: Le redesign club couvrait pages 1→7 sans une page consolidée dédiée aux réservations.
+- Fix applied: Création de la nouvelle route réservations (serveur + panel client avec filtres/recherche + table desktop + cards mobile), ajout des états App Router, alias dashboard et entrée de navigation sidebar/mobile.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Diagnostic TS2307 sur import `AnalyticsPanels`**
+- File(s) affected: `src/app/(dashboard)/club/analytics/page.tsx`
+- Error: VS Code affichait `Cannot find module './AnalyticsPanels' or its corresponding type declarations` sur la page analytics.
+- Root cause: Résolution instable de l’import relatif dans le contexte route group App Router.
+- Fix applied: Remplacement de l’import relatif par un import alias absolu `@/app/(dashboard)/club/analytics/AnalyticsPanels`.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Page `/dashboard/club/settings` absente + cohérence finale dashboard club**
+- File(s) affected: `src/lib/club.actions.ts`, `src/app/(dashboard)/club/settings/page.tsx`, `src/app/(dashboard)/club/settings/ClubSettingsPanel.tsx`, `src/app/(dashboard)/club/settings/loading.tsx`, `src/app/(dashboard)/club/settings/error.tsx`, `src/app/(dashboard)/dashboard/club/settings/page.tsx`
+- Error: La route settings club n’était pas disponible avec ses états App Router (`loading`/`error`) et la cohérence globale des pages club restait incomplète.
+- Root cause: Le redesign des pages 1→6 était finalisé avant implémentation de la page paramètres et de son alias dashboard.
+- Fix applied: Ajout d’une server action dédiée (`updateClubSettingsAction`), création de la page settings avec panneau client, états `loading`/`error`, alias `/dashboard/club/settings`, puis validation globale `npm run lint` + `npm run build`.
+- Status: ✅ Resolved
+---
 
 ---
 **[2026-03-02] — Ajustements mobile post-audit (auth/promoter/vip)**
@@ -178,6 +351,24 @@
 ---
 
 ---
+**[2026-03-02] — Base layout/sidebar club non alignée au nouveau référentiel**
+- File(s) affected: `src/app/(dashboard)/layout.tsx`, `src/app/(dashboard)/DashboardSidebarNav.tsx`
+- Error: Le shell dashboard club manquait d’alignement strict avec la grille et hiérarchie visuelle attendues pour la nouvelle phase de redesign.
+- Root cause: Accumulation d’itérations précédentes sans composant de navigation dédié avec gestion d’état actif centralisée.
+- Fix applied: Refonte du layout base (sidebar 200px, sections GÉNÉRAL/GESTION, actif gold, footer user) + extraction de la nav dans un composant client dédié avec état actif fiable.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Home club non conforme à la structure cible Page 1**
+- File(s) affected: `src/app/(dashboard)/club/page.tsx`, `src/app/(dashboard)/club/ClubHomePanels.tsx`
+- Error: La page `/dashboard/club` ne présentait pas la composition attendue (4 KPIs, bloc revenus, bloc espaces, table réservations récentes) selon les nouvelles références.
+- Root cause: Structure héritée des itérations précédentes avec sections promoteurs/soirée qui ne correspondaient plus à la cible.
+- Fix applied: Recomposition complète de la page avec nouveaux mappings serveur et rendu client conforme (recharts + progress + table dédiée).
+- Status: ✅ Resolved
+---
+
+---
 **[2026-03-02] — Débordement horizontal des tableaux dashboard sur mobile**
 - File(s) affected: `src/app/(dashboard)/club/ClubHomePanels.tsx`, `src/app/(dashboard)/club/analytics/AnalyticsPanels.tsx`, `src/app/(dashboard)/club/promoters/PendingCommissionsTable.tsx`, `src/app/(dashboard)/club/promoters/PromotersTable.tsx`, `src/app/(dashboard)/client/reservations/ClientReservationsTable.tsx`, `src/app/(dashboard)/promoter/guestlist/GuestListClient.tsx`
 - Error: Plusieurs tableaux devenaient partiellement illisibles sur smartphone (colonnes coupées, actions hors viewport).
@@ -235,6 +426,105 @@
 - Error: Les boutons Événements / Tables / Promoteurs / Analytics redirigeaient tous vers `/dashboard/club`, et la route analytics n’existait pas.
 - Root cause: Configuration `roleMenus.club` avec href dupliqués et absence de page `/dashboard/club/analytics`.
 - Fix applied: Hrefs corrigés vers routes dédiées + création de la page analytics et de son alias dashboard.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Dashboard club: état vide affichait encore le modèle legacy**
+- File(s) affected: `src/app/(dashboard)/club/page.tsx`
+- Error: Après refresh, certains clubs voyaient encore l’ancienne vue “Aucune soirée ce soir / Test HeroUI” au lieu du nouveau design Page 1.
+- Root cause: Branche `if (!eventOfTonight)` retournant un bloc legacy avant le rendu `ClubHomePanels`.
+- Fix applied: Suppression du return legacy et unification du flux pour toujours rendre la nouvelle page avec datasets vides si aucune soirée n’est planifiée.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Dashboard club: écart visuel mobile vs desktop**
+- File(s) affected: `src/app/(dashboard)/layout.tsx`, `src/app/(dashboard)/DashboardMobileNav.tsx`
+- Error: La version mobile affichait un shell visuel ancien (header/nav) non aligné avec la nouvelle direction desktop du dashboard club.
+- Root cause: Navigation mobile statique sans état actif et header mobile hérité d’un style précédent.
+- Fix applied: Nouveau composant `DashboardMobileNav` avec état actif basé sur la route + refonte du header mobile pour harmoniser le shell avec la sidebar desktop.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Warnings runtime dashboard club (Recharts + a11y Progress)**
+- File(s) affected: `src/app/(dashboard)/club/ClubHomePanels.tsx`
+- Error: Avertissements console sur `/dashboard/club` (`width(-1)/height(-1)` du chart et composants progression sans label a11y visible).
+- Root cause: `ResponsiveContainer` calculé trop tôt sur certains layouts mobiles + `Progress` sans `aria-label` explicite.
+- Fix applied: Ajout `minWidth/minHeight` et `min-w-0` sur le conteneur chart, plus `aria-label` dynamique sur chaque barre de progression.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Gouvernance responsive non centralisée dans les instructions Copilot**
+- File(s) affected: `.github/copilot-instructions.md`
+- Error: Les contraintes responsive/mobile détaillées n’étaient pas formalisées dans les règles d’implémentation projet.
+- Root cause: Évolution design mobile récente non reflétée dans le guide d’exécution Copilot.
+- Fix applied: Ajout complet de la section “Responsive & Visual Consistency Rules — MANDATORY” avec breakpoints, layout, tables mobiles, modals bottom-sheet, performances et checklist finale.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Page events club non conforme en mobile**
+- File(s) affected: `src/app/(dashboard)/club/events/EventListTable.tsx`, `src/app/(dashboard)/club/events/page.tsx`, `src/app/(dashboard)/club/events/CreateEventButton.tsx`
+- Error: La vue events reposait principalement sur un tableau unique avec densité desktop, peu adaptée au rendu mobile attendu.
+- Root cause: Absence de variante mobile dédiée (cards) et hiérarchie typo/touch targets trop desktop-first.
+- Fix applied: Ajout d’un rendu mobile en cartes (`md:hidden`) + table desktop/tablette (`hidden md:block`), réduction colonnes secondaires sur tablette, ajustements typo responsive et CTA principal passé en `min-h-12`.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Runtime dev instable (`module factory is not available`)**
+- File(s) affected: `package.json`, `scripts/dev-reset.ps1`
+- Error: En local, la route dashboard pouvait planter avec une erreur runtime Turbopack persistante malgré refresh/redémarrages.
+- Root cause: Enchaînement de locks/artefacts `.next/dev` et instabilité de session Turbopack en redémarrage répété.
+- Fix applied: Passage du script `dev` en mode `next dev --webpack` + nettoyage renforcé (`ports 3000/3001/3002` et purge `.next/dev`) dans `dev-reset.ps1`.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Perception persistante “ancien modèle” sur page events**
+- File(s) affected: `src/app/(dashboard)/club/events/page.tsx`, `src/app/(dashboard)/club/events/EventListTable.tsx`, `src/app/(dashboard)/club/events/CreateEventButton.tsx`
+- Error: Malgré les ajustements initiaux, la page `/dashboard/club/events` restait perçue comme l’ancien rendu.
+- Root cause: Diff visuelle jugée trop faible sur la version desktop (header/cards/table trop proches de la version précédente).
+- Fix applied: Refonte visuelle renforcée (header gradient, KPI cards style `#1A1D24`, CTA principal élargi, table desktop redessinée) tout en gardant le double rendu mobile/desktop et la logique métier.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Perception persistante “ancien modèle” sur page tables**
+- File(s) affected: `src/app/(dashboard)/club/tables/tablesClient.tsx`, `src/app/(dashboard)/club/tables/loading.tsx`
+- Error: La page `/dashboard/club/tables` restait visuellement proche de l’ancienne itération malgré les corrections précédentes.
+- Root cause: Hiérarchie visuelle trop proche de l’existant et absence de rupture nette entre desktop/mobile sur le panneau tables.
+- Fix applied: Refonte marquée (header gradient, KPI cards, panneau floor plan modernisé, cards mobiles dédiées, table desktop restylée, modal en bottom-sheet mobile) + skeleton loading aligné.
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Perception persistante “ancien modèle” sur page promoteurs**
+- File(s) affected: `src/app/(dashboard)/club/promoters/page.tsx`, `src/app/(dashboard)/club/promoters/PromotersTable.tsx`, `src/app/(dashboard)/club/promoters/AddPromoterModal.tsx`
+- Error: La page `/dashboard/club/promoters` restait trop proche de l’ancienne direction visuelle.
+- Root cause: Header/KPI/table/modal avec densité et styles insuffisamment différenciants, surtout sur mobile.
+- Fix applied: Refonte visuelle nette (header gradient, KPI cards `#1A1D24`, listing mobile en cards + table desktop restylée, modal en bottom-sheet mobile, touch targets 48px).
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Perception persistante “ancien modèle” sur page VIP club**
+- File(s) affected: `src/app/(dashboard)/club/vip/page.tsx`, `src/app/(dashboard)/club/vip/ClubVipPanels.tsx`
+- Error: La page `/dashboard/club/vip` ne donnait pas une rupture visuelle claire par rapport au modèle précédent.
+- Root cause: Sections historiques (header/tables/modals) trop proches de l’ancienne hiérarchie visuelle et comportement mobile incomplet.
+- Fix applied: Refonte complète du shell VIP (header gradient, KPI cards, vue mobile cards pour VIP validées, table desktop modernisée, modal invitation en bottom-sheet mobile, touch targets renforcés).
+- Status: ✅ Resolved
+---
+
+---
+**[2026-03-02] — Perception persistante “ancien modèle” sur page analytics club**
+- File(s) affected: `src/app/(dashboard)/club/analytics/AnalyticsPanels.tsx`, `src/app/(dashboard)/club/analytics/loading.tsx`, `src/app/(dashboard)/club/analytics/error.tsx`
+- Error: La page `/dashboard/club/analytics` restait visuellement proche du modèle précédent.
+- Root cause: Panels analytics avec structure trop proche de l’ancienne version (tables uniquement desktop-first, header peu différencié, erreur dédiée absente).
+- Fix applied: Refonte complète analytics (header gradient, tabs mobiles scrollables, KPI cards modernisées, cards mobiles pour top promoteurs/événements passés, tables desktop restylées), loading recalibré et ajout d’un `error.tsx` dédié.
 - Status: ✅ Resolved
 ---
 **[2026-03-02] — Dashboard club: alias routes manquants pour events/tables**

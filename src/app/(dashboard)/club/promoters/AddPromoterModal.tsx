@@ -49,7 +49,7 @@ export function AddPromoterModal() {
         onPress={() => setIsOpen(true)}
         color="primary"
         radius="none"
-        className="min-h-11 px-4 text-xs font-semibold uppercase tracking-widest"
+        className="h-12 w-full px-4 text-sm font-semibold tracking-[0.08em] md:w-auto"
       >
         Ajouter un promoteur
       </Button>
@@ -70,7 +70,7 @@ export function AddPromoterModal() {
         }}
         backdrop="blur"
         classNames={{
-          base: "bg-[#12172B] border border-[#C9973A]/20 text-[#F7F6F3]",
+          base: "fixed bottom-0 w-full rounded-t-2xl bg-[#12172B] border border-[#C9973A]/20 text-[#F7F6F3] md:relative md:bottom-auto md:max-w-lg md:rounded-xl",
           header: "border-b border-[#C9973A]/10",
           footer: "border-t border-[#C9973A]/10",
         }}
@@ -79,6 +79,7 @@ export function AddPromoterModal() {
           <form onSubmit={handleSubmit}>
             <ModalHeader>Nouveau promoteur</ModalHeader>
             <ModalBody className="space-y-4">
+              <div className="mx-auto mb-1 h-1 w-10 rounded-full bg-white/20 md:hidden" />
               <div className="grid gap-3 md:grid-cols-2">
                 <Input
                   name="first_name"
@@ -90,7 +91,7 @@ export function AddPromoterModal() {
                   color="primary"
                   classNames={{
                     label: "text-[11px] uppercase tracking-widest text-[#888888]",
-                    inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                    inputWrapper: "min-h-12 bg-[#0A0F2E] border border-[#2A2F4A]",
                     input: "text-[#F7F6F3]",
                   }}
                 />
@@ -104,7 +105,7 @@ export function AddPromoterModal() {
                   color="primary"
                   classNames={{
                     label: "text-[11px] uppercase tracking-widest text-[#888888]",
-                    inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                    inputWrapper: "min-h-12 bg-[#0A0F2E] border border-[#2A2F4A]",
                     input: "text-[#F7F6F3]",
                   }}
                 />
@@ -121,7 +122,7 @@ export function AddPromoterModal() {
                 color="primary"
                 classNames={{
                   label: "text-[11px] uppercase tracking-widest text-[#888888]",
-                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  inputWrapper: "min-h-12 bg-[#0A0F2E] border border-[#2A2F4A]",
                   input: "text-[#F7F6F3]",
                 }}
               />
@@ -135,7 +136,7 @@ export function AddPromoterModal() {
                 color="primary"
                 classNames={{
                   label: "text-[11px] uppercase tracking-widest text-[#888888]",
-                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  inputWrapper: "min-h-12 bg-[#0A0F2E] border border-[#2A2F4A]",
                   input: "text-[#F7F6F3]",
                 }}
               />
@@ -168,7 +169,7 @@ export function AddPromoterModal() {
               <Button
                 type="button"
                 variant="bordered"
-                className="min-h-11 border-[#C9973A]/30 text-[#C9973A]"
+                className="min-h-12 border-[#C9973A]/30 text-[#C9973A]"
                 onPress={() => setIsOpen(false)}
               >
                 Annuler
@@ -177,7 +178,7 @@ export function AddPromoterModal() {
                 type="submit"
                 color="primary"
                 radius="none"
-                className="min-h-11 font-semibold"
+                className="min-h-12 font-semibold"
                 isDisabled={isSubmitting}
                 isLoading={isSubmitting}
               >

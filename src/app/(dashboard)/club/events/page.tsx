@@ -93,34 +93,47 @@ export default async function ClubEventsPage(): Promise<ReactElement> {
   });
 
   return (
-    <div className="space-y-5">
-      <header className="flex flex-col gap-4 rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-[#888888]">Gestion</p>
-          <div className="flex items-center gap-2">
-            <h1 className="text-[22px] font-semibold leading-[1.3] text-[#F7F6F3]">Événements</h1>
-            <span className="rounded-full border border-[#C9973A]/30 bg-[#C9973A]/12 px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[#C9973A]">
-              Live
-            </span>
+    <div className="space-y-6">
+      <header className="rounded-xl border border-[#C9973A]/15 bg-[linear-gradient(135deg,rgba(10,15,46,0.9)_0%,rgba(18,23,43,0.96)_65%,rgba(8,10,18,0.96)_100%)] p-4 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-[#888888] md:text-[11px]">Gestion</p>
+            <div className="mt-1 flex items-center gap-2">
+              <h1 className="text-lg font-semibold leading-[1.3] text-[#F7F6F3] md:text-xl">Événements</h1>
+              <span className="rounded-full border border-[#C9973A]/30 bg-[#C9973A]/12 px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[#C9973A]">
+                Live
+              </span>
+            </div>
+            <p className="mt-2 text-sm text-[#9A9AA0]">{eventList.length} soirées · pilotage opérationnel en temps réel</p>
           </div>
-          <p className="mt-1 text-[13px] text-[#888888]">{eventList.length} soirées · pilotage opérationnel en temps réel</p>
-        </div>
 
-        <CreateEventButton />
+          <div className="w-full md:w-auto">
+            <CreateEventButton />
+          </div>
+        </div>
       </header>
 
-      <section className="grid gap-3 md:grid-cols-3">
-        <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-          <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">Soirées publiées</p>
-          <p className="mt-2 nt-heading text-[30px] leading-none text-[#C9973A] md:text-[32px]">{publishedCount}</p>
+      <section className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Soirées publiées</p>
+          <div className="mt-3 flex items-end justify-between">
+            <p className="nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{publishedCount}</p>
+            <span className="text-[11px] text-[#3A9C6B]">actives</span>
+          </div>
         </article>
-        <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-          <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">Tables disponibles</p>
-          <p className="mt-2 nt-heading text-[30px] leading-none text-[#C9973A] md:text-[32px]">{totalAvailableTables}</p>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Tables disponibles</p>
+          <div className="mt-3 flex items-end justify-between">
+            <p className="nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{totalAvailableTables}</p>
+            <span className="text-[11px] text-[#C9973A]">ce soir</span>
+          </div>
         </article>
-        <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-          <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">Capacité publiée</p>
-          <p className="mt-2 nt-heading text-[30px] leading-none text-[#C9973A] md:text-[32px]">{totalTables}</p>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Capacité publiée</p>
+          <div className="mt-3 flex items-end justify-between">
+            <p className="nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{totalTables}</p>
+            <span className="text-[11px] text-[#888888]">tables</span>
+          </div>
         </article>
       </section>
 

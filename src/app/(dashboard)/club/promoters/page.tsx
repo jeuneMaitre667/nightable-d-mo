@@ -175,30 +175,34 @@ export default async function ClubPromotersPage() {
   const activePromoters = promoterRows.filter((row) => row.isActive).length;
 
   return (
-    <div className="space-y-5">
-      <header className="flex flex-wrap items-start justify-between gap-3 rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-[#888888]">Gestion</p>
-          <h1 className="text-2xl font-semibold text-[#F7F6F3]">Promoteurs</h1>
-          <p className="text-sm text-[#888888]">
-            Suivez les performances, créez de nouveaux comptes et validez les commissions en attente.
-          </p>
+    <div className="space-y-6">
+      <header className="rounded-xl border border-[#C9973A]/15 bg-[linear-gradient(135deg,rgba(10,15,46,0.9)_0%,rgba(18,23,43,0.96)_65%,rgba(8,10,18,0.96)_100%)] p-4 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-[#888888] md:text-[11px]">Gestion</p>
+            <h1 className="mt-1 text-lg font-semibold text-[#F7F6F3] md:text-xl">Promoteurs</h1>
+            <p className="mt-2 text-sm text-[#9A9AA0]">
+              Suivez les performances, créez de nouveaux comptes et validez les commissions en attente.
+            </p>
+          </div>
+          <div className="w-full md:w-auto">
+            <AddPromoterModal />
+          </div>
         </div>
-        <AddPromoterModal />
       </header>
 
-      <section className="grid gap-3 md:grid-cols-3">
-        <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-          <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">Promoteurs</p>
-          <p className="mt-2 nt-heading text-[30px] leading-none text-[#C9973A] md:text-[32px]">{promoterRows.length}</p>
+      <section className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Promoteurs</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{promoterRows.length}</p>
         </article>
-        <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-          <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">Actifs</p>
-          <p className="mt-2 nt-heading text-[30px] leading-none text-[#C9973A] md:text-[32px]">{activePromoters}</p>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Actifs</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{activePromoters}</p>
         </article>
-        <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-          <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">Commissions pending</p>
-          <p className="mt-2 nt-heading text-[30px] leading-none text-[#C9973A] md:text-[32px]">{pendingRows.length}</p>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Commissions pending</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{pendingRows.length}</p>
         </article>
       </section>
 

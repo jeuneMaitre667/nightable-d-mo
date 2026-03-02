@@ -6,6 +6,21 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Added
 
+- `src/app/(dashboard)/club/clients/page.tsx`: nouvelle page serveur “Clients & VIPs” pour dashboard club (auth/role guard, agrégation clients via réservations du club, calcul KPI et segmentation CRM).
+- `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`: panneau UI complet style mock (overview, segments clés, recherche, filtres tabs, table desktop et cards mobile).
+- `src/app/(dashboard)/club/clients/loading.tsx` et `src/app/(dashboard)/club/clients/error.tsx`: états App Router dédiés à la nouvelle route.
+- `src/app/(dashboard)/dashboard/club/clients/page.tsx`: alias route pour exposer `/dashboard/club/clients`.
+- `src/app/(dashboard)/club/reservations/page.tsx`: nouvelle page serveur de gestion des réservations club (guards rôle, agrégation events/tables/profils, mapping des lignes UI).
+- `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`: panneau client opérationnel (recherche, tabs de période, KPI, table desktop, cartes mobile, états visuels des statuts/canaux).
+- `src/app/(dashboard)/club/reservations/loading.tsx` et `src/app/(dashboard)/club/reservations/error.tsx`: états App Router dédiés à la route réservations club.
+- `src/app/(dashboard)/dashboard/club/reservations/page.tsx`: alias route pour exposer `/dashboard/club/reservations`.
+- `src/app/(dashboard)/club/settings/page.tsx`: nouvelle page settings club (guard rôle serveur + fetch profil club + injection données initiales).
+- `src/app/(dashboard)/club/settings/ClubSettingsPanel.tsx`: panneau client de configuration (formulaire complet infos club + feedback succès/erreur).
+- `src/app/(dashboard)/club/settings/loading.tsx` et `src/app/(dashboard)/club/settings/error.tsx`: états App Router dédiés à la route settings.
+- `src/app/(dashboard)/dashboard/club/settings/page.tsx`: alias route pour exposer `/dashboard/club/settings` via namespace dashboard.
+- `src/app/(dashboard)/club/analytics/error.tsx`: boundary d’erreur dédiée analytics avec action `Réessayer`.
+- `.github/copilot-instructions.md`: ajout de la section “Responsive & Visual Consistency Rules — MANDATORY” (breakpoints, layouts mobile/tablet/desktop, tables mobiles en cards, modals bottom-sheet, checklist).
+- Nouveau composant navigation mobile dashboard: `src/app/(dashboard)/DashboardMobileNav.tsx` (barre basse 5 onglets, état actif par pathname, style NightTable aligné sidebar).
 - Nouveau composant auth partagé [split-screen]: `src/app/(auth)/AuthSplitPage.tsx` (image immersive, overlay gradients, tabs HeroUI Connexion/Inscription, formulaires dynamiques, animations de transition et sélection de rôle 2x2).
 - Loading analytics dédié (`src/app/(dashboard)/club/analytics/loading.tsx`): skeleton complet HeroUI pour cards KPI et tables analytics.
 - HeroUI bootstrap UI (`tailwind.config.ts`, `src/app/providers.tsx`): ajout du plugin/theme NightTable HeroUI et wrapper provider client dédié pour App Router.
@@ -38,6 +53,56 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Changed
 
+- `src/app/(dashboard)/promoter/commissions/PromoterCommissionsPanel.tsx`, `src/app/(dashboard)/promoter/promo/PromoterPromoPanel.tsx`, `src/app/(dashboard)/promoter/guestlist/GuestListClient.tsx`: mini passe finale de cohérence CTA (labels avec icônes sur actions clés).
+- `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`: harmonisation des labels CTA avec icônes d’action (`＋ Nouvelle réservation`, `↺ Réinitialiser`) pour cohérence visuelle avec la page clients.
+- `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`: ajout d’icônes sur les CTA de ligne pour distinguer visuellement `Voir fiche`, `Appeler` et `Email` (desktop + mobile).
+- `src/app/(dashboard)/club/clients/page.tsx` et `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`: ajout des actions contact direct par ligne (`Appeler` via `tel:` et `Email` via `mailto:`) avec affichage conditionnel selon les données disponibles.
+- `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`: ajout des boutons ligne `Voir fiche` (desktop + mobile) qui ouvrent la page réservations filtrée sur le client.
+- `src/app/(dashboard)/club/reservations/page.tsx` et `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`: support de `searchParams.q` pour préremplir la recherche à l’ouverture.
+- `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`: configuration complète des boutons (action `Filtres avancés` avec scroll+focus sur recherche, CTA d’état vide `Réinitialiser les filtres` + `Voir les réservations`).
+- `src/app/(dashboard)/DashboardSidebarNav.tsx` et `src/app/(dashboard)/DashboardMobileNav.tsx`: variante d’état actif violette ciblée pour l’item `/dashboard/club/clients` afin d’aligner la navigation avec la maquette `Clients & VIPs`.
+- `src/app/(dashboard)/club/clients/page.tsx`: ajout du calcul serveur `monthlyNewClients` (clients uniques sur 30 jours) pour alimenter le KPI de progression mensuelle.
+- `src/app/(dashboard)/club/clients/ClubClientsPanel.tsx`: passe pixel-perfect (titres blocs renforcés, toolbar recherche+tabs alignée en ligne sur desktop, montant ligne densifié, label “+X nouveaux ce mois”).
+- `src/app/(dashboard)/layout.tsx`: ajout de l’entrée de navigation club `Clients & VIPs` dans la section Général.
+- `src/app/(dashboard)/vip/invitations/page.tsx`, `src/app/(dashboard)/vip/profile/page.tsx`, `src/app/(dashboard)/vip/safety/page.tsx`: ajout de CTA rapides d’en-tête croisés pour fluidifier la navigation interne VIP et aligner l’UX avec les autres dashboards.
+- `src/app/(dashboard)/vip/profile/page.tsx`: grilles formulaire ajustées en mobile-first strict (`md:grid-cols-2`) pour conserver une colonne unique sur mobile.
+- `src/app/(dashboard)/promoter/commissions/PromoterCommissionsPanel.tsx`: harmonisation visuelle avec header gradient, hiérarchie de métriques modernisée et action rapide alignée au style dashboard club.
+- `src/app/(dashboard)/promoter/promo/PromoterPromoPanel.tsx`: harmonisation visuelle (header gradient, quick action, densité responsive des sections) pour cohérence cross-dashboard.
+- `src/app/(dashboard)/promoter/guestlist/GuestListClient.tsx`: shell d’en-tête renforcé avec style gradient et raccourcis d’actions cohérents avec les autres vues promoteur.
+- `src/app/(dashboard)/vip/page.tsx`, `src/app/(dashboard)/vip/invitations/page.tsx`, `src/app/(dashboard)/vip/profile/page.tsx`, `src/app/(dashboard)/vip/safety/page.tsx`: uniformisation des headers (gradient + hiérarchie texte/actions) pour alignement visuel avec le référentiel dashboard.
+- `src/app/(dashboard)/client/reservations/ClientReservationsTable.tsx` et `src/app/(dashboard)/client/reservations/page.tsx`: bouton `Revendre` câblé sur server action via formulaire (`createResaleListingFormAction`).
+- `src/lib/reservation.actions.ts`: ajout de `createResaleListingAction` (contrôles ownership, statut, fenêtre temporelle >3h, création en table `resales`, revalidation routes client).
+- `src/app/(dashboard)/club/promoters/PendingCommissionsTable.tsx`: bouton `Valider` configuré explicitement en `type="submit"` pour garantir l’exécution du form action.
+- `src/app/(dashboard)/club/events/EventListTable.tsx`: actions ligne mobile/desktop configurées en CTA “Dupliquer” vers `/dashboard/club/events/new?duplicate={id}`.
+- `src/app/(dashboard)/club/promoters/PromotersTable.tsx`: boutons “Voir” remplacés par action utile “Copier” (clipboard du code promo).
+- `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`: CTA principal “Nouvelle réservation” connecté au flux `/dashboard/club/events/new`.
+- `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`: micro-ajustements visuels finaux (typo/weights, contraste labels de filtres, densité headers & lignes desktop) pour rendu plus fidèle au mock.
+- `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`: passe UI de finition pour alignement au mock (topbar actions, filtres en pills, tabs compactes, shell table “Liste des réservations”, densité desktop/mobile harmonisée).
+- `src/app/(dashboard)/layout.tsx`: navigation club enrichie avec l’entrée `Réservations` (`/dashboard/club/reservations`) dans la section Général.
+- `src/app/(dashboard)/club/analytics/page.tsx`: import `AnalyticsPanels` migré de relatif vers alias absolu pour éliminer le diagnostic TypeScript `TS2307` en environnement VS Code.
+- `src/lib/club.actions.ts`: ajout de `updateClubSettingsAction` avec validation Zod, contrôle auth/rôle/ownership et revalidation des routes club impactées.
+- `src/app/(dashboard)/club/analytics/AnalyticsPanels.tsx`: refonte complète analytics (header gradient, tabs période scrollables mobile, KPI cards modernisées, cards mobiles + tables desktop pour top promoteurs et événements).
+- `src/app/(dashboard)/club/analytics/loading.tsx`: skeleton loading réaligné sur la nouvelle structure analytics.
+- `src/app/(dashboard)/club/vip/page.tsx`: header VIP refondu en style gradient harmonisé avec les autres pages dashboard club redesign.
+- `src/app/(dashboard)/club/vip/ClubVipPanels.tsx`: refonte complète des sections VIP (KPI cards, pending cards, validées mobile cards + table desktop, promo tables modernisées, modal invitation bottom-sheet mobile).
+- `src/app/(dashboard)/club/promoters/page.tsx`: refonte visuelle du shell promoteurs (header gradient, KPI cards modernisées, hiérarchie responsive).
+- `src/app/(dashboard)/club/promoters/PromotersTable.tsx`: double rendu responsive ajouté (cards mobiles `md:hidden` + table desktop `md:block`) avec style de table modernisé.
+- `src/app/(dashboard)/club/promoters/AddPromoterModal.tsx`: CTA principal renforcé et modal convertie en bottom-sheet mobile avec champs/actions `min-h-12`.
+- `src/app/(dashboard)/club/tables/tablesClient.tsx`: refonte complète de la page tables (header gradient, KPI cards, layout floor plan modernisé, cards mobiles dédiées, table desktop restylée, modal bottom-sheet mobile) en conservant `createTableAction` et `updateTablePositionAction`.
+- `src/app/(dashboard)/club/tables/loading.tsx`: skeleton recalibré pour refléter la nouvelle structure visuelle de la page tables.
+- `src/app/(dashboard)/club/events/page.tsx`: refonte visuelle renforcée du header et des KPI (gradient, cartes `#1A1D24`, hiérarchie typographique plus marquée) pour distinguer clairement la nouvelle version.
+- `src/app/(dashboard)/club/events/EventListTable.tsx`: restylage desktop (conteneur/table/rows) pour une rupture visuelle nette avec l’ancien modèle tout en conservant la version cards mobile.
+- `src/app/(dashboard)/club/events/CreateEventButton.tsx`: CTA principal élargi (`w-full md:w-auto`, `min-w-[220px]`, `h-12`) pour lisibilité et impact immédiat.
+- `package.json`: script `dev` mis à jour vers `next dev --webpack` pour stabiliser le runtime local après erreurs Turbopack intermittentes.
+- `scripts/dev-reset.ps1`: nettoyage renforcé (ports `3000/3001/3002` + suppression du dossier `.next/dev`) pour éviter les locks/artefacts au redémarrage.
+- `src/app/(dashboard)/club/events/EventListTable.tsx`: ajout d’un rendu mobile dédié en cartes (`md:hidden`) et conservation de la table pour `md+`, avec réduction des colonnes secondaires sur tablette.
+- `src/app/(dashboard)/club/events/page.tsx`: hiérarchie responsive harmonisée (titre `text-lg md:text-xl`, labels `10px/11px`, KPI `text-2xl md:text-4xl`, grille métriques `md:grid-cols-2 lg:grid-cols-3`).
+- `src/app/(dashboard)/club/events/CreateEventButton.tsx`: CTA principal ajusté en `min-h-12` pour respecter les touch targets mobiles.
+- `src/app/(dashboard)/club/ClubHomePanels.tsx`: stabilisation du rendu chart sur mobile/SSR (`min-w-0`, `ResponsiveContainer` avec `minWidth` et `minHeight`).
+- `src/app/(dashboard)/layout.tsx`: harmonisation du shell mobile dashboard (header compact style sidebar + intégration de `DashboardMobileNav` avec onglet actif visible).
+- `src/app/(dashboard)/club/page.tsx`: suppression de la branche de rendu legacy en absence de soirée pour conserver la nouvelle structure Page 1 (`ClubHomePanels`) dans tous les cas.
+- `src/app/(dashboard)/club/page.tsx` et `src/app/(dashboard)/club/ClubHomePanels.tsx`: refonte Page 1 `/dashboard/club` selon structure cible (4 KPI, section Évolution des revenus avec `recharts`, section Espaces les plus prisés avec `Progress`, table Réservations récentes conforme).
+- `src/app/(dashboard)/layout.tsx` et `src/app/(dashboard)/DashboardSidebarNav.tsx`: refonte de la base dashboard club (sidebar 200px, sections GÉNÉRAL/GESTION, item actif gold, user footer, ajout de l’item Paramètres) pour alignement Velvet Rope x palette NightTable.
 - Harmonisation visuelle des pages club internes avec le nouveau shell sidebar (densité/headers/sections unifiées): `src/app/(dashboard)/club/events/page.tsx`, `src/app/(dashboard)/club/promoters/page.tsx`, `src/app/(dashboard)/club/promoters/PromotersTable.tsx`, `src/app/(dashboard)/club/tables/tablesClient.tsx`, `src/app/(dashboard)/club/analytics/AnalyticsPanels.tsx`, `src/app/(dashboard)/club/vip/ClubVipPanels.tsx`.
 - `src/app/(dashboard)/layout.tsx`: shell dashboard club recentré sur le design cible avec sidebar gauche structurée (sections Général/Gestion) et onglets visibles Dashboard, Événements, Tables, Promoteurs, Femmes VIP, Analytics.
 - `src/app/(dashboard)/club/page.tsx` et `src/app/(dashboard)/club/ClubHomePanels.tsx`: refonte Page 1 `/dashboard/club` vers le layout Velvet Rope Analytics NightTable (header "Tableau de bord", 4 KPI cards formatées, table réservations enrichie avec avatar+email client, table promoteurs avec colonne "Lien actif", actions harmonisées HeroUI).
@@ -97,6 +162,10 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Fixed
 
+- `src/app/(dashboard)/club/reservations/page.tsx`: correction du crash runtime sur chargement réservations en retirant le filtre `.eq("club_id", clubId)` (colonne inexistante) et en filtrant via les `event_id` du club.
+- `/dashboard/club/settings`: route désormais disponible avec états de chargement/erreur cohérents et persistance des mises à jour profil club côté serveur.
+- `src/app/(dashboard)/club/ClubHomePanels.tsx`: suppression des warnings runtime dashboard (`width/height` Recharts) et ajout des labels d’accessibilité sur les barres de progression.
+- `src/app/(dashboard)/club/page.tsx`: correction d’affichage post-refresh — la home club ne retombe plus sur l’ancien bloc “Aucune soirée ce soir / Test HeroUI” quand il n’y a pas d’événement du soir.
 - `src/app/(dashboard)/layout.tsx`: suppression de la barre d’onglets mobile en haut pour éviter le doublon avec la navigation fixe du bas sur smartphone.
 - `src/app/(auth)/AuthSplitPage.tsx`: remplacement des champs `Input` HeroUI par des champs HTML natifs stylés NightTable pour supprimer définitivement la superposition des textes en connexion/inscription.
 - `src/app/(dashboard)/layout.tsx`: fallback de rôle ajouté directement dans le layout (inférence via `club_profiles`/`promoter_profiles`/`female_vip_profiles`) pour garantir l’affichage des onglets club même si `profiles.role` est désynchronisé.

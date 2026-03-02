@@ -1,6 +1,6 @@
 param(
   [switch]$NoStart,
-  [int[]]$Ports = @(3000, 3001),
+  [int[]]$Ports = @(3000, 3001, 3002),
   [string]$LockPath = ".next/dev/lock"
 )
 
@@ -19,6 +19,15 @@ if (Test-Path $LockPath) {
   }
   catch {
     Write-Output "Lock file already cleared or unavailable."
+  }
+}
+
+if (Test-Path ".next/dev") {
+  try {
+    Remove-Item ".next/dev" -Recurse -Force
+  }
+  catch {
+    Write-Output "Unable to fully clear .next/dev directory."
   }
 }
 

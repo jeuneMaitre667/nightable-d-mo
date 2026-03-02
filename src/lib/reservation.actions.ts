@@ -36,6 +36,10 @@ const cancelReservationSchema = z.object({
   reservationId: z.string().uuid(),
 });
 
+const resaleListingSchema = z.object({
+  reservationId: z.string().uuid(),
+});
+
 const leaveWaitlistSchema = z.object({
   waitlistId: z.string().uuid(),
 });
@@ -335,6 +339,91 @@ export async function cancelReservationAction(
     };
   } catch (error) {
     console.error("[cancelReservationAction]", error);
+    return { success: false, error: "Une erreur inattendue est survenue." };
+  }
+}
+
+export async function createResaleListingAction(
+  formData: FormData
+): Promise<ActionResult<{ resaleId: string }>> {
+  try {
+    const parsed = resaleListingSchema.safeParse({
+      reservationId: formData.get("reservation_id"),
+    });
+
+    if (!parsed.success) {
+      return { success: false, error: "Réservation invalide." };
+    }
+
+    const contextResult = await getReservationContext();
+    if (!contextResult.success || !contextResult.data) {
+      return { success: false, error: contextResult.error ?? "Action non autorisée." };
+    }
+
+    const supabase = await createClient();
+    const { data: reservation, error: reservationError } = await supabase
+      .from("reservations")
+      .select("id, client_id, status, event_starts_at, dynamic_price_at_booking")
+      .eq("id", parsed.data.reservationId)
+      .maybeSingle();
+
+    if (reservationError || !reservation) {
+      return { success: false, error: "Réservation introuvable." };
+    }
+
+    if (reservation.client_id !== contextResult.data.userId) {
+      return { success: false, error: "Action non autorisée." };
+    }
+
+    if (reservation.status !== "confirmed" && reservation.status !== "reserved") {
+      return { success: false, error: "Cette réservation ne peut pas être mise en revente." };
+    }
+
+    const eventStartTime = new Date(reservation.event_starts_at).getTime();
+    const resaleDeadline = Date.now() + 3 * 60 * 60 * 1000;
+    if (eventStartTime <= resaleDeadline) {
+      return { success: false, error: "Revente indisponible à moins de 3h de l’événement." };
+    }
+
+    const { data: existingResale } = await supabase
+      .from("resales")
+      .select("id, status")
+      .eq("reservation_id", reservation.id)
+      .maybeSingle();
+
+    if (existingResale?.id) {
+      return { success: false, error: "Une revente existe déjà pour cette réservation." };
+    }
+
+    const resalePrice = Number(reservation.dynamic_price_at_booking ?? 0);
+
+    const { data: resale, error: resaleError } = await supabase
+      .from("resales")
+      .insert({
+        reservation_id: reservation.id,
+        seller_client_id: contextResult.data.userId,
+        resale_price: resalePrice,
+        nighttable_commission_rate: 5,
+        status: "listed",
+      })
+      .select("id")
+      .single();
+
+    if (resaleError || !resale) {
+      return { success: false, error: "Impossible de créer la revente pour le moment." };
+    }
+
+    revalidatePath("/client/reservations");
+    revalidatePath("/dashboard/client/reservations");
+
+    return {
+      success: true,
+      data: {
+        resaleId: resale.id,
+      },
+    };
+  } catch (error) {
+    console.error("[createResaleListingAction]", error);
     return { success: false, error: "Une erreur inattendue est survenue." };
   }
 }

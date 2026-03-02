@@ -40,10 +40,20 @@ export function PromoterCommissionsPanel({
   commissions,
 }: PromoterCommissionsPanelProps): React.JSX.Element {
   return (
-    <div className="space-y-8">
-      <section>
-        <h1 className="nt-heading text-3xl text-[#F7F6F3]">Mes commissions</h1>
-        <p className="mt-1 text-sm text-[#888888]">Historique complet et suivi des versements.</p>
+    <div className="space-y-6">
+      <section className="rounded-xl border border-[#C9973A]/15 bg-[linear-gradient(135deg,rgba(10,15,46,0.9)_0%,rgba(18,23,43,0.96)_65%,rgba(8,10,18,0.96)_100%)] p-4 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-[#888888] md:text-[11px]">Gestion</p>
+            <h1 className="mt-1 text-lg font-semibold text-[#F7F6F3] md:text-xl">Mes commissions</h1>
+            <p className="mt-2 text-sm text-[#9A9AA0]">Historique complet et suivi des versements.</p>
+          </div>
+          <div className="flex gap-2">
+            <Button as={Link} href="/dashboard/promoter/promo" variant="bordered" className="min-h-11 border-[#C9973A]/40 px-4 text-sm text-[#C9973A]">
+              🔗 Lien promo
+            </Button>
+          </div>
+        </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
@@ -67,7 +77,7 @@ export function PromoterCommissionsPanel({
         </Card>
       </section>
 
-      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
+      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4 md:p-5">
         <h2 className="mb-4 text-lg font-medium text-[#F7F6F3]">Historique</h2>
 
         {commissions.length === 0 ? (
@@ -78,7 +88,7 @@ export function PromoterCommissionsPanel({
             <h3 className="text-lg font-semibold text-[#F7F6F3]">Aucune commission pour le moment</h3>
             <p className="mt-2 text-sm text-[#888888]">Dès qu&apos;un client réserve via ton lien promo, ta commission apparaîtra ici.</p>
             <Button as={Link} href="/dashboard/promoter/promo" className="mt-5 min-h-11 bg-[#C9973A] px-5 text-sm font-semibold text-[#050508]">
-              Voir mon lien promo
+              ◉ Voir mon lien promo
             </Button>
           </div>
         ) : (

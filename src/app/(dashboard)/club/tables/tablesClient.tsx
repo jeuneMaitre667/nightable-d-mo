@@ -99,6 +99,13 @@ export default function TablesClient({ initialTables, className }: TablesClientP
     [tables]
   );
 
+  const totalCapacity = useMemo<number>(() => tables.reduce((sum, table) => sum + table.capacity, 0), [tables]);
+  const promoTables = useMemo<number>(() => tables.filter((table) => table.is_promo).length, [tables]);
+  const mappedZones = useMemo<number>(
+    () => new Set(tables.map((table) => table.zone ?? "inconnue")).size,
+    [tables]
+  );
+
   function onPositionChange(tableId: string, positionX: number, positionY: number): void {
     setTables((current) =>
       current.map((table) =>
@@ -169,41 +176,67 @@ export default function TablesClient({ initialTables, className }: TablesClientP
   }
 
   return (
-    <div className={`space-y-5 ${className ?? ""}`.trim()}>
-      <header className="flex flex-col gap-4 rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-[#888888]">Gestion</p>
-          <h1 className="nt-heading mt-1 text-3xl text-[#F7F6F3] md:text-4xl">Tables</h1>
-        </div>
+    <div className={`space-y-6 ${className ?? ""}`.trim()}>
+      <header className="rounded-xl border border-[#C9973A]/15 bg-[linear-gradient(135deg,rgba(10,15,46,0.9)_0%,rgba(18,23,43,0.96)_65%,rgba(8,10,18,0.96)_100%)] p-4 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-[#888888] md:text-[11px]">Gestion</p>
+            <h1 className="mt-1 text-lg font-semibold text-[#F7F6F3] md:text-xl">Tables</h1>
+            <p className="mt-2 text-sm text-[#9A9AA0]">Configuration du floor plan, des zones et des capacités</p>
+          </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            color="primary"
-            radius="none"
-            className="min-h-11 px-4 uppercase tracking-widest text-xs"
-            onPress={() => setShowModal(true)}
-          >
-            Ajouter une table
-          </Button>
-          <Button
-            type="button"
-            className="min-h-11 bg-[#C9973A] px-4 font-semibold text-[#050508] transition-all duration-200 ease-in-out disabled:cursor-not-allowed disabled:opacity-60"
-            onPress={onSavePositions}
-            isDisabled={isPending}
-            isLoading={isPending}
-          >
-            Sauvegarder positions
-          </Button>
+          <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row">
+            <Button
+              type="button"
+              color="primary"
+              radius="none"
+              className="h-12 w-full px-4 text-sm font-semibold tracking-[0.08em] md:w-auto"
+              onPress={() => setShowModal(true)}
+            >
+              Ajouter une table
+            </Button>
+            <Button
+              type="button"
+              className="h-12 w-full bg-[#C9973A] px-4 text-sm font-semibold text-[#050508] transition-all duration-200 ease-in-out disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
+              onPress={onSavePositions}
+              isDisabled={isPending}
+              isLoading={isPending}
+            >
+              Sauvegarder positions
+            </Button>
+          </div>
         </div>
       </header>
+
+      <section className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Tables actives</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{tables.length}</p>
+        </article>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Capacité totale</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{totalCapacity}</p>
+        </article>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Tables promo</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{promoTables}</p>
+        </article>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Zones mappées</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{mappedZones}</p>
+        </article>
+      </section>
 
       {error ? (
         <p className="rounded-md border border-[#C4567A]/45 bg-[#C4567A]/12 px-3 py-2 text-sm text-[#f2c7d5]">{error}</p>
       ) : null}
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
-        <section className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-3">
+      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+        <section className="rounded-xl border border-white/5 bg-[#1A1D24] p-3 md:p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[15px] font-medium text-[#F7F6F3]">Plan de salle</h2>
+            <p className="text-xs text-[#888888]">Glisser-déposer pour positionner</p>
+          </div>
           <FloorPlan
             tables={floorPlanTables}
             mode="edit"
@@ -213,17 +246,54 @@ export default function TablesClient({ initialTables, className }: TablesClientP
           />
         </section>
 
-        <aside className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-3">
+        <aside className="rounded-xl border border-white/5 bg-[#1A1D24] p-3 md:p-4">
           <h2 className="px-1 text-[15px] font-medium text-[#F7F6F3]">Tables du club</h2>
-          <div className="mt-4">
+
+          <div className="mt-4 flex flex-col gap-3 md:hidden">
+            {tables.map((table) => (
+              <article key={`mobile-${table.id}`} className="rounded-xl border border-white/5 bg-[#12172B] p-4">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-[#F7F6F3]">{table.name}</p>
+                    <p className="text-xs text-[#888888]">{formatEuros(table.base_price)} · {table.capacity} pers.</p>
+                  </div>
+                  <Chip color={zoneChipColor(table.zone)} variant="flat" size="sm">
+                    <span className="text-[10px] uppercase tracking-[0.04em]">{table.zone ?? "inconnue"}</span>
+                  </Chip>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-xs text-[#888888]">Promo</span>
+                  <Switch
+                    isSelected={table.is_promo}
+                    isDisabled
+                    color="secondary"
+                    size="sm"
+                    aria-label={`Promo ${table.name}`}
+                  />
+                </div>
+
+                <Button
+                  type="button"
+                  variant={selectedTableId === table.id ? "solid" : "bordered"}
+                  className={`mt-3 h-11 w-full ${selectedTableId === table.id ? "bg-[#C9973A] text-[#050508]" : "border-[#C9973A]/40 text-[#C9973A]"}`}
+                  onPress={() => setSelectedTableId(table.id)}
+                >
+                  {selectedTableId === table.id ? "Table sélectionnée" : "Sélectionner"}
+                </Button>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-4 hidden md:block">
             <div className="overflow-x-auto">
               <Table
                 removeWrapper
                 aria-label="Liste des tables du club"
                 classNames={{
-                  th: "bg-[#0A0F2E] text-[#888888] uppercase text-[11px] tracking-[0.05em]",
-                  td: "text-[#F7F6F3] border-b border-[#C9973A]/8",
-                  tr: "hover:bg-[#C9973A]/5 transition-colors duration-150",
+                  th: "bg-[#111318] text-[#888888] uppercase text-[11px] tracking-[0.05em]",
+                  td: "text-[#F7F6F3] border-b border-white/5",
+                  tr: "hover:bg-[#C9973A]/6 transition-colors duration-150",
                 }}
               >
                 <TableHeader>
@@ -264,8 +334,8 @@ export default function TablesClient({ initialTables, className }: TablesClientP
                           aria-label={`Sélectionner ${table.name}`}
                           className={
                             selectedTableId === table.id
-                              ? "bg-[#C9973A] text-[#050508]"
-                              : "text-[#C9973A]"
+                              ? "h-11 min-w-[44px] bg-[#C9973A] text-[#050508]"
+                              : "h-11 min-w-[44px] text-[#C9973A]"
                           }
                           onPress={() => setSelectedTableId(table.id)}
                         >
@@ -291,7 +361,7 @@ export default function TablesClient({ initialTables, className }: TablesClientP
         }}
         backdrop="blur"
         classNames={{
-          base: "bg-[#12172B] border border-[#C9973A]/20 text-[#F7F6F3]",
+          base: "fixed bottom-0 w-full rounded-t-2xl border border-[#C9973A]/20 bg-[#12172B] text-[#F7F6F3] md:relative md:bottom-auto md:max-w-lg md:rounded-xl",
           header: "border-b border-[#C9973A]/10",
           footer: "border-t border-[#C9973A]/10",
         }}
@@ -300,6 +370,7 @@ export default function TablesClient({ initialTables, className }: TablesClientP
           <form action={onCreateTable}>
             <ModalHeader>Ajouter une table</ModalHeader>
             <ModalBody>
+              <div className="mx-auto mb-1 h-1 w-10 rounded-full bg-white/20 md:hidden" />
               <Input
                 name="name"
                 label="Nom"
@@ -310,7 +381,7 @@ export default function TablesClient({ initialTables, className }: TablesClientP
                 variant="bordered"
                 classNames={{
                   label: "text-[11px] uppercase tracking-[0.08em] text-[#888888]",
-                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  inputWrapper: "min-h-12 border border-[#2A2F4A] bg-[#0A0F2E]",
                   input: "text-[#F7F6F3]",
                 }}
               />
@@ -326,7 +397,7 @@ export default function TablesClient({ initialTables, className }: TablesClientP
                 variant="bordered"
                 classNames={{
                   label: "text-[11px] uppercase tracking-[0.08em] text-[#888888]",
-                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  inputWrapper: "min-h-12 border border-[#2A2F4A] bg-[#0A0F2E]",
                   input: "text-[#F7F6F3]",
                 }}
               />
@@ -342,7 +413,7 @@ export default function TablesClient({ initialTables, className }: TablesClientP
                 variant="bordered"
                 classNames={{
                   label: "text-[11px] uppercase tracking-[0.08em] text-[#888888]",
-                  inputWrapper: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  inputWrapper: "min-h-12 border border-[#2A2F4A] bg-[#0A0F2E]",
                   input: "text-[#F7F6F3]",
                 }}
               />
@@ -356,7 +427,7 @@ export default function TablesClient({ initialTables, className }: TablesClientP
                 variant="bordered"
                 classNames={{
                   label: "text-[11px] uppercase tracking-[0.08em] text-[#888888]",
-                  trigger: "bg-[#0A0F2E] border border-[#2A2F4A]",
+                  trigger: "min-h-12 border border-[#2A2F4A] bg-[#0A0F2E]",
                   value: "text-[#F7F6F3]",
                 }}
               >
@@ -385,7 +456,7 @@ export default function TablesClient({ initialTables, className }: TablesClientP
               <Button
                 type="button"
                 variant="bordered"
-                className="min-h-11 border-[#C9973A]/30 text-[#C9973A]"
+                className="min-h-12 border-[#C9973A]/30 text-[#C9973A]"
                 onPress={() => {
                   setIsPromoSelected(false);
                   setShowModal(false);
@@ -395,7 +466,7 @@ export default function TablesClient({ initialTables, className }: TablesClientP
               </Button>
               <Button
                 type="submit"
-                className="min-h-11 bg-[#C9973A] font-semibold text-[#050508]"
+                className="min-h-12 bg-[#C9973A] font-semibold text-[#050508]"
                 isLoading={isPending}
                 isDisabled={isPending}
               >

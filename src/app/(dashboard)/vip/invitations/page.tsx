@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactElement } from "react";
 import { acceptInvitationAction, declineInvitationAction } from "@/lib/vip.actions";
@@ -163,12 +164,26 @@ export default async function VipInvitationsPage(): Promise<ReactElement> {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-xl border border-[#C4567A]/35 bg-[#12172B] p-6">
+      <header className="rounded-xl border border-[#C4567A]/35 bg-[linear-gradient(135deg,rgba(18,23,43,0.95)_0%,rgba(10,15,46,0.95)_65%,rgba(8,10,18,0.96)_100%)] p-6">
         <p className="text-xs uppercase tracking-[0.18em] text-[#C4567A]">Femme VIP</p>
         <h1 className="nt-heading mt-2 text-3xl text-[#F7F6F3]">Mes invitations</h1>
-        <p className="mt-2 text-sm text-[#888888]">
+        <p className="mt-2 text-sm text-[#9A9AA0]">
           Consultez les invitations reçues, puis acceptez ou déclinez en un clic.
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href="/dashboard/vip/profile"
+            className="nt-btn nt-btn-secondary inline-flex min-h-11 items-center justify-center px-4 py-2 text-sm"
+          >
+            Mon profil
+          </Link>
+          <Link
+            href="/dashboard/vip/safety"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#C4567A]/35 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+          >
+            Suivi de soirée
+          </Link>
+        </div>
       </header>
 
       {invitationList.length === 0 ? (

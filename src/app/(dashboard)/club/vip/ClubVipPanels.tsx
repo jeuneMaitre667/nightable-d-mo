@@ -1,10 +1,5 @@
 "use client";
 
-// Component: ClubVipPanels
-// Reference: component.gallery/components/table
-// Inspired by: Radix + Polaris VIP management pattern
-// NightTable usage: club VIP management interface with secondary accent
-
 import {
   Avatar,
   Button,
@@ -127,21 +122,34 @@ export default function ClubVipPanels({
   }
 
   return (
-    <section className="space-y-5">
-      <header className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-[#888888]">Gestion</p>
-        <h1 className="text-2xl font-semibold text-[#F7F6F3]">Femmes VIP</h1>
-        <p className="text-sm text-[#888888]">Validez les profils, envoyez les invitations et activez les promotions VIP.</p>
-      </header>
+    <section className="space-y-6">
+      <section className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Profils en attente</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{pendingProfiles.length}</p>
+        </article>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">VIP validées</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{validatedProfiles.length}</p>
+        </article>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Soirées promo</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{activePromoEvents.length}</p>
+        </article>
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">Invitations possibles</p>
+          <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{reservationOptions.length}</p>
+        </article>
+      </section>
 
-      <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-        <h2 className="nt-heading text-2xl text-[#F7F6F3]">Profils en attente</h2>
+      <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4">
+        <h2 className="text-lg font-semibold text-[#F7F6F3] md:text-xl">Profils en attente</h2>
         {pendingProfiles.length === 0 ? (
           <p className="mt-3 text-sm text-[#888888]">Aucun profil en attente pour le moment.</p>
         ) : (
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pendingProfiles.map((vip) => (
-              <Card key={vip.id} className="border border-[#C9973A]/20 bg-[#0A0F2E] shadow-none">
+              <Card key={vip.id} className="border border-white/5 bg-[#12172B] shadow-none">
                 <CardBody className="gap-3">
                   <Avatar
                     size="lg"
@@ -150,7 +158,7 @@ export default function ClubVipPanels({
                     src={vip.avatarUrl ?? undefined}
                     name={fullName(vip.firstName, vip.lastName)}
                   />
-                  <p className="nt-heading text-[18px] text-[#F7F6F3]">{fullName(vip.firstName, vip.lastName)}</p>
+                  <p className="text-sm font-semibold text-[#F7F6F3]">{fullName(vip.firstName, vip.lastName)}</p>
                   <Chip size="sm" variant="flat" color="secondary">
                     {vip.instagramHandle ?? "Instagram non renseigné"}
                   </Chip>
@@ -159,14 +167,14 @@ export default function ClubVipPanels({
                   <form action={validateVipFromForm}>
                     <input type="hidden" name="vip_id" value={vip.id} />
                     <input type="hidden" name="status" value="validated" />
-                    <Button size="sm" color="success" variant="bordered" radius="none" type="submit">
+                    <Button size="sm" color="success" variant="bordered" radius="none" type="submit" className="min-h-11">
                       Valider
                     </Button>
                   </form>
                   <form action={validateVipFromForm}>
                     <input type="hidden" name="vip_id" value={vip.id} />
                     <input type="hidden" name="status" value="rejected" />
-                    <Button size="sm" variant="light" type="submit" className="text-[#C4567A]">
+                    <Button size="sm" variant="light" type="submit" className="min-h-11 text-[#C4567A]">
                       Refuser
                     </Button>
                   </form>
@@ -177,77 +185,113 @@ export default function ClubVipPanels({
         )}
       </article>
 
-      <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-        <h2 className="nt-heading mb-3 text-2xl text-[#F7F6F3]">VIPs validées</h2>
-        <div className="overflow-x-auto">
-        <Table
-          removeWrapper
-          aria-label="VIPs validées"
-          classNames={{
-            th: "bg-[#0A0F2E] text-xs uppercase tracking-widest text-[#888888]",
-            td: "border-b border-[#C9973A]/8 text-sm text-[#F7F6F3]",
-            tr: "hover:bg-[#C9973A]/5 transition-colors duration-150",
-          }}
-        >
-          <TableHeader>
-            <TableColumn>PROFIL</TableColumn>
-            <TableColumn>INSTAGRAM</TableColumn>
-            <TableColumn>VALIDÉE LE</TableColumn>
-            <TableColumn>ACTIONS</TableColumn>
-          </TableHeader>
-          <TableBody emptyContent={"Aucune VIP validée pour ce club actuellement."}>
-            {validatedProfiles.map((vip) => (
-              <TableRow key={vip.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Avatar
-                      size="sm"
-                      src={vip.avatarUrl ?? undefined}
-                      name={fullName(vip.firstName, vip.lastName)}
-                    />
-                    <span>{fullName(vip.firstName, vip.lastName)}</span>
+      <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4">
+        <h2 className="mb-3 text-lg font-semibold text-[#F7F6F3] md:text-xl">VIPs validées</h2>
+
+        <div className="flex flex-col gap-3 md:hidden">
+          {validatedProfiles.map((vip) => (
+            <article key={`mobile-${vip.id}`} className="rounded-xl border border-white/5 bg-[#12172B] p-4">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Avatar size="sm" src={vip.avatarUrl ?? undefined} name={fullName(vip.firstName, vip.lastName)} />
+                  <div>
+                    <p className="text-sm font-medium text-[#F7F6F3]">{fullName(vip.firstName, vip.lastName)}</p>
+                    <p className="text-xs text-[#888888]">{vip.instagramHandle ?? "—"}</p>
                   </div>
-                </TableCell>
-                <TableCell className="text-[#888888]">{vip.instagramHandle ?? "—"}</TableCell>
-                <TableCell className="text-[#888888]">
-                  {vip.validatedAt ? new Date(vip.validatedAt).toLocaleDateString("fr-FR") : "—"}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    size="sm"
-                    color="secondary"
-                    variant="bordered"
-                    radius="none"
-                    onPress={() => {
-                      setSelectedVipId(vip.id);
-                      setSelectedEventId(inviteEvents[0]?.id ?? "");
-                      setSelectedReservationId("");
-                    }}
-                  >
-                    Inviter
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+                <Chip size="sm" variant="flat" color="success">
+                  Validée
+                </Chip>
+              </div>
+              <div className="flex items-center justify-between text-xs text-[#888888]">
+                <span>Date</span>
+                <span>{vip.validatedAt ? new Date(vip.validatedAt).toLocaleDateString("fr-FR") : "—"}</span>
+              </div>
+              <Button
+                className="mt-3 h-11 w-full border border-[#C9973A]/40 text-[#C9973A]"
+                variant="bordered"
+                onPress={() => {
+                  setSelectedVipId(vip.id);
+                  setSelectedEventId(inviteEvents[0]?.id ?? "");
+                  setSelectedReservationId("");
+                }}
+              >
+                Inviter
+              </Button>
+            </article>
+          ))}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
+          <Table
+            removeWrapper
+            aria-label="VIPs validées"
+            classNames={{
+              th: "bg-[#111318] text-xs uppercase tracking-widest text-[#888888]",
+              td: "border-b border-white/5 text-sm text-[#F7F6F3]",
+              tr: "hover:bg-[#C9973A]/6 transition-colors duration-150",
+            }}
+          >
+            <TableHeader>
+              <TableColumn>PROFIL</TableColumn>
+              <TableColumn>INSTAGRAM</TableColumn>
+              <TableColumn>VALIDÉE LE</TableColumn>
+              <TableColumn>ACTIONS</TableColumn>
+            </TableHeader>
+            <TableBody emptyContent={"Aucune VIP validée pour ce club actuellement."}>
+              {validatedProfiles.map((vip) => (
+                <TableRow key={vip.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Avatar
+                        size="sm"
+                        src={vip.avatarUrl ?? undefined}
+                        name={fullName(vip.firstName, vip.lastName)}
+                      />
+                      <span>{fullName(vip.firstName, vip.lastName)}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-[#888888]">{vip.instagramHandle ?? "—"}</TableCell>
+                  <TableCell className="text-[#888888]">
+                    {vip.validatedAt ? new Date(vip.validatedAt).toLocaleDateString("fr-FR") : "—"}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      size="sm"
+                      color="secondary"
+                      variant="bordered"
+                      radius="none"
+                      className="min-h-11"
+                      onPress={() => {
+                        setSelectedVipId(vip.id);
+                        setSelectedEventId(inviteEvents[0]?.id ?? "");
+                        setSelectedReservationId("");
+                      }}
+                    >
+                      Inviter
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </article>
 
-      <article className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-        <h2 className="nt-heading text-2xl text-[#F7F6F3]">Tables promos ce soir</h2>
+      <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-4">
+        <h2 className="text-lg font-semibold text-[#F7F6F3] md:text-xl">Tables promos ce soir</h2>
         {activePromoEvents.length === 0 ? (
           <p className="mt-3 text-sm text-[#888888]">Aucune soirée avec promo VIP active ce soir.</p>
         ) : (
           <div className="mt-4 space-y-4">
             {activePromoEvents.map((eventItem) => (
-              <div key={eventItem.id} className="rounded-[8px] border border-[#C9973A]/12 bg-[#0A0F2E] p-4">
+              <div key={eventItem.id} className="rounded-xl border border-white/5 bg-[#12172B] p-4">
                 <p className="text-sm font-semibold text-[#F7F6F3]">{eventItem.title}</p>
                 <p className="mb-3 text-xs text-[#888888]">{eventItem.dateLabel}</p>
 
                 <div className="space-y-2">
                   {(promoTablesByEvent[eventItem.id] ?? []).map((tableItem) => (
-                    <div key={`${eventItem.id}-${tableItem.id}`} className="flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] px-3 py-2">
+                    <div key={`${eventItem.id}-${tableItem.id}`} className="flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-white/5 bg-[#1A1D24] px-3 py-3">
                       <div>
                         <p className="text-sm text-[#F7F6F3]">{tableItem.name}</p>
                         <p className="text-xs text-[#888888]">{tableItem.zone} · {tableItem.capacity} places</p>
@@ -287,7 +331,7 @@ export default function ClubVipPanels({
           }
         }}
         classNames={{
-          base: "bg-[#12172B] border border-[#C9973A]/20 text-[#F7F6F3]",
+          base: "fixed bottom-0 w-full rounded-t-2xl border border-[#C9973A]/20 bg-[#12172B] text-[#F7F6F3] md:relative md:bottom-auto md:max-w-lg md:rounded-xl",
           header: "border-b border-[#C9973A]/10",
           footer: "border-t border-[#C9973A]/10",
         }}
@@ -301,6 +345,7 @@ export default function ClubVipPanels({
           >
             <ModalHeader>Créer une invitation VIP</ModalHeader>
             <ModalBody>
+              <div className="mx-auto mb-1 h-1 w-10 rounded-full bg-white/20 md:hidden" />
               <input type="hidden" name="vip_id" value={selectedVipId ?? ""} />
               <Select
                 label="Événement"
@@ -311,6 +356,9 @@ export default function ClubVipPanels({
                 onChange={(event) => {
                   setSelectedEventId(event.target.value);
                   setSelectedReservationId("");
+                }}
+                classNames={{
+                  trigger: "min-h-12",
                 }}
               >
                 {inviteEvents.map((eventItem) => (
@@ -329,6 +377,9 @@ export default function ClubVipPanels({
                 selectedKeys={selectedReservationId ? [selectedReservationId] : []}
                 onChange={(event) => setSelectedReservationId(event.target.value)}
                 isRequired
+                classNames={{
+                  trigger: "min-h-12",
+                }}
               >
                 {filteredReservations.map((reservation) => (
                   <SelectItem key={reservation.id}>{reservation.label}</SelectItem>
@@ -338,10 +389,10 @@ export default function ClubVipPanels({
               <input type="hidden" name="event_id" value={selectedEventId} />
             </ModalBody>
             <ModalFooter>
-              <Button variant="light" onPress={() => setSelectedVipId(null)}>
+              <Button variant="light" className="min-h-12" onPress={() => setSelectedVipId(null)}>
                 Annuler
               </Button>
-              <Button type="submit" color="secondary" radius="none" isDisabled={!selectedReservationId}>
+              <Button type="submit" color="secondary" radius="none" className="min-h-12" isDisabled={!selectedReservationId}>
                 Inviter
               </Button>
             </ModalFooter>

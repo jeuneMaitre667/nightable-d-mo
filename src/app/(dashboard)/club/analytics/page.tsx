@@ -6,7 +6,7 @@
 import { redirect } from "next/navigation";
 import { normalizeRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { AnalyticsPanels } from "./AnalyticsPanels";
+import { AnalyticsPanels } from "@/app/(dashboard)/club/analytics/AnalyticsPanels";
 
 import type { ReactElement } from "react";
 

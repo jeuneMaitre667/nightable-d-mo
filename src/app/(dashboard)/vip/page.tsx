@@ -127,10 +127,10 @@ export default async function FemaleVipDashboardPage(): Promise<ReactElement> {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-6">
-        <p className="text-xs uppercase tracking-[0.2em] text-[#888888]">Femme VIP</p>
+      <section className="rounded-xl border border-[#C4567A]/30 bg-[linear-gradient(135deg,rgba(18,23,43,0.95)_0%,rgba(10,15,46,0.95)_65%,rgba(8,10,18,0.96)_100%)] p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-[#C4567A]">Femme VIP</p>
         <h1 className="nt-heading mt-2 text-3xl text-[#F7F6F3]">Mon espace validation</h1>
-        <p className="mt-2 max-w-3xl text-sm text-[#888888]">
+        <p className="mt-2 max-w-3xl text-sm text-[#9A9AA0]">
           Gérez votre profil, suivez votre statut et consultez les prochaines soirées des clubs qui vous ont validée.
         </p>
       </section>

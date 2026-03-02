@@ -6,7 +6,7 @@
 import { redirect } from "next/navigation";
 
 import { normalizeRole } from "@/lib/auth";
-import { cancelReservationAction } from "@/lib/reservation.actions";
+import { cancelReservationAction, createResaleListingAction } from "@/lib/reservation.actions";
 import { createClient } from "@/lib/supabase/server";
 import { ClientReservationsTable } from "./ClientReservationsTable";
 
@@ -47,6 +47,11 @@ function statusLabel(status: string): string {
 async function cancelReservationFormAction(formData: FormData): Promise<void> {
   "use server";
   await cancelReservationAction(formData);
+}
+
+async function createResaleListingFormAction(formData: FormData): Promise<void> {
+  "use server";
+  await createResaleListingAction(formData);
 }
 
 export default async function ClientReservationsPage() {
@@ -142,6 +147,7 @@ export default async function ClientReservationsPage() {
       <ClientReservationsTable
         reservations={reservationRows}
         cancelReservationFormAction={cancelReservationFormAction}
+        createResaleListingFormAction={createResaleListingFormAction}
       />
     </div>
   );

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run dev:clean && next dev",
+    "dev": "npm run dev:clean && next dev --webpack",
     "dev:clean": "powershell -ExecutionPolicy Bypass -File ./scripts/dev-reset.ps1 -NoStart",
     "dev:reset": "powershell -ExecutionPolicy Bypass -File ./scripts/dev-reset.ps1",
     "healthcheck:env": "node ./scripts/healthcheck-env.mjs",
@@ -27,6 +27,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-konva": "^19.2.2",
+    "recharts": "^3.7.0",
     "resend": "^6.9.3",
     "stripe": "^20.4.0",
     "tailwind-merge": "^3.5.0",

@@ -23,6 +23,7 @@ type ReservationRow = {
 type ClientReservationsTableProps = {
   reservations: ReservationRow[];
   cancelReservationFormAction: (formData: FormData) => Promise<void>;
+  createResaleListingFormAction: (formData: FormData) => Promise<void>;
 };
 
 function statusClass(status: string): string {
@@ -40,6 +41,7 @@ function statusClass(status: string): string {
 export function ClientReservationsTable({
   reservations,
   cancelReservationFormAction,
+  createResaleListingFormAction,
 }: ClientReservationsTableProps): React.JSX.Element {
   if (reservations.length === 0) {
     return (
@@ -103,15 +105,18 @@ export function ClientReservationsTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="bordered"
-                      className="min-h-11 border-[#C9973A]/40 px-3 text-xs font-semibold text-[#C9973A]"
-                      isDisabled={!reservation.canResell}
-                    >
-                      Revendre
-                    </Button>
+                    <form action={createResaleListingFormAction}>
+                      <input type="hidden" name="reservation_id" value={reservation.id} />
+                      <Button
+                        type="submit"
+                        size="sm"
+                        variant="bordered"
+                        className="min-h-11 border-[#C9973A]/40 px-3 text-xs font-semibold text-[#C9973A]"
+                        isDisabled={!reservation.canResell}
+                      >
+                        Revendre
+                      </Button>
+                    </form>
                     <form action={cancelReservationFormAction}>
                       <input type="hidden" name="reservation_id" value={reservation.id} />
                       <Button

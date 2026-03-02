@@ -30,6 +30,39 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## Fait
 
+- Dernière mini passe de cohérence exécutée sur `promoter` (commissions/promo/guestlist): CTA principaux alignés avec repères iconographiques du dashboard; validation `npm run lint` + `npm run build` ✅.
+- Cohérence CTA cross-dashboard finalisée: page `Réservations` alignée avec repères iconographiques (`＋` et `↺`) pour les actions principales; validation `npm run lint` + `npm run build` ✅.
+- Micro-passe UX terminée sur `Clients & VIPs`: différenciation visuelle des CTA de ligne via icônes (`Voir fiche` / `Appeler` / `Email`) sur desktop et mobile; validation `npm run lint` + `npm run build` ✅.
+- Actions contact direct ajoutées sur `Clients & VIPs` (boutons conditionnels `Appeler` et `Email` par ligne desktop/mobile) avec données `phone/email` séparées côté serveur; validation `npm run lint` + `npm run build` ✅.
+- Configuration des boutons par ligne finalisée sur `Clients & VIPs`: action `Voir fiche` ajoutée (desktop + mobile) avec ouverture de `/dashboard/club/reservations` préfiltré par client (`?q=`); validation `npm run lint` + `npm run build` ✅.
+- Configuration complète des boutons de la page `Clients & VIPs` finalisée (filtres avancés avec scroll+focus, CTA d’état vide actionnables) avec validation `npm run lint` + `npm run build` ✅.
+- Micro-passe sidebar terminée: état actif `Clients & VIPs` passé en violet sur navigation desktop et mobile pour coller à la maquette; validation `npm run lint` + `npm run build` ✅.
+- Passe pixel-perfect finale sur `Clients & VIPs` appliquée: hiérarchie typo ajustée, barre recherche+tabs densifiée, indicateur dynamique “+X nouveaux ce mois” ajouté; validation `npm run lint` + `npm run build` ✅.
+- Nouvelle page dashboard club `Clients & VIPs` livrée (`/dashboard/club/clients`) avec overview KPI, segments clés, recherche/filtres et liste clients (desktop table + cards mobile), plus alias route et entrée sidebar; validation `npm run lint` + `npm run build` ✅.
+- Micro-passe de finition dashboard VIP appliquée: CTA rapides d’en-tête ajoutés sur `invitations/profile/safety` + grilles formulaires alignées mobile-first (`md:grid-cols-2`), validation `npm run lint` + `npm run build` ✅.
+- Harmonisation finale des dashboards `promoter` et `vip` appliquée (headers gradient, quick actions, densité visuelle alignée au référentiel `club`) avec validation `npm run lint` + `npm run build` ✅.
+- Extension de la passe “boutons configurés” aux autres dashboards: `client/reservations` connecté à une vraie action de revente (`createResaleListingAction`) + `PendingCommissionsTable` corrigé en `submit`; validation `npm run lint` + `npm run build` ✅.
+- Sweep configuration boutons dashboard club terminé: actions câblées sur `events` (dupliquer), `promoters` (copier code promo), `reservations` (CTA création), avec validation `npm run lint` + `npm run build` ✅.
+- Micro-passe finale appliquée sur `/dashboard/club/reservations` (typographie, poids des labels, densité en-têtes/lignes desktop, contraste chips/pills) pour rapprochement visuel maximal au mock; validation `npm run lint` + `npm run build` ✅.
+- Passe visuelle “pixel-closer” appliquée sur `/dashboard/club/reservations` pour alignement mock (header horizontal actions, toolbar filtres pills, shell table “Liste des réservations”, densité lignes desktop + cards mobile); validation `npm run lint` + `npm run build` ✅.
+- Correctif runtime `/dashboard/club/reservations` appliqué: suppression du filtre invalide `reservations.club_id` et passage à un filtrage par `event_id` des événements du club; validation `npm run lint` + `npm run build` ✅.
+- Nouvelle page `/dashboard/club/reservations` livrée (desktop table + cards mobile, filtres/tabs/recherche, KPI, état vide, loading/error, alias dashboard) + item navigation ajouté dans le shell club; validation `npm run lint` + `npm run build` ✅.
+- Correctif diagnostic VS Code sur analytics: import `AnalyticsPanels` fiabilisé via alias absolu dans `src/app/(dashboard)/club/analytics/page.tsx` (TS2307 résolu, `npm run lint` ✅).
+- Page 7 `/dashboard/club/settings` livrée: page serveur + panel client + server action de mise à jour + états `loading/error` + alias `/dashboard/club/settings`, avec validation `npm run lint` + `npm run build` ✅.
+- Passe finale de cohérence exécutée sur le dashboard club (pages 1→6 + settings): hiérarchie visuelle/espacement/CTA alignés avec le shell club redesign.
+- Page 6 `/dashboard/club/analytics` livrée avec rupture visuelle desktop/mobile: header gradient, tabs mobiles scrollables, KPI cards modernisées, cards mobiles pour tableaux, loading/error dédiés.
+- Page 5 `/dashboard/club/vip` livrée avec rupture visuelle desktop/mobile: header gradient, KPI cards, sections VIP modernisées, cards mobile pour VIP validées, modal invitation bottom-sheet mobile.
+- Page 4 `/dashboard/club/promoters` livrée avec rupture visuelle desktop/mobile: header gradient, KPI cards, cards mobiles pour le ranking, table desktop restylée, modal bottom-sheet mobile.
+- Page 3 `/dashboard/club/tables` livrée avec rupture visuelle nette (desktop/mobile): header gradient, KPI cards, listing mobile en cards, table desktop restylée et modal bottom-sheet mobile.
+- Refonte visuelle renforcée de `/dashboard/club/events` (desktop + mobile) appliquée pour sortir définitivement de l’ancien rendu perçu.
+- Stabilisation du démarrage local: script `dev` basculé en `--webpack` + reset renforcé des locks/artefacts `.next/dev` pour supprimer les erreurs runtime de factory module en boucle.
+- Page 2 `/dashboard/club/events` alignée web/mobile: cards mobiles dédiées + table desktop/tablette, colonnes secondaires masquées sur tablette, CTA tactile renforcé.
+- Gouvernance Copilot renforcée: section “Responsive & Visual Consistency Rules — MANDATORY” ajoutée dans `.github/copilot-instructions.md`.
+- Warnings runtime dashboard club corrigés: `ResponsiveContainer` stabilisé + `aria-label` ajouté sur les `Progress` de `ClubHomePanels`.
+- Alignement mobile shell dashboard club: header mobile refondu + navigation basse active pour cohérence visuelle avec la sidebar desktop.
+- Correctif Page 1 `/dashboard/club` en état vide: suppression du fallback legacy pour afficher systématiquement le nouveau dashboard (même sans soirée du soir).
+- Page 1 `/dashboard/club` terminée: 4 KPI, bloc revenus (BarChart), bloc espaces les plus prisés (Progress), table réservations récentes alignés sur la nouvelle direction visuelle.
+- Refonte de la base layout dashboard club livrée (`src/app/(dashboard)/layout.tsx` + `DashboardSidebarNav.tsx`): sidebar 200px, sections GÉNÉRAL/GESTION, actif gold, item Paramètres ajouté.
 - Correctif UX mobile dashboard club: suppression de la barre d’onglets du haut pour conserver une seule navigation (barre fixe du bas) et éviter le doublon.
 - Correctif définitif auth inputs: champs de connexion/inscription migrés en inputs natifs stylés (sans couche HeroUI Input) pour éliminer la superposition persistante du texte.
 - Correctif visibilité onglets club: fallback rôle embarqué dans le layout dashboard pour afficher les onglets club même si `profiles.role` est temporairement erroné.
@@ -149,7 +182,7 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ## En cours
 
-- Synchronisation documentaire post-refactor HeroUI (changelog + error log + suivi de session).
+- Audit final de cohérence visuelle cross-dashboard (micro-ajustements restants si besoin).
 - Verification manuelle des 7 items restants (Stripe checkout, emails Resend, SMS Twilio, check-in browser).
 
 ## Fait (session E2E)
@@ -193,6 +226,38 @@ Ce document sert à suivre, au fil de l’eau, ce qui a été fait, ce qui est e
 
 ### 2026-03-02 (stabilisation lint globale après livraison analytics)
 
+- Dernier polish demandé: harmonisation iconographique des CTA sur les écrans promoteur (`commissions`, `promo`, `guestlist`) sans changement métier.
+- Passe cohérence boutons: harmonisation visuelle des CTA sur `/dashboard/club/reservations` avec icônes d’action pour rester aligné avec la page clients.
+- Finition lisibilité CTA ligne clients: ajout d’icônes distinctes pour séparer rapidement action fiche vs contact téléphone vs email.
+- Extension des boutons opérationnels `Clients & VIPs`: ajout des CTA `Appeler` (`tel:`) et `Email` (`mailto:`) par client, visibles uniquement quand l’information est disponible.
+- Finalisation “configure tous les boutons”: ajout de CTA ligne `Voir fiche` sur le tableau clients + support `searchParams.q` dans `/dashboard/club/reservations` pour préremplir la recherche et ouvrir la vue client directement; validation `npm run lint` + `npm run build` ✅.
+- Configuration UX des boutons `Clients & VIPs`: action “Filtres avancés” reliée au bloc filtres + focus recherche, état vide enrichi avec CTA “Réinitialiser les filtres” et “Voir les réservations”; validation `npm run lint` + `npm run build` ✅.
+- Ajustement final navigation: item actif `/dashboard/club/clients` rendu en violet (desktop + mobile) sans impacter les autres onglets actifs gold; validation `npm run lint` + `npm run build` ✅.
+- Raffinement visuel “pixel-closer” de la page `Clients & VIPs`: alignement des proportions sur la maquette (titres/toolbar/table), ajout du KPI “nouveaux ce mois” calculé depuis les réservations des 30 derniers jours; validation `npm run lint` + `npm run build` ✅.
+- Ajout de la page demandée “Clients & VIPs”: création de `src/app/(dashboard)/club/clients/*` (page serveur, panel client, loading/error), alias `src/app/(dashboard)/dashboard/club/clients/page.tsx`, et navigation `Clients & VIPs` dans `src/app/(dashboard)/layout.tsx`; validation `npm run lint` + `npm run build` ✅.
+- Finition ciblée dashboard VIP: ajout de navigation d’actions rapides entre `invitations`, `profile` et `safety`, plus correction mobile-first des grilles formulaire (`sm:grid-cols-2` → `md:grid-cols-2`) sur la page profil; validation `npm run lint` + `npm run build` ✅.
+- Passe d’harmonisation visuelle `promoter/vip` finalisée: `PromoterCommissionsPanel`, `PromoterPromoPanel`, `GuestListClient`, `vip/page.tsx`, `vip/invitations/page.tsx`, `vip/profile/page.tsx`, `vip/safety/page.tsx` alignés avec le langage visuel club (headers gradients + quick actions) ; validation `npm run lint` + `npm run build` ✅.
+- Passe complémentaire demandée “autres dashboards”: ajout d’une action serveur réelle pour `Revendre` côté client (`src/lib/reservation.actions.ts`) et branchement formulaire dans `ClientReservationsTable`; `PendingCommissionsTable` sécurisé avec bouton `type="submit"`; validation `npm run lint` + `npm run build` ✅.
+- Passe transversale “configure bien tous les boutons” appliquée sur pages club principales: `EventListTable` (CTA duplication), `PromotersTable` (copie promo code), `ClubReservationsPanel` (CTA principal relié au flux création événement); validation `npm run lint` + `npm run build` ✅.
+- Micro-passe finale UI sur `src/app/(dashboard)/club/reservations/ClubReservationsPanel.tsx`: ajustements fins de typographie/espacements/table density/chips pour finition pixel-closer; validation `npm run lint` + `npm run build` ✅.
+- Passe de finition UI suite validation user sur `/dashboard/club/reservations`: structure rapprochée du screenshot cible (actions topbar, toolbar filtres, tabs compactes, bloc table), sans changement métier; validation `npm run lint` + `npm run build` ✅.
+- Fix immédiat suite retour user: runtime error sur `src/app/(dashboard)/club/reservations/page.tsx` corrigé en remplaçant le filtre `club_id` inexistant par un chargement des réservations via `event_id` des événements du club; validation `npm run lint` + `npm run build` ✅.
+- Ajout de la page demandée `src/app/(dashboard)/club/reservations/page.tsx` + `ClubReservationsPanel.tsx` avec filtres (tabs Toutes/À venir/En cours/Passées/Annulées), recherche client/table, tableau desktop et cards mobile; `loading.tsx` / `error.tsx` + alias `src/app/(dashboard)/dashboard/club/reservations/page.tsx` + entrée de menu dans `src/app/(dashboard)/layout.tsx`; validation `npm run lint` + `npm run build` ✅.
+- Correction ciblée du problème IDE signalé utilisateur: `src/app/(dashboard)/club/analytics/page.tsx` import `AnalyticsPanels` basculé en alias absolu pour supprimer l’erreur TS2307 (`Cannot find module './AnalyticsPanels'`); validation `npm run lint` ✅.
+- Page 7 settings livrée: création de `src/app/(dashboard)/club/settings/page.tsx`, `ClubSettingsPanel.tsx`, `loading.tsx`, `error.tsx`, alias `src/app/(dashboard)/dashboard/club/settings/page.tsx` et ajout de `updateClubSettingsAction` dans `src/lib/club.actions.ts`; validation `npm run lint` + `npm run build` ✅.
+- Redesign Page 6 livré: `/dashboard/club/analytics` refondu (`AnalyticsPanels.tsx`) + `loading.tsx` aligné + `error.tsx` ajouté pour conformité App Router; validation `npm run lint` + `npm run build` ✅.
+- Redesign Page 5 livré: `/dashboard/club/vip` refondu (`vip/page.tsx` + `ClubVipPanels.tsx`) avec parité responsive complète (cards mobile/table desktop/modal mobile) et styles harmonisés; validation `npm run lint` + `npm run build` ✅.
+- Redesign Page 4 livré: `/dashboard/club/promoters` refondu (header gradient, KPI cards, `PromotersTable` mobile cards + desktop table, `AddPromoterModal` mobile bottom-sheet); validation `npm run lint` + `npm run build` ✅.
+- Redesign Page 3 livré: `/dashboard/club/tables` refondu (header gradient, KPI cards, floor plan + listing responsive, modal mobile bottom-sheet, loading aligné) avec conservation des Server Actions existantes; validation `npm run lint` + `npm run build` ✅.
+- Ajustement visuel majeur demandé utilisateur: `/dashboard/club/events` retouchée (header gradient, KPI cards, CTA principal plus lisible, table desktop restylée) pour lever l’effet “ancien modèle”; validation `npm run lint` + `npm run build` ✅.
+- Correctif runtime local: `package.json` (`next dev --webpack`) + `scripts/dev-reset.ps1` (ports 3000/3001/3002 + purge `.next/dev`) pour éviter la réapparition de l’erreur `module factory is not available`; validation `npm run lint` + `npm run build` + route `/dashboard/club` HTTP 200 ✅.
+- Redesign Page 2 livré: `/dashboard/club/events` avec double rendu responsive (`EventListTable` en cards mobile + table `md+`), typographie responsive et CTA `Créer un événement` en `min-h-12`; validation `npm run lint` + `npm run build` ✅.
+- Correctif warnings runtime `/dashboard/club`: stabilisation du chart Recharts (`minWidth/minHeight`) + labels a11y des barres de progression dans `ClubHomePanels`; validation `npm run lint` + `npm run build` ✅.
+- Mise à jour des consignes projet: ajout du bloc complet “Responsive & Visual Consistency Rules — MANDATORY” dans `.github/copilot-instructions.md`.
+- Parité mobile appliquée au dashboard club: création de `DashboardMobileNav` (état actif par route) + refonte du header mobile dans `src/app/(dashboard)/layout.tsx`; validation `npm run lint` ✅.
+- Correctif post-validation visuelle `/dashboard/club`: suppression de la branche legacy “Aucune soirée ce soir / Test HeroUI” dans `src/app/(dashboard)/club/page.tsx` pour rendre la nouvelle Page 1 même sans événement; validation `npm run lint` ✅.
+- Redesign dashboard club — Page 1 livrée (`src/app/(dashboard)/club/page.tsx`, `ClubHomePanels.tsx`) avec `recharts` et nouveau mapping KPI/réservations/espaces; validation `npm run lint` ✅.
+- Nouveau cycle redesign dashboard club démarré: layout + sidebar refondus en priorité selon référentiel Velvet Rope/NightTable (item actif gold, sections nav, largeur 200px, entrée Paramètres), validation `npm run lint` ✅.
 - Ajustement mobile final (`src/app/(dashboard)/layout.tsx`): retrait de la nav top pour supprimer le doublon d’onglets sur smartphone, conservation de la nav fixe basse; validation `npm run lint` ✅.
 - Passage final auth vers inputs natifs (`src/app/(auth)/AuthSplitPage.tsx`) pour supprimer définitivement la superposition de texte observée côté utilisateur; validation `npm run lint` ✅.
 - Renforcement layout dashboard (`src/app/(dashboard)/layout.tsx`) avec inférence de rôle fallback pour garantir l’affichage des onglets club dans tous les cas de désynchronisation profil; validation `npm run lint` ✅.

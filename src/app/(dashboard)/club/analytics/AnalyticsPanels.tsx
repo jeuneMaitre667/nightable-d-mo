@@ -1,9 +1,4 @@
-'use client';
-
-// Component: AnalyticsPanels
-// Reference: component.gallery/components/tabs + component.gallery/components/table
-// Inspired by: IBM Carbon analytics + Shopify Polaris metric cards
-// NightTable usage: club analytics period dashboard
+"use client";
 
 import { useRouter } from "next/navigation";
 import {
@@ -143,33 +138,38 @@ export function AnalyticsPanels({
   ];
 
   return (
-    <div className="space-y-5">
-      <header className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-6">
+      <header className="rounded-xl border border-[#C9973A]/15 bg-[linear-gradient(135deg,rgba(10,15,46,0.9)_0%,rgba(18,23,43,0.96)_65%,rgba(8,10,18,0.96)_100%)] p-4 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-[#888888]">Gestion</p>
-            <h1 className="text-xl font-semibold text-[#F7F6F3]">Analytics</h1>
-            <p className="text-sm text-[#888888]">Pilotez la performance commerciale du club.</p>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-[#888888] md:text-[11px]">Gestion</p>
+            <h1 className="mt-1 text-lg font-semibold text-[#F7F6F3] md:text-xl">Analytics</h1>
+            <p className="mt-2 text-sm text-[#9A9AA0]">Pilotez la performance commerciale du club.</p>
           </div>
-          <Tabs
-            selectedKey={period}
-            color="primary"
-            variant="underlined"
-            onSelectionChange={(key) => {
-              const selected = String(key);
-              router.replace(`/dashboard/club/analytics?period=${selected}`);
-            }}
-          >
-            <Tab key="7d" title="7 jours" />
-            <Tab key="30d" title="30 jours" />
-            <Tab key="3m" title="3 mois" />
-            <Tab key="all" title="Tout" />
-          </Tabs>
+          <div className="max-w-full overflow-x-auto [&::-webkit-scrollbar]:hidden">
+            <Tabs
+              selectedKey={period}
+              color="primary"
+              variant="underlined"
+              onSelectionChange={(key) => {
+                const selected = String(key);
+                router.replace(`/dashboard/club/analytics?period=${selected}`);
+              }}
+              classNames={{
+                tabList: "gap-4",
+              }}
+            >
+              <Tab key="7d" title="7 jours" />
+              <Tab key="30d" title="30 jours" />
+              <Tab key="3m" title="3 mois" />
+              <Tab key="all" title="Tout" />
+            </Tabs>
+          </div>
         </div>
       </header>
 
       {!hasData ? (
-        <Card className="border border-[#C9973A]/15 bg-[#12172B] shadow-none">
+        <Card className="border border-[#C9973A]/15 bg-[#1A1D24] shadow-none">
           <CardBody className="p-10 text-center">
             <div className="mx-auto mb-4 h-12 w-12 rounded-full border border-[#C9973A]/30 bg-[#C9973A]/10" />
             <h2 className="text-lg font-semibold text-[#F7F6F3]">Aucun événement sur cette période</h2>
@@ -178,12 +178,12 @@ export function AnalyticsPanels({
         </Card>
       ) : (
         <>
-          <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <section className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {metricCards.map((card) => (
-              <Card key={card.key} className="border border-[#C9973A]/10 bg-[#12172B] shadow-none">
+              <Card key={card.key} className="border border-white/5 bg-[#1A1D24] shadow-none">
                 <CardBody>
-                  <p className="text-[11px] uppercase tracking-[0.04em] text-[#888888]">{card.label}</p>
-                  <p className="mt-2 nt-heading text-[36px] leading-none text-[#C9973A]">{card.value}</p>
+                  <p className="text-[10px] uppercase tracking-[0.06em] text-[#888888] md:text-[11px]">{card.label}</p>
+                  <p className="mt-3 nt-heading text-2xl leading-none text-[#F7F6F3] md:text-4xl">{card.value}</p>
                   <div className="mt-3">
                     <Chip size="sm" variant="flat" color={variationColor(card.variation)}>
                       {formatVariation(card.variation)}
@@ -194,16 +194,38 @@ export function AnalyticsPanels({
             ))}
           </section>
 
-          <section className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-3">
-            <h2 className="mb-3 px-1 text-[15px] font-medium text-[#F7F6F3]">Top promoteurs</h2>
-            <div className="overflow-x-auto">
+          <section className="rounded-xl border border-white/5 bg-[#1A1D24] p-4">
+            <h2 className="mb-3 text-[15px] font-medium text-[#F7F6F3]">Top promoteurs</h2>
+
+            <div className="flex flex-col gap-3 md:hidden">
+              {promoterRows.map((row) => (
+                <article key={`mobile-promoter-${row.promoterId}`} className="rounded-xl border border-white/5 bg-[#12172B] p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-sm font-medium text-[#F7F6F3]">{row.promoterName}</p>
+                    <Chip size="sm" color={row.rank === 1 ? "warning" : "default"} variant="flat">
+                      #{row.rank}
+                    </Chip>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-[#888888]">CA généré</span>
+                    <span className="font-semibold text-[#F7F6F3]">{formatEuros(row.revenue)}</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-sm">
+                    <span className="text-[#888888]">Réservations</span>
+                    <span className="text-[#F7F6F3]">{row.reservations}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block">
               <Table
                 removeWrapper
                 aria-label="Top promoteurs"
                 classNames={{
-                  th: "bg-[#0A0F2E] text-left text-[11px] uppercase tracking-[0.04em] text-[#888888]",
-                  td: "border-b border-[#C9973A]/8 text-[#F7F6F3]",
-                  tr: "hover:bg-[#C9973A]/5 transition-colors duration-150",
+                  th: "bg-[#111318] text-left text-[11px] uppercase tracking-[0.04em] text-[#888888]",
+                  td: "border-b border-white/5 text-[#F7F6F3]",
+                  tr: "hover:bg-[#C9973A]/6 transition-colors duration-150",
                 }}
               >
                 <TableHeader>
@@ -232,16 +254,39 @@ export function AnalyticsPanels({
             </div>
           </section>
 
-          <section className="rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-3">
-            <h2 className="mb-3 px-1 text-[15px] font-medium text-[#F7F6F3]">Événements passés</h2>
-            <div className="overflow-x-auto">
+          <section className="rounded-xl border border-white/5 bg-[#1A1D24] p-4">
+            <h2 className="mb-3 text-[15px] font-medium text-[#F7F6F3]">Événements passés</h2>
+
+            <div className="flex flex-col gap-3 md:hidden">
+              {eventRows.map((row) => (
+                <article key={`mobile-event-${row.eventId}`} className="rounded-xl border border-white/5 bg-[#12172B] p-4">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-[#F7F6F3]">{row.eventTitle}</p>
+                    <Chip size="sm" variant="flat" color={row.noShowRate > 20 ? "danger" : "default"}>
+                      {row.noShowRate.toFixed(1)}% no-show
+                    </Chip>
+                  </div>
+                  <p className="text-xs text-[#888888]">{row.dateLabel}</p>
+                  <div className="mt-3 flex items-center justify-between text-sm">
+                    <span className="text-[#888888]">CA</span>
+                    <span className="font-semibold text-[#F7F6F3]">{formatEuros(row.revenue)}</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-sm">
+                    <span className="text-[#888888]">Tables vendues</span>
+                    <span className="text-[#F7F6F3]">{row.soldTables}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block">
               <Table
                 removeWrapper
                 aria-label="Événements passés"
                 classNames={{
-                  th: "bg-[#0A0F2E] text-left text-[11px] uppercase tracking-[0.04em] text-[#888888]",
-                  td: "border-b border-[#C9973A]/8 text-[#F7F6F3]",
-                  tr: "hover:bg-[#C9973A]/5 transition-colors duration-150",
+                  th: "bg-[#111318] text-left text-[11px] uppercase tracking-[0.04em] text-[#888888]",
+                  td: "border-b border-white/5 text-[#F7F6F3]",
+                  tr: "hover:bg-[#C9973A]/6 transition-colors duration-150",
                 }}
               >
                 <TableHeader>

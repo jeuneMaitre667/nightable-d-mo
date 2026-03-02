@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactElement } from "react";
 import { getDashboardPathByRole, normalizeRole } from "@/lib/auth";
@@ -83,18 +84,32 @@ export default async function VipProfilePage(): Promise<ReactElement> {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-xl border border-[#C4567A]/35 bg-[#12172B] p-6">
+      <header className="rounded-xl border border-[#C4567A]/35 bg-[linear-gradient(135deg,rgba(18,23,43,0.95)_0%,rgba(10,15,46,0.95)_65%,rgba(8,10,18,0.96)_100%)] p-6">
         <p className="text-xs uppercase tracking-[0.18em] text-[#C4567A]">Femme VIP</p>
         <h1 className="nt-heading mt-2 text-3xl text-[#F7F6F3]">Mon profil</h1>
-        <p className="mt-2 text-sm text-[#888888]">
+        <p className="mt-2 text-sm text-[#9A9AA0]">
           Gardez vos informations à jour pour simplifier vos validations et vos invitations.
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href="/dashboard/vip/invitations"
+            className="nt-btn nt-btn-secondary inline-flex min-h-11 items-center justify-center px-4 py-2 text-sm"
+          >
+            Mes invitations
+          </Link>
+          <Link
+            href="/dashboard/vip/safety"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#C4567A]/35 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+          >
+            Suivi de soirée
+          </Link>
+        </div>
       </header>
 
       <form action={updateVipProfileFromForm} className="space-y-6 rounded-xl border border-[#C4567A]/25 bg-[#12172B] p-6">
         <section>
           <h2 className="nt-heading text-xl text-[#F7F6F3]">Informations personnelles</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div>
               <label htmlFor="first_name" className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#888888]">Prénom</label>
               <input id="first_name" name="first_name" defaultValue={typedVipProfile.first_name ?? ""} className="nt-input min-h-11" type="text" />
@@ -120,7 +135,7 @@ export default async function VipProfilePage(): Promise<ReactElement> {
 
         <section className="rounded-lg border border-[#C4567A]/25 bg-[#0A0F2E] p-4">
           <h2 className="nt-heading text-lg text-[#F7F6F3]">Contact de confiance</h2>
-          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
             <div>
               <label htmlFor="emergency_contact_name" className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#888888]">Nom</label>
               <input id="emergency_contact_name" name="emergency_contact_name" defaultValue={typedVipProfile.emergency_contact_name ?? ""} className="nt-input min-h-11" type="text" />

@@ -35,6 +35,19 @@ type TablePositionInput = {
   positionY: number;
 };
 
+type UpdateClubSettingsInput = {
+  clubId?: string;
+  clubName: string;
+  description?: string;
+  address?: string;
+  city: string;
+  phone?: string;
+  website?: string;
+  instagramHandle?: string;
+  logoUrl?: string;
+  coverUrl?: string;
+};
+
 const createEventSchema = z.object({
   title: z.string().trim().min(2),
   date: z.string().trim().min(1),
@@ -61,6 +74,19 @@ const tablePositionSchema = z.object({
   id: z.string().uuid(),
   positionX: z.number(),
   positionY: z.number(),
+});
+
+const updateClubSettingsSchema = z.object({
+  clubId: z.string().uuid().optional(),
+  clubName: z.string().trim().min(2).max(120),
+  description: z.string().trim().max(800).optional(),
+  address: z.string().trim().max(255).optional(),
+  city: z.string().trim().min(2).max(120),
+  phone: z.string().trim().max(40).optional(),
+  website: z.string().trim().url().optional(),
+  instagramHandle: z.string().trim().max(80).optional(),
+  logoUrl: z.string().trim().url().optional(),
+  coverUrl: z.string().trim().url().optional(),
 });
 
 async function getClubGuard(): Promise<ActionResult<{ clubId: string }>> {
@@ -235,6 +261,97 @@ export async function updateTablePositionAction(
         updatedCount: parsed.data.length,
       },
     };
+  } catch {
+    return { success: false, error: "Une erreur est survenue. Merci de réessayer." };
+  }
+}
+
+export async function updateClubSettingsAction(
+  input: UpdateClubSettingsInput
+): Promise<ActionResult<{ clubId: string }>> {
+  const parsed = updateClubSettingsSchema.safeParse({
+    clubId: input.clubId,
+    clubName: input.clubName,
+    description: input.description,
+    address: input.address,
+    city: input.city,
+    phone: input.phone,
+    website: input.website,
+    instagramHandle: input.instagramHandle,
+    logoUrl: input.logoUrl,
+    coverUrl: input.coverUrl,
+  });
+
+  if (!parsed.success) {
+    return { success: false, error: "Paramètres invalides." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return { success: false, error: "Session invalide." };
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError || !profile) {
+      return { success: false, error: "Profil introuvable." };
+    }
+
+    const role = normalizeRole(profile.role);
+    if (role !== "club" && role !== "admin") {
+      return { success: false, error: "Action non autorisée." };
+    }
+
+    const targetClubId = role === "admin" ? parsed.data.clubId ?? user.id : user.id;
+
+    const { data: targetClub } = await supabase
+      .from("club_profiles")
+      .select("id")
+      .eq("id", targetClubId)
+      .maybeSingle();
+
+    if (!targetClub?.id) {
+      return { success: false, error: "Club introuvable." };
+    }
+
+    const { error } = await supabase
+      .from("club_profiles")
+      .update({
+        club_name: parsed.data.clubName,
+        description: parsed.data.description ?? null,
+        address: parsed.data.address ?? null,
+        city: parsed.data.city,
+        phone: parsed.data.phone ?? null,
+        website: parsed.data.website ?? null,
+        instagram_handle: parsed.data.instagramHandle ?? null,
+        logo_url: parsed.data.logoUrl ?? null,
+        cover_url: parsed.data.coverUrl ?? null,
+      })
+      .eq("id", targetClubId);
+
+    if (error) {
+      return { success: false, error: "Impossible de mettre à jour les paramètres du club." };
+    }
+
+    revalidatePath("/dashboard/club/settings");
+    revalidatePath("/dashboard/club");
+    revalidatePath("/dashboard/club/events");
+    revalidatePath("/dashboard/club/tables");
+    revalidatePath("/dashboard/club/promoters");
+    revalidatePath("/dashboard/club/vip");
+    revalidatePath("/dashboard/club/analytics");
+
+    return { success: true, data: { clubId: targetClubId } };
   } catch {
     return { success: false, error: "Une erreur est survenue. Merci de réessayer." };
   }

@@ -7,9 +7,9 @@
 
 import {
   Avatar,
-  Button,
-  Card,
-  CardBody,
+  Select,
+  SelectItem,
+  Progress,
   Chip,
   Table,
   TableBody,
@@ -18,8 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
-
-import RefreshButton from "./refreshButton";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 type MetricItem = {
   id: string;
@@ -33,171 +32,200 @@ type ReservationItem = {
   id: string;
   clientName: string;
   clientEmail: string;
-  tableName: string;
-  hourLabel: string;
-  guests: number;
+  dateTimeLabel: string;
+  tableZoneLabel: string;
+  amountLabel: string;
   status: string;
 };
 
-type PromoterItem = {
-  id: string;
+type RevenuePoint = {
+  label: string;
+  value: number;
+};
+
+type SpaceRow = {
   name: string;
-  guests: number;
-  revenueLabel: string;
-  linkActive: boolean;
+  percent: number;
 };
 
 type ClubHomePanelsProps = {
   dashboardDateLabel: string;
   metrics: MetricItem[];
+  revenueSeries: RevenuePoint[];
+  spaceRows: SpaceRow[];
   reservations: ReservationItem[];
-  promoters: PromoterItem[];
+  promotersCount: number;
 };
 
 function statusConfig(status: string): { label: string; color: "success" | "warning" | "danger" | "default" } {
-  if (status === "confirmed") return { label: "confirmed", color: "success" };
-  if (status === "pending" || status === "payment_pending") return { label: "pending", color: "warning" };
-  if (status === "no_show") return { label: "no_show", color: "danger" };
-  return { label: status.replaceAll("_", " "), color: "default" };
+  if (status === "confirmed") return { label: "Confirmée", color: "success" };
+  if (status === "pending" || status === "payment_pending") return { label: "Acompte payé", color: "warning" };
+  if (status === "cancelled") return { label: "Annulée", color: "default" };
+  return { label: "En attente", color: "warning" };
 }
 
 export default function ClubHomePanels({
   dashboardDateLabel,
   metrics,
+  revenueSeries,
+  spaceRows,
   reservations,
-  promoters,
+  promotersCount,
 }: ClubHomePanelsProps): React.JSX.Element {
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-3 rounded-[8px] border border-[#C9973A]/10 bg-[#12172B] p-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap items-baseline gap-2">
-          <h1 className="text-[18px] font-semibold leading-[1.4] text-[#F7F6F3]">Tableau de bord</h1>
-          <span className="text-[13px] text-[#888888]">· {dashboardDateLabel}</span>
+    <div className="space-y-5">
+      <header className="flex flex-col gap-3 rounded-xl border border-white/5 bg-[#1A1D24] p-5 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-[#555555]">Dashboard club</p>
+          <h1 className="text-[20px] font-semibold text-[#F7F6F3]">Tableau de bord</h1>
+          <p className="text-[13px] text-[#888888]">{dashboardDateLabel}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            as="a"
+          <a
             href="/dashboard/club/events"
-            variant="bordered"
-            size="sm"
-            radius="none"
-            className="min-h-11 border-[#C9973A]/20 text-[#C9973A]"
+            className="inline-flex min-h-10 items-center rounded-md border border-white/10 bg-transparent px-4 py-2 text-[13px] font-medium text-[#F7F6F3] transition-all duration-150 hover:bg-white/5"
           >
-            Événements
-          </Button>
-          <RefreshButton />
+            Réservations
+          </a>
+          <a
+            href="/dashboard/club/events/new"
+            className="inline-flex min-h-10 items-center rounded-md bg-[#C9973A] px-4 py-2 text-[13px] font-medium text-[#050508] transition-all duration-150 hover:brightness-110"
+          >
+            Nouvel événement
+          </a>
         </div>
       </header>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
-          <Card key={metric.id} className="rounded-xl border border-[#C9973A]/10 bg-[#0A0F2E] shadow-none">
-            <CardBody>
-              <div className="flex items-start justify-between gap-2">
-                <p className="mb-1 text-[11px] uppercase tracking-widest text-[#888888]">{metric.label}</p>
-                <Chip
-                  size="sm"
-                  variant="flat"
-                  color={metric.isPositive ? "success" : "danger"}
-                  className="text-[10px]"
-                >
-                  {metric.deltaLabel}
-                </Chip>
-              </div>
-              <p className="mt-2 font-[Cormorant_Garamond] text-[36px] font-normal leading-none text-[#C9973A]">{metric.value}</p>
-            </CardBody>
-          </Card>
+          <article key={metric.id} className="rounded-xl border border-white/5 bg-[#1A1D24] p-5">
+            <p className="mb-1 text-[12px] text-[#888888]">{metric.label}</p>
+            <p className="text-[28px] font-semibold text-[#F7F6F3]">{metric.value}</p>
+            <p className={`mt-1 text-[12px] ${metric.isPositive ? "text-[#3A9C6B]" : "text-[#C4567A]"}`}>
+              {metric.deltaLabel}
+            </p>
+          </article>
         ))}
       </section>
 
-      <section className="rounded-[8px] border border-[#C9973A]/8 bg-[#12172B] p-4">
+      <section className="grid gap-4 lg:grid-cols-[3fr_2fr]">
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-[14px] font-bold text-[#F7F6F3]">Évolution des revenus</h2>
+              <p className="text-[12px] text-[#888888]">Revenus hebdomadaires</p>
+            </div>
+            <Select
+              size="sm"
+              variant="bordered"
+              selectedKeys={["hebdo"]}
+              className="w-[150px]"
+              classNames={{
+                trigger: "border-white/10 bg-[#111318]",
+                value: "text-[#F7F6F3] text-[12px]",
+              }}
+              aria-label="Période revenus"
+            >
+              <SelectItem key="hebdo">Hebdomadaire</SelectItem>
+            </Select>
+          </div>
+          <div className="h-[220px] min-w-0 w-full">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
+              <BarChart data={revenueSeries} margin={{ top: 8, right: 8, left: -24, bottom: 0 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis dataKey="label" stroke="#555555" tickLine={false} axisLine={false} fontSize={11} />
+                <YAxis stroke="#555555" tickLine={false} axisLine={false} fontSize={11} />
+                <Tooltip
+                  cursor={{ fill: "rgba(255,255,255,0.02)" }}
+                  contentStyle={{
+                    background: "#111318",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "8px",
+                    color: "#F7F6F3",
+                  }}
+                />
+                <Bar dataKey="value" fill="#C9973A" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </article>
+
+        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-5">
+          <h2 className="text-[14px] font-bold text-[#F7F6F3]">Espaces les plus prisés</h2>
+          <p className="mb-4 text-[12px] text-[#888888]">Répartition des réservations par zone</p>
+          <div className="space-y-3">
+            {spaceRows.map((space) => (
+              <div key={space.name}>
+                <div className="mb-1 flex items-center justify-between text-[13px]">
+                  <span className="text-[#F7F6F3]">{space.name}</span>
+                  <span className="text-[#888888]">{space.percent}%</span>
+                </div>
+                <Progress
+                  value={space.percent}
+                  color="primary"
+                  size="sm"
+                  aria-label={`Taux de réservation ${space.name}`}
+                  classNames={{
+                    track: "bg-white/5",
+                    indicator: "bg-[#C9973A]",
+                  }}
+                />
+              </div>
+            ))}
+            <p className="pt-2 text-[12px] text-[#888888]">{promotersCount} promoteur(s) actif(s) ce soir</p>
+          </div>
+        </article>
+      </section>
+
+      <section className="rounded-xl border border-white/5 bg-[#1A1D24] p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[15px] font-medium text-[#F7F6F3]">Réservations du soir</h2>
+          <h2 className="text-[16px] font-semibold text-[#F7F6F3]">Réservations récentes</h2>
+          <a href="/dashboard/club/events" className="text-[13px] text-[#C9973A] hover:underline">
+            Voir tout
+          </a>
         </div>
         <div className="overflow-x-auto">
           <Table
             removeWrapper
-            aria-label="Réservations du soir"
+            aria-label="Réservations récentes"
             classNames={{
-              th: "bg-[#0A0F2E] text-left text-[11px] uppercase tracking-[0.04em] text-[#888888]",
-              td: "border-b border-[#C9973A]/5 text-[#F7F6F3]",
-              tr: "odd:bg-[#12172B] even:bg-[#0A0F2E] hover:bg-[#C9973A]/5 transition-colors duration-100",
+              th: "bg-transparent text-left text-[11px] uppercase tracking-widest text-[#555555] border-b border-white/5 pb-3",
+              td: "border-b border-white/5 py-4 text-[#F7F6F3]",
+              tr: "hover:bg-white/5",
             }}
           >
             <TableHeader>
               <TableColumn>CLIENT</TableColumn>
-              <TableColumn>TABLE</TableColumn>
-              <TableColumn>HEURE</TableColumn>
-              <TableColumn>GUESTS</TableColumn>
+              <TableColumn>DATE &amp; HEURE</TableColumn>
+              <TableColumn>TABLE / ZONE</TableColumn>
+              <TableColumn>MONTANT</TableColumn>
               <TableColumn>STATUT</TableColumn>
-              <TableColumn>CHECK-IN</TableColumn>
             </TableHeader>
-            <TableBody emptyContent={"Aucune réservation pour ce soir."}>
+            <TableBody emptyContent={"Aucune réservation récente."}>
               {reservations.map((reservation) => {
                 const status = statusConfig(reservation.status);
                 return (
                   <TableRow key={reservation.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Avatar size="sm" name={reservation.clientName} className="bg-[#C9973A]/20 text-[#C9973A]" />
+                        <Avatar size="sm" name={reservation.clientName} className="bg-[#C9973A]/15 text-[#C9973A]" />
                         <div>
-                          <p className="text-[13px] font-semibold text-[#F7F6F3]">{reservation.clientName}</p>
+                          <p className="text-[14px] font-bold text-[#F7F6F3]">{reservation.clientName}</p>
                           <p className="text-[11px] text-[#888888]">{reservation.clientEmail}</p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-[#888888]">{reservation.tableName}</TableCell>
-                    <TableCell className="text-[#888888]">{reservation.hourLabel}</TableCell>
-                    <TableCell>{reservation.guests}</TableCell>
+                    <TableCell className="text-[13px] text-[#888888]">{reservation.dateTimeLabel}</TableCell>
+                    <TableCell className="text-[13px] text-[#F7F6F3]">{reservation.tableZoneLabel}</TableCell>
+                    <TableCell className="text-[14px] font-medium text-[#F7F6F3]">{reservation.amountLabel}</TableCell>
                     <TableCell>
                       <Chip size="sm" variant="flat" color={status.color}>
                         <span className="text-[10px] uppercase tracking-[0.04em]">{status.label}</span>
                       </Chip>
                     </TableCell>
-                    <TableCell>
-                      <Button size="sm" color="success" variant="bordered" radius="none">
-                        Check-in
-                      </Button>
-                    </TableCell>
                   </TableRow>
                 );
               })}
-            </TableBody>
-          </Table>
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
-        <h2 className="mb-4 text-[15px] font-medium text-[#F7F6F3]">Promoteurs actifs ce soir</h2>
-        <div className="overflow-x-auto">
-          <Table
-            removeWrapper
-            aria-label="Promoteurs actifs"
-            classNames={{
-              th: "bg-[#0A0F2E] text-left text-[11px] uppercase tracking-[0.04em] text-[#888888]",
-              td: "border-b border-[#C9973A]/5 text-[#F7F6F3]",
-              tr: "odd:bg-[#12172B] even:bg-[#0A0F2E] hover:bg-[#C9973A]/5 transition-colors duration-100",
-            }}
-          >
-            <TableHeader>
-              <TableColumn>NOM</TableColumn>
-              <TableColumn>GUESTS AMENÉS</TableColumn>
-              <TableColumn>CA GÉNÉRÉ</TableColumn>
-              <TableColumn>LIEN ACTIF</TableColumn>
-            </TableHeader>
-            <TableBody emptyContent={"Aucun promoteur actif pour le moment."}>
-              {promoters.map((promoter) => (
-                <TableRow key={promoter.id}>
-                  <TableCell>{promoter.name}</TableCell>
-                  <TableCell>{promoter.guests}</TableCell>
-                  <TableCell className="text-[#C9973A]">{promoter.revenueLabel}</TableCell>
-                  <TableCell>
-                    <Chip size="sm" radius="sm" variant="flat" color={promoter.linkActive ? "success" : "default"}>
-                      {promoter.linkActive ? "Actif" : "Inactif"}
-                    </Chip>
-                  </TableCell>
-                </TableRow>
-              ))}
             </TableBody>
           </Table>
         </div>

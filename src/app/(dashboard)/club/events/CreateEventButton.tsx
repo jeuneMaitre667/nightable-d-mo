@@ -16,7 +16,7 @@ export function CreateEventButton(): React.JSX.Element {
       color='primary'
       variant='solid'
       radius='none'
-      className='min-h-11 uppercase tracking-widest text-xs'
+      className='h-12 w-full min-w-[220px] px-5 text-sm font-semibold tracking-[0.08em] md:w-auto'
     >
       Créer un événement
     </Button>

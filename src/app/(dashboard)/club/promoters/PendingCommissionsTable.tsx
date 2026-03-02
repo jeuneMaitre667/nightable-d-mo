@@ -54,7 +54,7 @@ export function PendingCommissionsTable({
                 <TableCell>
                   <form action={validateCommissionFormAction}>
                     <input type="hidden" name="commission_id" value={row.id} />
-                    <Button size="sm" color="success" variant="bordered" radius="none">
+                    <Button type="submit" size="sm" color="success" variant="bordered" radius="none">
                       Valider
                     </Button>
                   </form>

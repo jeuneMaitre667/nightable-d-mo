@@ -266,11 +266,11 @@ export default async function ClubVipPage(): Promise<ReactElement> {
   }
 
   return (
-    <section className="space-y-8">
-      <header className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-6">
-        <p className="text-xs uppercase tracking-[0.18em] text-[#888888]">Femmes VIP</p>
-        <h1 className="nt-heading mt-2 text-3xl text-[#F7F6F3]">{clubProfile?.club_name ?? "Club"} · Module VIP</h1>
-        <p className="mt-2 text-sm text-[#888888]">
+    <section className="space-y-6">
+      <header className="rounded-xl border border-[#C9973A]/15 bg-[linear-gradient(135deg,rgba(10,15,46,0.9)_0%,rgba(18,23,43,0.96)_65%,rgba(8,10,18,0.96)_100%)] p-4 md:p-6">
+        <p className="text-[10px] uppercase tracking-[0.14em] text-[#888888] md:text-[11px]">Femmes VIP</p>
+        <h1 className="mt-1 text-lg font-semibold text-[#F7F6F3] md:text-xl">{clubProfile?.club_name ?? "Club"} · Module VIP</h1>
+        <p className="mt-2 text-sm text-[#9A9AA0]">
           Gérez la validation des profils, les invitations et l’activation des tables promos de la soirée.
         </p>
       </header>

@@ -613,3 +613,211 @@ Retourne { success, data, error }."
 Architecture question:
 "# file:ARCHITECTURE.md
 [Question précise sur la structure ou l'organisation du code]"
+
+---
+
+## Responsive & Visual Consistency Rules — MANDATORY
+
+Every time you create or modify a page or component, you MUST
+ensure perfect rendering on both web and mobile. No exceptions.
+
+---
+
+### Breakpoints — always use these exact values
+- Mobile  : default (no prefix) — 0 to 767px
+- Tablet  : md: — 768px to 1023px
+- Desktop : lg: — 1024px and above
+
+Never use sm: as a primary breakpoint — design mobile first,
+then adapt for md: and lg:
+
+---
+
+### Layout rules by screen size
+
+**Sidebar**
+- Desktop (lg:) : visible, fixed left, width 200px, full height
+- Mobile/Tablet  : hidden, replaced by bottom tab bar
+  Bottom tab bar : fixed bottom-0, bg-[#111318],
+  border-t border-white/5, flex justify-around
+  Max 5 items with icon + label 10px, height 64px
+  Safe area : pb-safe or pb-4 for iPhone notch
+
+**Page container**
+- Desktop : margin-left 200px (sidebar width), padding 32px
+- Tablet  : margin-left 0, padding 24px
+- Mobile  : margin-left 0, padding 16px
+
+**Metric cards grid**
+- Desktop : grid-cols-4
+- Tablet  : grid-cols-2
+- Mobile  : grid-cols-2 (smaller) or grid-cols-1 if content heavy
+
+**Two-column layouts (chart + sidebar)**
+- Desktop : flex-row, chart 60% / panel 40%
+- Tablet  : flex-row, chart 55% / panel 45%
+- Mobile  : flex-col, chart full width first, panel below
+
+**Tables**
+- Desktop : all columns visible
+- Tablet  : hide 1-2 less important columns
+- Mobile  : never use full table — use card list instead
+  Each row becomes a Card with the key info stacked vertically
+  Always show : client name + main amount + status badge
+  Hide : secondary columns (canal, zone description, etc.)
+
+**Modals**
+- Desktop : centered, max-width 480px, rounded-xl
+- Mobile  : bottom sheet style
+  position fixed bottom-0, width full, rounded-t-xl
+  max-height 85vh, overflow-y-auto
+  drag handle at top : w-10 h-1 bg-white/20 rounded-full mx-auto mb-4
+
+**Forms**
+- Desktop : can be 2 columns for related fields (prénom + nom)
+- Mobile  : always single column, never 2 columns
+- Input height : always min-h-[48px] on mobile (touch target)
+- Button height : always min-h-[48px] on mobile
+
+**Navigation in page (Tabs)**
+- Desktop : horizontal tabs, all visible
+- Mobile  : scrollable horizontal tabs, overflow-x-auto
+  scrollbar hidden : [&::-webkit-scrollbar]:hidden
+
+---
+
+### Typography scaling
+
+**Page titles**
+- Desktop : text-xl (20px)
+- Mobile  : text-lg (18px)
+
+**Cormorant metric numbers**
+- Desktop : text-4xl (36px)
+- Mobile  : text-2xl (24px)
+
+**Body text**
+- Desktop : text-sm (14px)
+- Mobile  : text-sm (14px) — never go below 13px on mobile
+
+**Labels uppercase**
+- Desktop : text-[11px]
+- Mobile  : text-[10px]
+
+---
+
+### Touch targets — MANDATORY on mobile
+- Every clickable element : min-h-[44px] min-w-[44px]
+- Buttons : always h-11 or h-12 on mobile
+- Table row actions : use dropdown menu on mobile instead
+  of multiple inline buttons
+- Never place two tap targets closer than 8px apart on mobile
+
+---
+
+### Images & media
+- Always next/image with explicit width and height
+- Always fill + object-cover inside a relative container
+- Always add priority on above-the-fold images
+- Club cover photos : aspect-video (16/9) desktop,
+  aspect-[4/3] mobile
+- Avatar : always fixed size, never % based
+
+---
+
+### Performance — mandatory on every page
+
+**Server Components first**
+- Every page.tsx must be a Server Component by default
+- Only extract 'use client' for the interactive parts
+- Example : page.tsx fetches data (server),
+  PageClient.tsx handles interactions (client)
+
+**Data fetching**
+- Always Promise.all() for independent parallel fetches
+- Always add loading.tsx next to every page.tsx
+- Always add error.tsx next to every page.tsx
+- Skeleton must match the exact structure of the real content
+
+**Images**
+- Always lazy load below-the-fold images (default next/image behavior)
+- Always priority on hero images
+
+**Bundle**
+- Always dynamic import for heavy components :
+  const FloorPlan = dynamic(() => import('@/components/floor-plan/FloorPlan'),
+  { ssr: false })
+  const BarChart = dynamic(() => import('@/components/charts/RevenueChart'),
+  { ssr: false })
+
+**Animations**
+- Always add : @media (prefers-reduced-motion: reduce) {
+    transition: none !important; animation: none !important
+  }
+- Never animate on mobile if it causes layout shift
+
+---
+
+### Consistency checklist — before finishing any page
+
+RESPONSIVE :
+[ ] Page tested mentally at 375px (iPhone SE) — nothing overflows
+[ ] Page tested mentally at 768px (iPad) — layout adapts correctly
+[ ] Page tested mentally at 1280px (desktop) — full layout visible
+[ ] Sidebar replaced by bottom tab bar on mobile
+[ ] Tables converted to card list on mobile
+[ ] Modals converted to bottom sheet on mobile
+[ ] All tap targets >= 44x44px on mobile
+[ ] Forms single column on mobile
+[ ] No horizontal scroll on mobile (except intentional carousels)
+
+PERFORMANCE :
+[ ] Page is a Server Component
+[ ] loading.tsx exists next to the page
+[ ] error.tsx exists next to the page
+[ ] Promise.all() used for parallel fetches
+[ ] Heavy components (Konva, recharts) use dynamic import
+[ ] All images use next/image with width + height
+
+VISUAL CONSISTENCY :
+[ ] Same sidebar on all dashboard pages
+[ ] Same header structure (title left, actions right)
+[ ] Same card style bg-[#1A1D24] border border-white/5
+[ ] Same table style (header 11px uppercase, rows border-b white/5)
+[ ] Same button style (primary gold, secondary bordered)
+[ ] Same color for same status across all pages
+[ ] Same spacing rhythm (padding 16px mobile, 24px tablet, 32px desktop)
+
+---
+
+### Mobile-specific components to always create
+
+When a page has a Table, always create TWO versions :
+1. Desktop table : hidden on mobile (hidden md:block)
+2. Mobile card list : visible on mobile only (block md:hidden)
+
+Mobile card list structure :
+<div className="flex flex-col gap-3 md:hidden">
+  {items.map(item => (
+    <div className="bg-[#1A1D24] border border-white/5 rounded-xl p-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <Avatar size="sm" />
+          <div>
+            <p className="text-sm font-medium text-[#F7F6F3]">{name}</p>
+            <p className="text-xs text-[#888]">{subtitle}</p>
+          </div>
+        </div>
+        <Chip size="sm" variant="flat">{status}</Chip>
+      </div>
+      <div className="flex justify-between text-sm mt-2">
+        <span className="text-[#888]">{label}</span>
+        <span className="text-[#F7F6F3] font-medium">{value}</span>
+      </div>
+    </div>
+  ))}
+</div>
+
+When a page has a Modal, always add mobile bottom sheet behavior :
+className="fixed bottom-0 md:relative md:bottom-auto
+           w-full md:max-w-lg rounded-t-2xl md:rounded-xl"

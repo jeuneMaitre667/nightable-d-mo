@@ -36,12 +36,20 @@ export function PromoterPromoPanel({
   days,
 }: PromoterPromoPanelProps): React.JSX.Element {
   return (
-    <div className="space-y-8">
-      <section>
-        <h1 className="nt-heading text-3xl text-[#F7F6F3]">Mon lien promo</h1>
-        <p className="mt-1 text-sm text-[#888888]">
-          Partage ton lien de réservation tracké. Chaque réservation te rapporte {commissionRate}% de commission.
-        </p>
+    <div className="space-y-6">
+      <section className="rounded-xl border border-[#C9973A]/15 bg-[linear-gradient(135deg,rgba(10,15,46,0.9)_0%,rgba(18,23,43,0.96)_65%,rgba(8,10,18,0.96)_100%)] p-4 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-[#888888] md:text-[11px]">Gestion</p>
+            <h1 className="mt-1 text-lg font-semibold text-[#F7F6F3] md:text-xl">Mon lien promo</h1>
+            <p className="mt-2 text-sm text-[#9A9AA0]">
+              Partage ton lien de réservation tracké. Chaque réservation te rapporte {commissionRate}% de commission.
+            </p>
+          </div>
+          <Button as={Link} href="/dashboard/promoter/commissions" variant="bordered" className="min-h-11 border-[#C9973A]/40 px-4 text-sm text-[#C9973A]">
+            € Mes commissions
+          </Button>
+        </div>
       </section>
 
       <Card className="border border-[#C9973A]/20 bg-[#12172B] shadow-none">
@@ -129,12 +137,12 @@ export function PromoterPromoPanel({
         </CardBody>
       </Card>
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Button as={Link} href="/dashboard/promoter" variant="bordered" className="min-h-11 border-[#C9973A]/40 px-5 text-sm text-[#C9973A]">
           ← Retour au dashboard
         </Button>
         <Button as={Link} href="/dashboard/promoter/commissions" variant="bordered" className="min-h-11 border-[#C9973A]/20 px-5 text-sm text-[#F7F6F3]">
-          Voir mes commissions
+          ◉ Voir mes commissions
         </Button>
       </div>
     </div>
