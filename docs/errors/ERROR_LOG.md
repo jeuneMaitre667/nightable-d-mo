@@ -12,6 +12,15 @@ Historique complet archivé dans docs/errors/ERROR_LOG_ARCHIVE.md.
 ## Incidents récents résolus
 
 ---
+**[2026-03-04] — Déploiement Vercel `404` malgré build local vert**
+- File(s) affected: vercel.json
+- Error: Les URLs production renvoyaient `404` alors que `npm run build` passait localement.
+- Root cause: Projet Vercel configuré en `Framework Preset: Other`, provoquant un déploiement statique sans build Next.
+- Fix applied: Ajout de `vercel.json` pour imposer `framework: nextjs`, puis relance du déploiement production.
+- Status: ✅ Resolved
+---
+
+---
 **[2026-03-04] — Publication Vercel manuelle fragile et répétitive**
 - File(s) affected: scripts/vercel-deploy.ps1, package.json
 - Error: Le process de publication (branche/push/déploiement) était manuel et sujet aux erreurs de séquence.

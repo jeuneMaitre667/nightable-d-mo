@@ -6,6 +6,7 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Added
 
+- `vercel.json`: configuration explicite Vercel pour forcer le preset `nextjs` et éviter les déploiements statiques vides (`404`).
 - `scripts/vercel-deploy.ps1`: script d’automatisation publication (`main`, checks lint/build, push, déploiement Vercel prod) avec options `-DryRun`, `-SkipChecks`, `-SkipDeploy`, `-ForceMain`.
 - Nouvelle route publique dédiée clubs: `/clubs-acces` avec onglets connexion/inscription réservés aux comptes club.
 - Routes publiques créées: `/tarifs`, `/centre-aide`, `/blog`, `/tutoriels-video`, `/api-integrations`, `/a-propos`, `/contact`, `/mentions-legales`, `/confidentialite`.
@@ -67,6 +68,7 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Fixed
 
+- Vercel production: correction de la cause racine des `404` globaux (`Framework Preset: Other`) en imposant `framework: nextjs` via `vercel.json`.
 - Auth clubs: blocage des connexions non-club sur `/clubs-acces` avec message explicite et déconnexion immédiate pour éviter l’usage de la page club par des comptes utilisateurs.
 - Auth onboarding: suppression de l’accès auto-inscription `club/promoter` depuis la sélection publique afin d’imposer les canaux prévus (CTA landing pour clubs, lien d’invitation pour promoteurs).
 - Landing `/`: ajout du lien CTA `/demo` dans le header pour satisfaire le contrôle E2E des CTA publics.

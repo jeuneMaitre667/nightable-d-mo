@@ -60,6 +60,12 @@ Document opérationnel court: état actuel, priorités, risques et journal réce
 
 ## Journal de sessions (récent)
 
+### 2026-03-04 (fix 404 Vercel production)
+
+- Détection cause racine dans Vercel: projet configuré en preset `Other` (build `0ms` + output statique vide) malgré un build Next local valide.
+- Ajout de `vercel.json` avec `framework: nextjs` pour forcer le bon pipeline de build/déploiement.
+- Redéploiement production relancé via `npm run deploy:vercel`.
+
 ### 2026-03-04 (automatisation publication Vercel)
 
 - Ajout du script `scripts/vercel-deploy.ps1` pour standardiser la publication (`main` + lint/build + push + deploy Vercel prod).
