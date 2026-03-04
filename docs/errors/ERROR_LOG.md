@@ -12,6 +12,15 @@ Historique complet archivé dans docs/errors/ERROR_LOG_ARCHIVE.md.
 ## Incidents récents résolus
 
 ---
+**[2026-03-04] — Publication Vercel manuelle fragile et répétitive**
+- File(s) affected: scripts/vercel-deploy.ps1, package.json
+- Error: Le process de publication (branche/push/déploiement) était manuel et sujet aux erreurs de séquence.
+- Root cause: Absence d’un script unique de runbook de déploiement.
+- Fix applied: Création d’un script PowerShell d’automatisation + commande npm dédiée (`deploy:vercel`).
+- Status: ✅ Resolved
+---
+
+---
 **[2026-03-04] — Deux premières images de la page démo non chargées**
 - File(s) affected: src/app/demo/page.tsx
 - Error: Les deux premiers visuels visibles sur `/demo` ne s’affichaient pas correctement chez l’utilisateur.

@@ -60,6 +60,11 @@ Document opérationnel court: état actuel, priorités, risques et journal réce
 
 ## Journal de sessions (récent)
 
+### 2026-03-04 (automatisation publication Vercel)
+
+- Ajout du script `scripts/vercel-deploy.ps1` pour standardiser la publication (`main` + lint/build + push + deploy Vercel prod).
+- Ajout du raccourci npm `deploy:vercel`.
+
 ### 2026-03-04 (fix images top démo non chargées)
 
 - `src/app/demo/page.tsx` : remplacement des 2 premières images de la page par des assets locaux (`/public/demo/*.webp`) pour supprimer les échecs de chargement distants.

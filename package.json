@@ -6,6 +6,7 @@
     "dev": "npm run dev:clean && next dev --webpack",
     "dev:clean": "powershell -ExecutionPolicy Bypass -File ./scripts/dev-reset.ps1 -NoStart",
     "dev:reset": "powershell -ExecutionPolicy Bypass -File ./scripts/dev-reset.ps1",
+    "deploy:vercel": "powershell -ExecutionPolicy Bypass -File ./scripts/vercel-deploy.ps1 -ForceMain",
     "healthcheck:env": "node ./scripts/healthcheck-env.mjs",
     "seed:demo": "node ./scripts/seed-demo-data.mjs",
     "build": "next build",

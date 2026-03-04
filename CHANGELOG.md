@@ -6,6 +6,7 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Added
 
+- `scripts/vercel-deploy.ps1`: script d’automatisation publication (`main`, checks lint/build, push, déploiement Vercel prod) avec options `-DryRun`, `-SkipChecks`, `-SkipDeploy`, `-ForceMain`.
 - Nouvelle route publique dédiée clubs: `/clubs-acces` avec onglets connexion/inscription réservés aux comptes club.
 - Routes publiques créées: `/tarifs`, `/centre-aide`, `/blog`, `/tutoriels-video`, `/api-integrations`, `/a-propos`, `/contact`, `/mentions-legales`, `/confidentialite`.
 - Landing `/`: nouvelles sections orientées clubs (bloc fonctionnalités x3 + bandeau CTA) avec accès direct à `/demo` et `/register?role=club`.
@@ -22,6 +23,7 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Changed
 
+- `package.json`: ajout de la commande `deploy:vercel` pour exécuter le script de publication Vercel.
 - `/demo`: correction des 2 premières images de page (hero + premier visuel section fonctionnalités) en remplaçant les URLs distantes par des assets locaux WebP.
 - `package.json`: suppression de la devDependency temporaire `sharp` après finalisation de l’optimisation des images démo.
 - `public/demo`: suppression des anciens fichiers `.jpeg` après migration complète vers `.webp` pour éviter les doublons d’assets.
