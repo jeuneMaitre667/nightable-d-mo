@@ -99,7 +99,7 @@ export default async function VipProfilePage(): Promise<ReactElement> {
           </Link>
           <Link
             href="/dashboard/vip/safety"
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#C4567A]/35 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#C4567A]/35 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
           >
             Suivi de soirée
           </Link>
@@ -147,19 +147,19 @@ export default async function VipProfilePage(): Promise<ReactElement> {
           </div>
         </section>
 
-        <label className="flex min-h-11 items-center gap-3 text-sm text-[#F7F6F3]">
+            <label className="flex min-h-11 items-center gap-3 text-sm text-[#F7F6F3]">
           <input
             type="checkbox"
             name="rgpd_consent"
             defaultChecked={Boolean(typedVipProfile.rgpd_consent_at)}
-            className="h-4 w-4 accent-[#C9973A]"
+                className="h-4 w-4 accent-[#C4567A]"
           />
           J’accepte le traitement de mes données pour les parcours VIP NightTable.
         </label>
 
         <button
           type="submit"
-          className="min-h-11 rounded-lg border border-[#C4567A]/55 bg-[#C4567A]/20 px-5 py-2 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+          className="min-h-11 rounded-lg border border-[#C4567A]/55 bg-[#C4567A]/20 px-5 py-2 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
         >
           Mettre à jour mon profil
         </button>

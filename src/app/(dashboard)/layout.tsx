@@ -158,7 +158,7 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
 
   return (
     <div className="min-h-screen bg-[#050508] text-[#f7f6f3]">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#111318]/95 px-4 py-3 backdrop-blur md:hidden">
+      <header className="sticky top-0 z-30 border-b border-[#C9973A]/10 bg-[#0A0F2E]/95 px-4 py-3 backdrop-blur md:hidden">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-7 w-7 items-center justify-center rounded-[6px] bg-[#C9973A] text-[11px] font-semibold text-[#050508]">
@@ -181,7 +181,7 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
       </header>
 
       <div className="mx-auto grid min-h-screen max-w-[1440px] md:grid-cols-[200px_1fr]">
-        <aside className="hidden h-screen border-r border-white/5 bg-[#111318] md:flex md:flex-col">
+        <aside className="hidden h-screen border-r border-[#C9973A]/10 bg-[#0A0F2E] md:flex md:flex-col">
           <div className="px-4 pb-5 pt-6">
             <div className="flex items-center gap-2 px-1">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-[6px] bg-[#C9973A] text-[12px] font-semibold text-[#050508]">
@@ -195,7 +195,7 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
             <DashboardSidebarNav role={role} menuItems={menuItems} />
           </div>
 
-          <div className="border-t border-white/5 p-4">
+          <div className="border-t border-[#C9973A]/10 p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#C9973A]/20 bg-[#12172B] text-[11px] font-semibold text-[#C9973A]">
                 {firstName.slice(0, 1).toUpperCase()}
@@ -216,7 +216,7 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
           </div>
         </aside>
 
-        <main className="px-4 pb-24 pt-5 md:px-8 md:pb-8 md:pt-8">{children}</main>
+        <main className="px-4 pb-24 pt-5 md:px-6 md:pb-8 md:pt-6 lg:px-8 lg:pt-8">{children}</main>
       </div>
 
       <DashboardMobileNav menuItems={mobileTabs} />

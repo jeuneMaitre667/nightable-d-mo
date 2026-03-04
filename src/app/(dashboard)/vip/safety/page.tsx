@@ -103,7 +103,7 @@ export default async function VipSafetyPage({ searchParams }: SafetyPageProps): 
           </Link>
           <Link
             href="/dashboard/vip/profile"
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#C4567A]/35 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#C4567A]/35 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
           >
             Mon profil
           </Link>
@@ -122,7 +122,7 @@ export default async function VipSafetyPage({ searchParams }: SafetyPageProps): 
           <form action={activateSafetyFromForm} className="mt-5">
             <button
               type="submit"
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#C4567A]/55 bg-[#C4567A]/22 px-5 py-3 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/34 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#C4567A]/55 bg-[#C4567A]/22 px-5 py-3 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/34 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
             >
               Activer le suivi pour ce soir
             </button>
@@ -138,7 +138,7 @@ export default async function VipSafetyPage({ searchParams }: SafetyPageProps): 
           <form action={confirmDepartureFromForm} className="mt-6">
             <button
               type="submit"
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#3A9C6B]/55 bg-[#3A9C6B]/20 px-5 py-3 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#3A9C6B]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#3A9C6B]/55 bg-[#3A9C6B]/20 px-5 py-3 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#3A9C6B]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
             >
               Je suis rentrée ✓
             </button>
@@ -160,7 +160,7 @@ export default async function VipSafetyPage({ searchParams }: SafetyPageProps): 
               />
               <button
                 type="submit"
-                className="min-h-11 rounded-lg border border-[#C4567A]/45 bg-[#C4567A]/15 px-4 py-2 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+                className="min-h-11 rounded-lg border border-[#C4567A]/45 bg-[#C4567A]/15 px-4 py-2 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
               >
                 Envoyer
               </button>

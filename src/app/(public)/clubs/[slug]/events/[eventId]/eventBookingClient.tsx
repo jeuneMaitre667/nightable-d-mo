@@ -5,12 +5,18 @@
 // Inspired by: Shopify Polaris pattern
 // NightTable usage: public interactive table selection for one event
 
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import FloorPlan from "@/components/floor-plan/FloorPlan";
+import { Avatar, Button, Chip } from "@heroui/react";
 import { calculateDynamicPrice } from "@/lib/utils";
 
 import type { ReactElement } from "react";
+
+const FloorPlan = dynamic(() => import("@/components/floor-plan/FloorPlan"), {
+  ssr: false,
+});
 
 type EventTable = {
   id: string;
@@ -35,8 +41,22 @@ type EventTable = {
 type EventBookingClientProps = {
   /** Event identifier used for checkout routing. */
   eventId: string;
+  /** Event title displayed in hero and detail section. */
+  eventTitle: string;
+  /** Club name displayed in event context labels. */
+  clubName: string;
   /** Event datetime used for dynamic pricing urgency. */
   eventDate: string;
+  /** Localized event date label displayed under title. */
+  eventDateLabel: string;
+  /** Event cover image URL for the hero section. */
+  eventCoverUrl: string | null;
+  /** Event description shown in editorial section. */
+  eventDescription: string | null;
+  /** Event DJ lineup labels from event payload. */
+  eventDjLineup: string[];
+  /** Optional event dress code label. */
+  eventDressCode: string | null;
   /** Notoriety coefficient used by pricing formula. */
   eventNotoriety: number;
   /** Event tables enriched with status and pricing metadata. */
@@ -75,7 +95,14 @@ function daysUntilEvent(dateValue: string): number {
 
 export default function EventBookingClient({
   eventId,
+  eventTitle,
+  clubName,
   eventDate,
+  eventDateLabel,
+  eventCoverUrl,
+  eventDescription,
+  eventDjLineup,
+  eventDressCode,
   eventNotoriety,
   tables,
   className,
@@ -89,6 +116,24 @@ export default function EventBookingClient({
 
   const availableCount = tables.filter((item) => item.status === "available").length;
   const urgency = selectedEventTable?.occupancy_rate && selectedEventTable.occupancy_rate > 70;
+  const minimumPrice = useMemo(() => {
+    const availableTables = tables.filter((item) => item.status === "available");
+
+    if (availableTables.length === 0) {
+      return null;
+    }
+
+    const pricedTables = availableTables.map((item) =>
+      calculateDynamicPrice({
+        basePrice: item.table.base_price,
+        occupancyRate: item.occupancy_rate / 100,
+        daysUntilEvent: daysUntilEvent(eventDate),
+        eventNotoriety,
+      })
+    );
+
+    return Math.min(...pricedTables);
+  }, [eventDate, eventNotoriety, tables]);
 
   const selectedPrice = selectedEventTable
     ? calculateDynamicPrice({
@@ -110,59 +155,156 @@ export default function EventBookingClient({
     status: (item.table.is_promo && item.status === "available" ? "promo" : item.status) as FloorPlanStatus,
   }));
 
+  const todayLabel = new Date().toDateString() === new Date(eventDate).toDateString() ? "Ce soir" : eventDateLabel;
+  const djs = eventDjLineup.length > 0 ? eventDjLineup : ["DJ lineup à venir"];
+  const coverUrl = eventCoverUrl && eventCoverUrl.trim().length > 0
+    ? eventCoverUrl
+    : "https://images.unsplash.com/photo-1571266028243-d220c9c3f14f?auto=format&fit=crop&w=1600&q=80";
+  const mobileActionHref = selectedEventTable
+    ? `/reserve/checkout?eventId=${encodeURIComponent(eventId)}&tableId=${encodeURIComponent(selectedEventTable.id)}`
+    : "#table-selection";
+
   return (
-    <section className={`grid gap-4 xl:grid-cols-[1fr_360px] ${className ?? ""}`.trim()}>
-      <article className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="nt-heading text-2xl text-[#F7F6F3]">Choisir votre table</h2>
-          <span className="text-sm text-[#888888]">
-            <span className="text-[#E8C96A]">{availableCount}</span> disponibles
-          </span>
-        </div>
-        <FloorPlan
-          tables={floorPlanTables}
-          mode="booking"
-          selectedTableId={selectedEventTableId}
-          onTableSelect={setSelectedEventTableId}
+    <section className={`bg-[#050508] ${className ?? ""}`.trim()}>
+      <div className="relative h-[50vh] w-full overflow-hidden">
+        <Image
+          src={coverUrl}
+          alt={`Photo de l'événement ${eventTitle} au ${clubName}`}
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
         />
-      </article>
-
-      <aside className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-5">
-        <h3 className="nt-heading text-2xl text-[#F7F6F3]">Votre sélection</h3>
-
-        {!selectedEventTable ? (
-          <p className="mt-4 text-sm text-[#888888]">
-            Sélectionnez une table disponible sur le plan pour voir le détail et réserver.
-          </p>
-        ) : (
-          <div className="mt-4 space-y-3 text-sm text-[#F7F6F3]">
-            <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-3">
-              <p className="text-xs uppercase tracking-[0.15em] text-[#888888]">Table</p>
-              <p className="mt-1 text-lg font-semibold">{selectedEventTable.table.name}</p>
-              <p className="mt-1 text-xs text-[#888888]">
-                Zone {selectedEventTable.table.zone ?? "vip"} · Capacité {selectedEventTable.table.capacity}
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-3">
-              <p className="text-xs uppercase tracking-[0.15em] text-[#888888]">Prix dynamique</p>
-              <p className="mt-1 font-[Cormorant_Garamond] text-4xl leading-none text-[#C9973A]">
-                {selectedPrice ? formatEuros(selectedPrice) : "—"}
-              </p>
-              {urgency ? (
-                <p className="mt-2 text-xs text-[#C4567A]">● Plus que {availableCount} tables à ce prix</p>
-              ) : null}
-            </div>
-
-            <Link
-              href={`/reserve/checkout?eventId=${encodeURIComponent(eventId)}&tableId=${encodeURIComponent(selectedEventTable.id)}`}
-              className="nt-btn nt-btn-primary block min-h-11 w-full px-4 py-3 text-center transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
-            >
-              Réserver cette table
-            </Link>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050508]/5 via-[#050508]/42 to-[#050508]" />
+        <div className="absolute bottom-0 left-0 right-0 mx-auto flex w-full max-w-7xl items-end justify-between gap-4 px-6 pb-6 md:px-6 md:pb-7 lg:px-10">
+          <div className="max-w-[80%] md:max-w-[72%]">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-[#C9973A]">NightTable · {clubName}</p>
+            <h1 className="mt-2 font-[Cormorant_Garamond] text-[36px] font-light leading-[1.02] text-[#F7F6F3] drop-shadow-[0_8px_24px_rgba(5,5,8,0.65)] md:mt-3 md:text-5xl">{eventTitle}</h1>
           </div>
-        )}
-      </aside>
+          <Chip color="success" variant="flat" className="mb-1 inline-flex shrink-0 self-end">
+            {todayLabel}
+          </Chip>
+        </div>
+      </div>
+
+      <div className="mx-auto w-full max-w-7xl px-6 py-5 md:px-6 md:py-6 lg:px-10">
+        <div className="grid gap-6 md:gap-8 lg:grid-cols-[65%_35%]">
+          <article>
+            <h2 className="font-[Cormorant_Garamond] text-[34px] font-light leading-[1.05] text-[#F7F6F3] md:text-[48px]">
+              {eventTitle}
+            </h2>
+            <p className="mt-2 text-sm text-[#888888]">{eventDateLabel} · {availableCount} tables disponibles</p>
+
+            <div className="mt-5 flex flex-wrap gap-3 md:mt-6 md:gap-4">
+              {djs.map((djName, index) => (
+                <div key={`${djName}-${index}`} className="flex min-h-[48px] items-center gap-3 rounded-lg border border-white/5 bg-[#12172B]/70 px-3 py-2">
+                  <Avatar name={djName} size="md" classNames={{ base: "h-12 w-12 bg-[#0A0F2E] text-[#C9973A]" }} />
+                  <div>
+                    <p className="text-[13px] font-semibold text-[#F7F6F3]">{djName}</p>
+                    <p className="text-[11px] text-[#888888]">Guest DJ</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-5 max-w-3xl text-sm leading-relaxed text-[#888888] md:mt-6">
+              {eventDescription?.trim() || "Une nuit exclusive entre house, élégance parisienne et service premium NightTable."}
+            </p>
+
+            <div className="mt-5 md:mt-6">
+              <Chip color="default" variant="bordered">
+                Dress code : {eventDressCode?.trim() || "Tenue élégante"}
+              </Chip>
+            </div>
+          </article>
+
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <div id="table-selection" className="rounded-xl border border-white/5 bg-[#1A1D24] p-5 md:p-6">
+              <h3 className="text-base font-semibold text-[#F7F6F3]">Choisissez votre table</h3>
+
+              <div className="mt-4">
+                <p className="text-[13px] text-[#888888]">À partir de</p>
+                <p className="font-[Cormorant_Garamond] text-[32px] leading-none text-[#C9973A]">
+                  {minimumPrice ? formatEuros(minimumPrice) : "—"}
+                </p>
+              </div>
+
+              <div className="mt-5">
+                <FloorPlan
+                  tables={floorPlanTables}
+                  mode="booking"
+                  selectedTableId={selectedEventTableId}
+                  onTableSelect={setSelectedEventTableId}
+                  className="max-h-[360px] overflow-hidden md:max-h-[420px]"
+                />
+              </div>
+
+              {!selectedEventTable ? (
+                <p className="mt-4 text-sm text-[#888888]">
+                  Sélectionnez une table disponible sur le plan pour continuer.
+                </p>
+              ) : (
+                <div className="mt-4 rounded-lg border border-[#C9973A]/25 bg-[#0A0F2E] p-4">
+                  <p className="text-[11px] uppercase tracking-[0.15em] text-[#888888]">Table sélectionnée</p>
+                  <p className="mt-2 text-lg font-semibold text-[#F7F6F3]">{selectedEventTable.table.name}</p>
+                  <p className="mt-1 text-xs text-[#888888]">Capacité {selectedEventTable.table.capacity}</p>
+                  <p className="mt-2 font-[Cormorant_Garamond] text-3xl leading-none text-[#C9973A]">
+                    {selectedPrice ? formatEuros(selectedPrice) : "—"}
+                  </p>
+                  {urgency ? (
+                    <p className="mt-2 text-xs text-[#C4567A]">● Plus que {availableCount} tables à ce prix</p>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="mt-5">
+                {selectedEventTable ? (
+                  <Button
+                    as={Link}
+                    href={`/reserve/checkout?eventId=${encodeURIComponent(eventId)}&tableId=${encodeURIComponent(selectedEventTable.id)}`}
+                    color="primary"
+                    radius="none"
+                    fullWidth
+                    className="h-12 min-h-[48px] font-semibold"
+                  >
+                    Réserver cette table →
+                  </Button>
+                ) : (
+                  <Button
+                    color="primary"
+                    radius="none"
+                    fullWidth
+                    className="h-12 min-h-[48px]"
+                    isDisabled
+                  >
+                    Réserver cette table →
+                  </Button>
+                )}
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#C9973A]/20 bg-[#050508]/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.15em] text-[#888888]">À partir de</p>
+            <p className="font-[Cormorant_Garamond] text-2xl leading-none text-[#C9973A]">
+              {minimumPrice ? formatEuros(minimumPrice) : "—"}
+            </p>
+          </div>
+          <Button
+            as={Link}
+            href={mobileActionHref}
+            color="primary"
+            radius="none"
+            className="h-12 min-h-[48px] min-w-[168px] px-6 font-semibold"
+          >
+            Choisir ma table
+          </Button>
+        </div>
+      </div>
     </section>
   );
 }

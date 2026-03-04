@@ -62,9 +62,6 @@ export default function HomePage() {
             NIGHTTABLE
           </Link>
           <div className="flex items-center gap-6 text-sm">
-            <Link href="/clubs" className="text-[#F7F6F3]/80 transition-colors duration-150 hover:text-[#F7F6F3]">
-              Clubs
-            </Link>
             <Link href="/login" className="text-[#F7F6F3]/80 transition-colors duration-150 hover:text-[#F7F6F3]">
               Connexion
             </Link>
@@ -87,7 +84,7 @@ export default function HomePage() {
 
         <div className="relative mx-auto flex w-full max-w-7xl justify-between gap-8">
           <div className="max-w-3xl">
-            <h1 className="nt-heading text-[48px] font-light leading-[1.1] tracking-[-0.02em] md:text-[72px]">
+            <h1 className="nt-heading text-[40px] font-light leading-[1.1] tracking-[-0.02em] sm:text-[48px] md:text-[72px]">
               La meilleure table
               <br />
               de Paris vous attend.
@@ -99,7 +96,7 @@ export default function HomePage() {
             <div className="mt-8">
               <Link
                 href="/reserve"
-                className="inline-flex min-h-11 items-center justify-center rounded-[2px] bg-[#C9973A] px-8 py-[14px] text-sm font-semibold uppercase tracking-[0.08em] text-[#050508] transition-all duration-150 ease-out hover:brightness-105"
+                className="inline-flex min-h-12 items-center justify-center rounded-[2px] bg-[#C9973A] px-8 py-[14px] text-sm font-semibold uppercase tracking-[0.08em] text-[#050508] transition-all duration-150 ease-out hover:brightness-105"
               >
                 Réserver maintenant
               </Link>
@@ -144,7 +141,7 @@ export default function HomePage() {
             <Link
               key={club.name}
               href={club.href}
-              className="group relative aspect-video overflow-hidden rounded-[4px]"
+              className="group relative aspect-video overflow-hidden rounded-[4px] border border-[#C9973A]/15"
             >
               <Image
                 src={club.image}
@@ -168,25 +165,49 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-6 pb-20 pt-4 text-center md:pb-24">
-        <h3 className="nt-heading text-[34px] font-light leading-[1.1] tracking-[-0.02em] md:text-[44px]">
-          Une réservation élégante,
-          <br />
-          une arrivée sans attente.
-        </h3>
-        <p className="mx-auto mt-4 max-w-[560px] text-base leading-relaxed text-[#F7F6F3]/70">
-          NightTable simplifie la réservation VIP pour les clients et les clubs,
-          avec une expérience sobre, rapide et premium.
-        </p>
-        <div className="mt-8">
-          <Link
-            href="/register"
-            className="inline-flex min-h-11 items-center justify-center rounded-[2px] border border-[#C9973A]/40 px-8 py-[14px] text-sm font-semibold uppercase tracking-[0.08em] text-[#C9973A] transition-all duration-150 ease-out hover:border-[#C9973A]/70 hover:text-[#E8C96A]"
-          >
-            Créer mon compte
-          </Link>
+      <footer className="border-t border-[#C9973A]/10 bg-[#050508] px-6 py-14">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <div>
+            <div className="flex items-center gap-2">
+              <div className="h-5 w-5 rounded-[4px] bg-[#C9973A]" aria-hidden="true" />
+              <p className="text-sm font-semibold tracking-[0.08em] text-[#F7F6F3]">NIGHTTABLE</p>
+            </div>
+            <p className="mt-4 max-w-[320px] text-sm leading-relaxed text-[#888888]">
+              Le logiciel de gestion de réservations premium pour clubs de nuit et établissements de prestige.
+            </p>
+            <p className="mt-10 text-xs text-[#888888]">© 2026 NightTable. Tous droits réservés.</p>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#F7F6F3]">Produit</p>
+            <div className="mt-4 flex flex-col gap-3 text-sm text-[#888888]">
+              <Link href="/demo" className="transition-colors duration-150 hover:text-[#F7F6F3]">Démo</Link>
+              <Link href="/clubs-acces" className="transition-colors duration-150 hover:text-[#F7F6F3]">Clubs</Link>
+              <Link href="/tarifs" className="transition-colors duration-150 hover:text-[#F7F6F3]">Tarifs</Link>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#F7F6F3]">Ressources</p>
+            <div className="mt-4 flex flex-col gap-3 text-sm text-[#888888]">
+              <Link href="/centre-aide" className="transition-colors duration-150 hover:text-[#F7F6F3]">Centre d’aide</Link>
+              <Link href="/blog" className="transition-colors duration-150 hover:text-[#F7F6F3]">Blog</Link>
+              <Link href="/tutoriels-video" className="transition-colors duration-150 hover:text-[#F7F6F3]">Tutoriels vidéo</Link>
+              <Link href="/api-integrations" className="transition-colors duration-150 hover:text-[#F7F6F3]">API & intégrations</Link>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#F7F6F3]">Entreprise</p>
+            <div className="mt-4 flex flex-col gap-3 text-sm text-[#888888]">
+              <Link href="/a-propos" className="transition-colors duration-150 hover:text-[#F7F6F3]">À propos</Link>
+              <Link href="/contact" className="transition-colors duration-150 hover:text-[#F7F6F3]">Contact</Link>
+              <Link href="/mentions-legales" className="transition-colors duration-150 hover:text-[#F7F6F3]">Mentions légales</Link>
+              <Link href="/confidentialite" className="transition-colors duration-150 hover:text-[#F7F6F3]">Confidentialité</Link>
+            </div>
+          </div>
         </div>
-      </section>
+      </footer>
     </main>
   );
 }

@@ -18,16 +18,12 @@ type DashboardSidebarNavProps = {
   menuItems: MenuItem[];
 };
 
-function itemClassName(isActive: boolean, href: string): string {
+function itemClassName(isActive: boolean): string {
   if (isActive) {
-    if (href === "/dashboard/club/clients") {
-      return "flex min-h-11 items-center gap-2 rounded-lg bg-[#7D5DF6] px-3 py-2 text-[13px] font-medium text-white";
-    }
-
-    return "flex min-h-11 items-center gap-2 rounded-lg bg-[#C9973A] px-3 py-2 text-[13px] font-medium text-[#050508]";
+    return "flex min-h-11 items-center gap-2 rounded-lg border-l-[3px] border-[#C9973A] bg-[#C9973A]/8 px-3 py-2 text-[13px] font-medium text-[#C9973A]";
   }
 
-  return "flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-[13px] text-[#888888] transition-all duration-150 hover:bg-white/5 hover:text-[#F7F6F3]";
+  return "flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-[13px] text-[#888888] transition-all duration-150 hover:bg-[#C9973A]/5 hover:text-[#F7F6F3]";
 }
 
 export function DashboardSidebarNav({ role, menuItems }: DashboardSidebarNavProps): React.JSX.Element {
@@ -50,7 +46,7 @@ export function DashboardSidebarNav({ role, menuItems }: DashboardSidebarNavProp
         <p className="mb-1 px-3 text-[10px] uppercase tracking-widest text-[#555555]">GÉNÉRAL</p>
         <nav className="space-y-1">
           {generalItems.map((item) => (
-            <Link key={`club-general-${item.label}-${item.href}`} href={item.href} className={itemClassName(isActive(item.href), item.href)}>
+            <Link key={`club-general-${item.label}-${item.href}`} href={item.href} className={itemClassName(isActive(item.href))}>
               <span className="inline-flex h-4 w-4 items-center justify-center text-[13px]">{item.icon ?? "•"}</span>
               <span>{item.label}</span>
             </Link>
@@ -60,7 +56,7 @@ export function DashboardSidebarNav({ role, menuItems }: DashboardSidebarNavProp
         <p className="mb-1 mt-5 px-3 text-[10px] uppercase tracking-widest text-[#555555]">GESTION</p>
         <nav className="space-y-1">
           {gestionItems.map((item) => (
-            <Link key={`club-gestion-${item.label}-${item.href}`} href={item.href} className={itemClassName(isActive(item.href), item.href)}>
+            <Link key={`club-gestion-${item.label}-${item.href}`} href={item.href} className={itemClassName(isActive(item.href))}>
               <span className="inline-flex h-4 w-4 items-center justify-center text-[13px]">{item.icon ?? "•"}</span>
               <span>{item.label}</span>
             </Link>
@@ -73,7 +69,7 @@ export function DashboardSidebarNav({ role, menuItems }: DashboardSidebarNavProp
   return (
     <nav className="space-y-1">
       {menuItems.map((item) => (
-        <Link key={`${role}-${item.label}-${item.href}`} href={item.href} className={itemClassName(isActive(item.href), item.href)}>
+        <Link key={`${role}-${item.label}-${item.href}`} href={item.href} className={itemClassName(isActive(item.href))}>
           <span className="inline-flex h-4 w-4 items-center justify-center text-[13px]">{item.icon ?? "•"}</span>
           <span>{item.label}</span>
         </Link>

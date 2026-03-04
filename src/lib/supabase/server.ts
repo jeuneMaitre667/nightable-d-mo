@@ -16,6 +16,14 @@ export async function createClient(): Promise<ReturnType<typeof createServerClie
   const cookieStore = await cookies();
   const { url, anonKey } = getSupabaseServerEnv();
 
+  const safeSetCookie = (name: string, value: string, options: Record<string, unknown>): void => {
+    try {
+      cookieStore.set(name, value, options);
+    } catch {
+      return;
+    }
+  };
+
   return createServerClient(
     url,
     anonKey,
@@ -25,10 +33,10 @@ export async function createClient(): Promise<ReturnType<typeof createServerClie
           return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: Record<string, unknown>) {
-          cookieStore.set(name, value, options);
+          safeSetCookie(name, value, options);
         },
         remove(name: string, options: Record<string, unknown>) {
-          cookieStore.set(name, "", { ...options, maxAge: 0 });
+          safeSetCookie(name, "", { ...options, maxAge: 0 });
         },
       },
     }

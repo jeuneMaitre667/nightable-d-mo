@@ -136,7 +136,7 @@ export default async function FemaleVipDashboardPage(): Promise<ReactElement> {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <article className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-6">
+        <article className="rounded-xl border border-[#C4567A]/25 bg-[#12172B] p-6">
           <h2 className="nt-heading text-xl text-[#F7F6F3]">Statut de validation</h2>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] ${statusClassName[typedVipProfile.validation_status]}`}>
@@ -164,23 +164,23 @@ export default async function FemaleVipDashboardPage(): Promise<ReactElement> {
           <div className="mt-5">
             <Link
               href="/clubs"
-              className="nt-btn nt-btn-secondary inline-flex min-h-11 items-center justify-center px-4 py-2 text-sm transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+              className="nt-btn nt-btn-secondary inline-flex min-h-11 items-center justify-center px-4 py-2 text-sm transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
             >
               Découvrir les clubs
             </Link>
           </div>
         </article>
 
-        <article className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-6">
+        <article className="rounded-xl border border-[#C4567A]/25 bg-[#12172B] p-6">
           <h2 className="nt-heading text-xl text-[#F7F6F3]">Clubs qui vous ont validée</h2>
           {validatedClubs.length === 0 ? (
-            <div className="mt-4 rounded-lg border border-[#C9973A]/15 bg-[#0A0F2E] p-4">
+            <div className="mt-4 rounded-lg border border-[#C4567A]/20 bg-[#0A0F2E] p-4">
               <p className="text-sm text-[#888888]">Aucun club validant pour le moment.</p>
             </div>
           ) : (
             <ul className="mt-4 space-y-3">
               {validatedClubs.map((club) => (
-                <li key={club.id} className="rounded-lg border border-[#C9973A]/15 bg-[#0A0F2E] p-4">
+                <li key={club.id} className="rounded-lg border border-[#C4567A]/20 bg-[#0A0F2E] p-4">
                   <p className="text-sm font-semibold text-[#F7F6F3]">{club.club_name ?? "Club"}</p>
                   <p className="mt-1 text-xs text-[#888888]">{club.city ?? "Paris"}</p>
                 </li>
@@ -191,7 +191,7 @@ export default async function FemaleVipDashboardPage(): Promise<ReactElement> {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <article className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-6">
+        <article className="rounded-xl border border-[#C4567A]/25 bg-[#12172B] p-6">
           <h2 className="nt-heading text-xl text-[#F7F6F3]">Mettre à jour mon profil</h2>
           <form action={updateVipProfileFromForm} className="mt-4 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -253,24 +253,24 @@ export default async function FemaleVipDashboardPage(): Promise<ReactElement> {
                 type="checkbox"
                 name="rgpd_consent"
                 defaultChecked={Boolean(typedVipProfile.rgpd_consent_at)}
-                className="h-4 w-4 accent-[#C9973A]"
+                className="h-4 w-4 accent-[#C4567A]"
               />
               J’accepte le traitement de mes données pour le parcours de validation.
             </label>
 
             <button
               type="submit"
-              className="nt-btn nt-btn-primary min-h-11 px-5 py-2 text-sm transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+              className="nt-btn nt-btn-primary min-h-11 px-5 py-2 text-sm transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
             >
               Enregistrer mes informations
             </button>
           </form>
         </article>
 
-        <article className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-6">
+        <article className="rounded-xl border border-[#C4567A]/25 bg-[#12172B] p-6">
           <h2 className="nt-heading text-xl text-[#F7F6F3]">Prochaines soirées recommandées</h2>
           {upcomingEvents.length === 0 ? (
-            <div className="mt-4 rounded-lg border border-[#C9973A]/15 bg-[#0A0F2E] p-4">
+            <div className="mt-4 rounded-lg border border-[#C4567A]/20 bg-[#0A0F2E] p-4">
               <p className="text-sm text-[#888888]">
                 Aucune soirée publiée pour vos clubs validants actuellement.
               </p>
@@ -278,7 +278,7 @@ export default async function FemaleVipDashboardPage(): Promise<ReactElement> {
           ) : (
             <ul className="mt-4 space-y-3">
               {upcomingEvents.map((eventItem) => (
-                <li key={eventItem.id} className="rounded-lg border border-[#C9973A]/15 bg-[#0A0F2E] p-4">
+                <li key={eventItem.id} className="rounded-lg border border-[#C4567A]/20 bg-[#0A0F2E] p-4">
                   <p className="text-sm font-semibold text-[#F7F6F3]">{eventItem.title}</p>
                   <p className="mt-1 text-xs text-[#888888]">
                     {new Date(eventItem.date).toLocaleDateString("fr-FR")} • {eventItem.start_time.slice(0, 5)} • {clubNameById.get(eventItem.club_id) ?? "Club"}

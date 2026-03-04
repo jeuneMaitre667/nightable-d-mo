@@ -42,7 +42,7 @@ type ClubClientsPanelProps = {
 
 function statusBadgeClass(statusType: ClientStatusType): string {
   if (statusType === "vip") {
-    return "border border-[#7D5DF6]/35 bg-[#7D5DF6]/14 text-[#CFC3FF]";
+    return "border border-[#C9973A]/35 bg-[#C9973A]/14 text-[#F3DFB4]";
   }
 
   if (statusType === "fidele") {
@@ -135,7 +135,7 @@ export function ClubClientsPanel({
           <Button
             as={Link}
             href="/dashboard/club/reservations"
-            className="min-h-11 bg-[#7D5DF6] px-4 text-sm font-semibold text-white"
+            className="min-h-11 bg-[#C9973A] px-4 text-sm font-semibold text-[#050508]"
           >
             + Ajouter un contact
           </Button>
@@ -143,7 +143,7 @@ export function ClubClientsPanel({
       </header>
 
       <section className="grid gap-4 lg:grid-cols-[2fr_1.2fr]">
-        <article className="rounded-xl border border-white/5 bg-[#0B0F18] p-6">
+        <article className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-6">
           <h2 className="text-[30px] font-semibold leading-none text-[#F7F6F3]">Vue d&apos;ensemble clients</h2>
           <p className="mt-1 text-sm text-[#888888]">Performance de votre base clients ce mois-ci</p>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -167,7 +167,7 @@ export function ClubClientsPanel({
           </div>
         </article>
 
-        <article className="rounded-xl border border-white/5 bg-[#0B0F18] p-6">
+        <article className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-6">
           <h2 className="text-[30px] font-semibold leading-none text-[#F7F6F3]">Segments clés</h2>
           <p className="mt-1 text-sm text-[#888888]">Groupes de clients les plus importants</p>
           <div className="mt-6 space-y-4">
@@ -196,7 +196,7 @@ export function ClubClientsPanel({
         </article>
       </section>
 
-      <section id="clients-filters" ref={filtersRef} className="rounded-xl border border-white/5 bg-[#0B0F18]">
+      <section id="clients-filters" ref={filtersRef} className="rounded-xl border border-[#C9973A]/15 bg-[#12172B]">
         <div className="flex flex-col gap-4 border-b border-white/5 px-6 py-5 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-[#F7F6F3]">Liste des clients</h2>
@@ -224,7 +224,7 @@ export function ClubClientsPanel({
                 variant="solid"
                 classNames={{
                   tabList: "bg-transparent p-0 gap-2",
-                  tab: "min-h-9 rounded-full border border-transparent px-4 text-sm text-[#888888] data-[selected=true]:bg-[#7D5DF6] data-[selected=true]:text-white",
+                  tab: "min-h-9 rounded-full border border-transparent px-4 text-sm text-[#888888] data-[selected=true]:bg-[#C9973A] data-[selected=true]:text-[#050508]",
                 }}
               >
                 <Tab key="all" title="Tous" />
@@ -238,13 +238,13 @@ export function ClubClientsPanel({
 
         {filteredClients.length === 0 ? (
           <div className="p-10 text-center">
-            <p className="text-5xl text-[#7D5DF6]/35">◉</p>
+            <p className="text-5xl text-[#C9973A]/35">◉</p>
             <h3 className="mt-3 text-lg font-semibold text-[#F7F6F3]">Aucun client trouvé</h3>
             <p className="mt-1 text-sm text-[#888888]">Ajustez vos filtres pour afficher des résultats.</p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
               <Button
                 type="button"
-                className="min-h-11 bg-[#7D5DF6] px-4 text-sm font-semibold text-white"
+                className="min-h-11 bg-[#C9973A] px-4 text-sm font-semibold text-[#050508]"
                 onPress={() => {
                   setSearch("");
                   setScope("all");
@@ -279,7 +279,7 @@ export function ClubClientsPanel({
                 </thead>
                 <tbody>
                   {filteredClients.map((client) => (
-                    <tr key={client.id} className="border-t border-white/5 bg-[#0D1320] transition-colors duration-150 hover:bg-[#7D5DF6]/8">
+                    <tr key={client.id} className="border-t border-white/5 bg-[#0D1320] transition-colors duration-150 hover:bg-[#C9973A]/8">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[#2A2F4A] bg-[#12172B] text-sm font-semibold text-[#F7F6F3]">
@@ -305,7 +305,7 @@ export function ClubClientsPanel({
                             as={Link}
                             href={`/dashboard/club/reservations?q=${encodeURIComponent(client.fullName)}`}
                             variant="bordered"
-                            className="min-h-11 border-[#7D5DF6]/40 px-3 text-xs font-semibold text-[#CFC3FF]"
+                            className="min-h-11 border-[#C9973A]/40 px-3 text-xs font-semibold text-[#F3DFB4]"
                           >
                             ◉ Voir fiche
                           </Button>
@@ -371,7 +371,7 @@ export function ClubClientsPanel({
                       as={Link}
                       href={`/dashboard/club/reservations?q=${encodeURIComponent(client.fullName)}`}
                       variant="bordered"
-                      className="mt-2 min-h-11 w-full border-[#7D5DF6]/40 text-xs font-semibold text-[#CFC3FF]"
+                      className="mt-2 min-h-11 w-full border-[#C9973A]/40 text-xs font-semibold text-[#F3DFB4]"
                     >
                       ◉ Voir fiche client
                     </Button>

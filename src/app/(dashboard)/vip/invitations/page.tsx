@@ -179,7 +179,7 @@ export default async function VipInvitationsPage(): Promise<ReactElement> {
           </Link>
           <Link
             href="/dashboard/vip/safety"
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#C4567A]/35 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#C4567A]/35 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
           >
             Suivi de soirée
           </Link>
@@ -222,7 +222,7 @@ export default async function VipInvitationsPage(): Promise<ReactElement> {
                       <input type="hidden" name="invitation_id" value={invitation.id} />
                       <button
                         type="submit"
-                        className="min-h-11 rounded-lg border border-[#C4567A]/55 bg-[#C4567A]/20 px-4 py-2 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+                        className="min-h-11 rounded-lg border border-[#C4567A]/55 bg-[#C4567A]/20 px-4 py-2 text-sm font-semibold text-[#F7F6F3] transition-all duration-200 ease-in-out hover:bg-[#C4567A]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
                       >
                         Accepter
                       </button>
@@ -232,7 +232,7 @@ export default async function VipInvitationsPage(): Promise<ReactElement> {
                       <input type="hidden" name="invitation_id" value={invitation.id} />
                       <button
                         type="submit"
-                        className="min-h-11 rounded-lg border border-[#C4567A]/35 bg-transparent px-4 py-2 text-sm text-[#C4567A] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
+                        className="min-h-11 rounded-lg border border-[#C4567A]/35 bg-transparent px-4 py-2 text-sm text-[#C4567A] transition-all duration-200 ease-in-out hover:border-[#C4567A]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4567A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
                       >
                         Décliner
                       </button>

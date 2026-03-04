@@ -52,7 +52,7 @@ export function PromoterPromoPanel({
         </div>
       </section>
 
-      <Card className="border border-[#C9973A]/20 bg-[#12172B] shadow-none">
+      <Card className="border border-[#C9973A]/15 bg-[#12172B] shadow-none">
         <CardBody className="p-6">
           {promoLink ? (
             <>
@@ -82,19 +82,19 @@ export function PromoterPromoPanel({
       </Card>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <Card className="border border-[#C9973A]/20 bg-[#12172B] shadow-none">
+        <Card className="border border-[#C9973A]/15 bg-[#12172B] shadow-none">
           <CardBody>
             <p className="text-xs uppercase tracking-[0.16em] text-[#888888]">Clics total</p>
             <p className="nt-heading mt-3 text-4xl text-[#C9973A]">{totalClicks}</p>
           </CardBody>
         </Card>
-        <Card className="border border-[#C9973A]/20 bg-[#12172B] shadow-none">
+        <Card className="border border-[#C9973A]/15 bg-[#12172B] shadow-none">
           <CardBody>
             <p className="text-xs uppercase tracking-[0.16em] text-[#888888]">Réservations</p>
             <p className="nt-heading mt-3 text-4xl text-[#C9973A]">{convertedClicks}</p>
           </CardBody>
         </Card>
-        <Card className="border border-[#C9973A]/20 bg-[#12172B] shadow-none">
+        <Card className="border border-[#C9973A]/15 bg-[#12172B] shadow-none">
           <CardBody>
             <p className="text-xs uppercase tracking-[0.16em] text-[#888888]">Taux de conversion</p>
             <p className="nt-heading mt-3 text-4xl text-[#C9973A]">{conversionRate.toFixed(1)}%</p>
@@ -102,7 +102,7 @@ export function PromoterPromoPanel({
         </Card>
       </section>
 
-      <Card className="border border-[#C9973A]/20 bg-[#12172B] shadow-none">
+      <Card className="border border-[#C9973A]/15 bg-[#12172B] shadow-none">
         <CardBody className="p-4">
           <h2 className="mb-4 text-lg font-medium text-[#F7F6F3]">Activité des 7 derniers jours</h2>
           <div className="grid grid-cols-4 gap-2 text-center text-xs sm:grid-cols-7">

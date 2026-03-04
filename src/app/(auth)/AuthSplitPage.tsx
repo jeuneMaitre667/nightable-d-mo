@@ -41,18 +41,6 @@ const ROLE_CARDS: RoleCard[] = [
     subtitle: "Je réserve",
   },
   {
-    key: "club",
-    icon: "🏢",
-    title: "Club",
-    subtitle: "Je gère mon club",
-  },
-  {
-    key: "promoter",
-    icon: "🔗",
-    title: "Promoteur",
-    subtitle: "J’amène des clients",
-  },
-  {
     key: "female_vip",
     icon: "⭐",
     title: "Femme VIP",
@@ -244,6 +232,18 @@ export function AuthSplitPage({ initialTab }: AuthSplitPageProps): ReactElement 
 
     return registerError ?? queryError;
   }, [activeTab, registerError, queryError]);
+
+  const registerSubtitle = useMemo(() => {
+    if (selectedRole === "club") {
+      return "Inscription Club dédiée depuis l’accueil NightTable.";
+    }
+
+    if (selectedRole === "promoter") {
+      return "Compte promoteur accessible uniquement via un lien d’invitation club.";
+    }
+
+    return "Choisissez votre profil.";
+  }, [selectedRole]);
 
   function onLoginSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -439,7 +439,7 @@ export function AuthSplitPage({ initialTab }: AuthSplitPageProps): ReactElement 
               <div className={tabPanelClass(activeTab === "register")}>
                 <SectionTitle
                   title="Rejoignez NightTable."
-                  subtitle="Choisissez votre profil."
+                  subtitle={registerSubtitle}
                 />
 
                 {visibleRegisterError ? <ErrorBox>{visibleRegisterError}</ErrorBox> : null}
@@ -471,21 +471,23 @@ export function AuthSplitPage({ initialTab }: AuthSplitPageProps): ReactElement 
                     })}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <AuthInputField
-                      name="firstName"
-                      label="Prénom"
-                      required={selectedRole !== "club"}
-                      disabled={isRegisterPending}
-                      autoComplete="given-name"
-                    />
-                    <AuthInputField
-                      name="lastName"
-                      label="Nom"
-                      disabled={isRegisterPending}
-                      autoComplete="family-name"
-                    />
-                  </div>
+                  {selectedRole !== "club" ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <AuthInputField
+                        name="firstName"
+                        label="Prénom"
+                        required
+                        disabled={isRegisterPending}
+                        autoComplete="given-name"
+                      />
+                      <AuthInputField
+                        name="lastName"
+                        label="Nom"
+                        disabled={isRegisterPending}
+                        autoComplete="family-name"
+                      />
+                    </div>
+                  ) : null}
 
                   <AuthInputField
                     name="email"

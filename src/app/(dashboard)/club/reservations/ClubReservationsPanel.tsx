@@ -119,7 +119,7 @@ export function ClubReservationsPanel({ reservations, initialQuery = "" }: ClubR
         </div>
       </header>
 
-      <section className="space-y-4 rounded-xl border border-white/5 bg-[#0B0F18] p-4 md:p-6">
+      <section className="space-y-4 rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-4 md:p-6">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-1 flex-wrap items-center gap-2">
             <Input
@@ -177,7 +177,7 @@ export function ClubReservationsPanel({ reservations, initialQuery = "" }: ClubR
           </Tabs>
         </div>
 
-        <section className="rounded-xl border border-white/5 bg-[#0F1424]">
+        <section className="rounded-xl border border-[#C9973A]/15 bg-[#0F1424]">
           <div className="flex items-center justify-between border-b border-white/5 px-4 py-4 md:px-5">
             <div>
               <h2 className="text-lg font-semibold text-[#F7F6F3]">Liste des réservations</h2>
@@ -213,7 +213,7 @@ export function ClubReservationsPanel({ reservations, initialQuery = "" }: ClubR
                   </thead>
                   <tbody>
                     {filteredReservations.map((reservation) => (
-                      <tr key={reservation.id} className="border-b border-white/5 bg-[#101726] transition-colors duration-150 hover:bg-[#C9973A]/5">
+                      <tr key={reservation.id} className="border-b border-[#C9973A]/10 bg-[#101726] transition-colors duration-150 hover:bg-[#C9973A]/5">
                         <td className="px-5 py-4">
                           <p className="text-sm font-medium text-[#F7F6F3]">{reservation.clientName}</p>
                           <p className="text-xs text-[#888888]">{reservation.clientContact}</p>
@@ -242,7 +242,7 @@ export function ClubReservationsPanel({ reservations, initialQuery = "" }: ClubR
 
               <div className="flex flex-col gap-3 p-3 md:hidden">
                 {filteredReservations.map((reservation) => (
-                  <article key={`mobile-${reservation.id}`} className="rounded-xl border border-white/5 bg-[#12172B] p-4">
+                  <article key={`mobile-${reservation.id}`} className="rounded-xl border border-[#C9973A]/10 bg-[#12172B] p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-sm font-medium text-[#F7F6F3]">{reservation.clientName}</p>

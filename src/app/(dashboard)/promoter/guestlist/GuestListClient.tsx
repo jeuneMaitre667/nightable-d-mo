@@ -284,7 +284,7 @@ export function GuestListClient({
         </p>
       ) : null}
 
-      <div className="rounded-xl border border-[#C9973A]/10 bg-[#12172B] p-3">
+      <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-3">
         <div className="overflow-x-auto">
           <Table
             removeWrapper

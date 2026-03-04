@@ -77,7 +77,7 @@ export function PromoterCommissionsPanel({
         </Card>
       </section>
 
-      <section className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-4 md:p-5">
+      <section className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-4 md:p-5">
         <h2 className="mb-4 text-lg font-medium text-[#F7F6F3]">Historique</h2>
 
         {commissions.length === 0 ? (
@@ -92,7 +92,7 @@ export function PromoterCommissionsPanel({
             </Button>
           </div>
         ) : (
-          <div className="rounded-xl border border-[#C9973A]/10 bg-[#12172B] p-3">
+          <div className="rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-3">
             <Table
               removeWrapper
               aria-label="Historique commissions promoteur"

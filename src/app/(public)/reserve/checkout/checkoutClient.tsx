@@ -5,9 +5,12 @@
 // Inspired by: Shopify Polaris pattern
 // NightTable usage: multi-step reservation checkout and payment initialization
 
+import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { Accordion, AccordionItem, Button, Chip, Input, Textarea } from "@heroui/react";
 import { createReservationAction } from "@/lib/reservation.actions";
 
 import type { ReactElement } from "react";
@@ -37,8 +40,8 @@ type CheckoutClientProps = {
 type ClientDetails = {
   firstName: string;
   lastName: string;
+  email: string;
   phone: string;
-  guestsCount: number;
 };
 
 type Options = {
@@ -50,6 +53,8 @@ type StripePaymentFormProps = {
   reservationId: string;
   eventId: string;
   tableId: string;
+  formId: string;
+  hideInternalButton?: boolean;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
 };
@@ -61,6 +66,8 @@ function StripePaymentForm({
   reservationId,
   eventId,
   tableId,
+  formId,
+  hideInternalButton,
   onSuccess,
   onError,
 }: StripePaymentFormProps): ReactElement {
@@ -108,18 +115,23 @@ function StripePaymentForm({
   }
 
   return (
-    <form className="space-y-3" onSubmit={handlePaymentSubmit}>
+    <form id={formId} className="space-y-3" onSubmit={handlePaymentSubmit}>
       <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-4">
         <PaymentElement />
       </div>
 
-      <button
-        type="submit"
-        className="nt-btn nt-btn-primary min-h-11 w-full px-4 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-50"
-        disabled={isPaying || !stripe || !elements}
-      >
-        {isPaying ? "Paiement en cours..." : "Payer maintenant"}
-      </button>
+      {!hideInternalButton ? (
+        <Button
+          type="submit"
+          color="primary"
+          radius="none"
+          fullWidth
+          isDisabled={isPaying || !stripe || !elements}
+          className="h-12 min-h-[48px] font-semibold"
+        >
+          {isPaying ? "Paiement en cours..." : "Payer maintenant"}
+        </Button>
+      ) : null}
     </form>
   );
 }
@@ -143,8 +155,8 @@ export default function CheckoutClient({
   const [clientDetails, setClientDetails] = useState<ClientDetails>({
     firstName: "",
     lastName: "",
+    email: "",
     phone: "",
-    guestsCount: Math.min(4, table.capacity),
   });
   const [options, setOptions] = useState<Options>({
     includeInsurance: true,
@@ -156,14 +168,40 @@ export default function CheckoutClient({
   const [reservationId, setReservationId] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
-  const insuranceAmount = options.includeInsurance ? 5 : 0;
+  const stripeFormId = "checkout-stripe-payment-form";
+  const insuranceAmount = options.includeInsurance ? Math.round(prepaymentAmount * 0.1) : 0;
   const totalNow = prepaymentAmount + insuranceAmount;
 
-  const stepLabel = useMemo(() => {
-    if (step === 1) return "Infos client";
-    if (step === 2) return "Options";
-    return "Paiement";
-  }, [step]);
+  const clubName = "NightTable Paris";
+  const eventDateLabel = useMemo(
+    () =>
+      new Intl.DateTimeFormat("fr-FR", {
+        dateStyle: "full",
+        timeStyle: "short",
+      }).format(new Date(event.eventDate)),
+    [event.eventDate]
+  );
+
+  const isStepOne = step === 1;
+  const isStepTwo = step === 2;
+  const isStepThree = step === 3;
+
+  const canContinueStepOne =
+    Boolean(clientDetails.firstName.trim()) &&
+    Boolean(clientDetails.lastName.trim()) &&
+    Boolean(clientDetails.email.trim()) &&
+    Boolean(clientDetails.phone.trim());
+
+  const stepItems = [
+    { id: 1, label: "1 · Vos informations" },
+    { id: 2, label: "2 · Paiement" },
+    { id: 3, label: "3 · Confirmation" },
+  ];
+
+  const fieldClassNames = {
+    inputWrapper: "min-h-[48px] rounded-lg border border-white/10 bg-[#0A0F2E]",
+    input: "text-sm leading-5 text-[#F7F6F3]",
+  };
 
   function submitReservation(): void {
     setSubmitError(null);
@@ -176,11 +214,17 @@ export default function CheckoutClient({
       return;
     }
 
+    if (!clientDetails.email || !clientDetails.email.includes("@")) {
+      setSubmitError("Merci de renseigner un email valide.");
+      setStep(1);
+      return;
+    }
+
     startTransition(async () => {
       const result = await createReservationAction({
         eventId: event.id,
         eventTableId: table.eventTableId,
-        guestsCount: clientDetails.guestsCount,
+        guestsCount: table.capacity,
         firstName: clientDetails.firstName,
         lastName: clientDetails.lastName,
         phone: clientDetails.phone,
@@ -195,135 +239,300 @@ export default function CheckoutClient({
 
       setReservationId(result.data.reservationId);
       setClientSecret(result.data.clientSecret);
+      setStep(2);
     });
   }
 
-  return (
-    <>
-      <section className={`rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-6 ${className ?? ""}`.trim()}>
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="nt-heading text-3xl text-[#F7F6F3]">Finaliser votre réservation</h1>
-          <span className="rounded-full border border-[#C9973A]/30 bg-[#0A0F2E] px-3 py-1 text-xs text-[#C9973A]">
-            Étape {step}/3 · {stepLabel}
-          </span>
+  function goToNextStep(): void {
+    if (!canContinueStepOne) {
+      setSubmitError("Merci de compléter toutes vos informations.");
+      return;
+    }
+
+    if (!clientDetails.email.includes("@")) {
+      setSubmitError("Merci de renseigner un email valide.");
+      return;
+    }
+
+    setSubmitError(null);
+    setStep(2);
+  }
+
+  const summaryCard = (
+    <div className="rounded-2xl border border-[#C9973A]/15 bg-[#1A1D24]/95 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
+      <div className="relative mb-4 aspect-video overflow-hidden rounded-lg">
+        <Image
+          src="https://images.unsplash.com/photo-1571266028243-d220c9c3f14f?auto=format&fit=crop&w=1200&q=80"
+          alt="Ambiance du club"
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 40vw"
+        />
+      </div>
+
+      <p className="text-[11px] uppercase tracking-[0.18em] text-[#C9973A]">{clubName}</p>
+      <p className="mt-1 text-base font-semibold text-[#F7F6F3]">{event.name}</p>
+
+      <div className="mt-3">
+        <Chip color="primary" variant="flat">
+          {table.name}
+        </Chip>
+      </div>
+
+      <p className="mt-3 text-sm text-[#F7F6F3]">{eventDateLabel}</p>
+      <p className="mt-1 text-xs text-[#888888]">
+        {table.capacity} pers{table.zone ? ` · ${table.zone}` : ""}
+      </p>
+
+      <div className="my-4 border-t border-[#C9973A]/10" />
+
+      <div className="space-y-2 text-sm">
+        <div className="flex items-center justify-between text-[#888888]">
+          <span>Acompte</span>
+          <span className="text-[#F7F6F3]">{formatEuros(prepaymentAmount)}</span>
         </div>
-
-        <ol className="mb-6 flex gap-2">
-          {[1, 2, 3].map((item) => (
-            <li key={item} className={`h-1 flex-1 rounded-full ${item <= step ? "bg-[#C9973A]" : "bg-[#2A2F45]"}`} />
-          ))}
-        </ol>
-
-        {step === 1 ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="space-y-1">
-              <span className="text-sm text-[#888888]">Prénom</span>
-              <input
-                value={clientDetails.firstName}
-                onChange={(eventValue) =>
-                  setClientDetails((prev) => ({ ...prev, firstName: eventValue.target.value }))
-                }
-                className="w-full rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] px-3 py-2 text-[#F7F6F3] outline-none focus:border-[#C9973A]"
-                placeholder="Sara"
-              />
-            </label>
-
-            <label className="space-y-1">
-              <span className="text-sm text-[#888888]">Nom</span>
-              <input
-                value={clientDetails.lastName}
-                onChange={(eventValue) => setClientDetails((prev) => ({ ...prev, lastName: eventValue.target.value }))}
-                className="w-full rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] px-3 py-2 text-[#F7F6F3] outline-none focus:border-[#C9973A]"
-                placeholder="Dupont"
-              />
-            </label>
-
-            <label className="space-y-1">
-              <span className="text-sm text-[#888888]">Téléphone</span>
-              <input
-                value={clientDetails.phone}
-                onChange={(eventValue) => setClientDetails((prev) => ({ ...prev, phone: eventValue.target.value }))}
-                className="w-full rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] px-3 py-2 text-[#F7F6F3] outline-none focus:border-[#C9973A]"
-                placeholder="+33 6 12 34 56 78"
-              />
-            </label>
-
-            <label className="space-y-1">
-              <span className="text-sm text-[#888888]">Nombre d’invités</span>
-              <input
-                type="number"
-                min={1}
-                max={table.capacity}
-                value={clientDetails.guestsCount}
-                onChange={(eventValue) =>
-                  setClientDetails((prev) => ({
-                    ...prev,
-                    guestsCount: Number(eventValue.target.value),
-                  }))
-                }
-                className="w-full rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] px-3 py-2 text-[#F7F6F3] outline-none focus:border-[#C9973A]"
-              />
-            </label>
+        {options.includeInsurance ? (
+          <div className="flex items-center justify-between text-[#888888]">
+            <span>Assurance</span>
+            <span className="text-[#F7F6F3]">{formatEuros(insuranceAmount)}</span>
           </div>
         ) : null}
+      </div>
 
-        {step === 2 ? (
-          <div className="space-y-4">
-            <label className="flex items-center justify-between rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-4">
-              <div>
-                <p className="text-sm text-[#F7F6F3]">Assurance annulation</p>
-                <p className="text-xs text-[#888888]">Couvre l’imprévu et protège votre acompte</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={options.includeInsurance}
-                onChange={(eventValue) =>
-                  setOptions((prev) => ({ ...prev, includeInsurance: eventValue.target.checked }))
-                }
-                className="h-4 w-4 accent-[#C9973A]"
-              />
-            </label>
+      <div className="mt-4 flex items-end justify-between">
+        <p className="text-[18px] font-semibold text-[#F7F6F3]">Total</p>
+        <p className="font-[Cormorant_Garamond] text-[28px] leading-none text-[#C9973A]">{formatEuros(totalNow)}</p>
+      </div>
 
-            <label className="space-y-1">
-              <span className="text-sm text-[#888888]">Demandes spéciales</span>
-              <textarea
-                value={options.specialRequests}
-                onChange={(eventValue) =>
-                  setOptions((prev) => ({ ...prev, specialRequests: eventValue.target.value }))
-                }
-                className="min-h-24 w-full rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] px-3 py-2 text-[#F7F6F3] outline-none focus:border-[#C9973A]"
-                placeholder="Ex: anniversaire, bouteille préférée, arrivée tardive..."
-              />
-            </label>
+      <p className="mt-4 text-[11px] text-[#666666]">
+        En poursuivant, vous acceptez nos conditions de réservation et la politique d’annulation NightTable.
+      </p>
+    </div>
+  );
+
+  const mobilePrimaryAction = (() => {
+    if (isStepOne) {
+      return (
+        <Button
+          color="primary"
+          radius="none"
+          fullWidth
+          className="h-14 min-h-[56px] font-semibold"
+          isDisabled={!canContinueStepOne}
+          onPress={goToNextStep}
+        >
+          Continuer vers paiement
+        </Button>
+      );
+    }
+
+    if (isStepTwo && !clientSecret) {
+      return (
+        <Button
+          color="primary"
+          radius="none"
+          fullWidth
+          className="h-14 min-h-[56px] font-semibold"
+          isDisabled={isPending}
+          onPress={submitReservation}
+        >
+          {isPending ? "Initialisation..." : "Initialiser le paiement"}
+        </Button>
+      );
+    }
+
+    if (isStepTwo && clientSecret) {
+      return (
+        <Button
+          type="submit"
+          form={stripeFormId}
+          color="primary"
+          radius="none"
+          fullWidth
+          className="h-14 min-h-[56px] font-semibold"
+        >
+          Payer et confirmer
+        </Button>
+      );
+    }
+
+    return null;
+  })();
+
+  return (
+    <section className={`bg-[#050508] pb-24 md:pb-0 ${className ?? ""}`.trim()}>
+      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[60%_40%] lg:gap-8">
+        <div>
+          <div className="md:hidden">
+            <Accordion selectionMode="multiple" defaultExpandedKeys={["summary"]}>
+              <AccordionItem
+                key="summary"
+                aria-label="Récapitulatif"
+                title={<span className="text-sm font-semibold text-[#F7F6F3]">Récapitulatif de votre commande</span>}
+                classNames={{
+                  base: "rounded-2xl border border-[#C9973A]/15 bg-[#1A1D24] px-0",
+                  trigger: "px-4 py-3",
+                  content: "px-4 pb-4",
+                }}
+              >
+                {summaryCard}
+              </AccordionItem>
+            </Accordion>
           </div>
-        ) : null}
 
-        {step === 3 ? (
-          <div className="space-y-4">
-            <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-4">
-              <p className="text-sm text-[#F7F6F3]">Paiement sécurisé Stripe</p>
-              <p className="mt-1 text-xs text-[#888888]">Vos données de paiement sont chiffrées et traitées par Stripe.</p>
-            </div>
+          <section className="mt-4 rounded-2xl border border-[#C9973A]/15 bg-[#1A1D24] p-4 md:mt-0 md:p-6">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-[#C9973A]">Tunnel NightTable</p>
+            <h1 className="mt-2 font-[Cormorant_Garamond] text-[34px] font-light leading-[1.06] text-[#F7F6F3] md:text-5xl">
+              Finaliser votre réservation
+            </h1>
+            <p className="mt-2 text-sm text-[#888888]">{event.name} · {eventDateLabel}</p>
 
-            {submitError ? <p className="text-sm text-[#C4567A]">{submitError}</p> : null}
-            {paymentError ? <p className="text-sm text-[#C4567A]">{paymentError}</p> : null}
-            {paymentMessage ? <p className="text-sm text-[#3A9C6B]">{paymentMessage}</p> : null}
+            <ol className="mt-4 grid gap-2 md:mt-5 md:grid-cols-3">
+              {stepItems.map((item) => {
+                const isPast = item.id < step;
+                const isActive = item.id === step;
 
-            {!stripePromise ? (
-              <div className="rounded-lg border border-[#C4567A]/30 bg-[#0A0F2E] p-3 text-xs text-[#C4567A]">
-                Clé Stripe publishable absente. Définissez `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
+                return (
+                  <li
+                    key={item.id}
+                    className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2 text-center text-[13px] transition-all duration-200 md:text-sm ${
+                      isActive
+                        ? "border-[#C9973A] bg-[#C9973A]/8 text-[#C9973A]"
+                        : isPast
+                          ? "border-[#3A9C6B]/60 bg-[#3A9C6B]/10 text-[#3A9C6B]"
+                          : "border-white/10 bg-[#0A0F2E] text-[#888888]"
+                    }`}
+                  >
+                    {isPast ? <span aria-hidden="true">✓</span> : null}
+                    <span>{item.label}</span>
+                  </li>
+                );
+              })}
+            </ol>
+
+            {submitError ? <p className="mt-4 text-sm text-[#C4567A]">{submitError}</p> : null}
+            {paymentError ? <p className="mt-2 text-sm text-[#C4567A]">{paymentError}</p> : null}
+            {paymentMessage ? <p className="mt-2 text-sm text-[#3A9C6B]">{paymentMessage}</p> : null}
+
+            {isStepOne ? (
+              <div className="mt-6 space-y-4">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div>
+                    <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-[#888888]">Prénom</p>
+                    <Input
+                      value={clientDetails.firstName}
+                      onValueChange={(value) => setClientDetails((prev) => ({ ...prev, firstName: value }))}
+                      variant="bordered"
+                      color="primary"
+                      radius="sm"
+                      classNames={fieldClassNames}
+                    />
+                  </div>
+                  <div>
+                    <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-[#888888]">Nom</p>
+                    <Input
+                      value={clientDetails.lastName}
+                      onValueChange={(value) => setClientDetails((prev) => ({ ...prev, lastName: value }))}
+                      variant="bordered"
+                      color="primary"
+                      radius="sm"
+                      classNames={fieldClassNames}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-[#888888]">Email</p>
+                  <Input
+                    type="email"
+                    value={clientDetails.email}
+                    onValueChange={(value) => setClientDetails((prev) => ({ ...prev, email: value }))}
+                    variant="bordered"
+                    color="primary"
+                    radius="sm"
+                    classNames={fieldClassNames}
+                  />
+                </div>
+
+                <div>
+                  <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-[#888888]">Téléphone</p>
+                  <Input
+                    value={clientDetails.phone}
+                    onValueChange={(value) => setClientDetails((prev) => ({ ...prev, phone: value }))}
+                    variant="bordered"
+                    color="primary"
+                    radius="sm"
+                    classNames={fieldClassNames}
+                  />
+                </div>
+
+                <div className="rounded-lg border border-[#C9973A]/10 bg-[#0A0F2E] p-4">
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={options.includeInsurance}
+                      onChange={(eventValue) => {
+                        const isChecked = eventValue.currentTarget.checked;
+                        setOptions((prev) => ({
+                          ...prev,
+                          includeInsurance: isChecked,
+                        }));
+                      }}
+                      className="sr-only"
+                      aria-label="Activer l'assurance annulation"
+                    />
+                    <span
+                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border text-[12px] font-bold leading-none transition-all duration-200 ${
+                        options.includeInsurance
+                          ? "border-[#C9973A] bg-[#C9973A] text-[#050508]"
+                          : "border-[#C9973A]/50 bg-[#050508] text-transparent"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      ✓
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium text-[#F7F6F3]">Assurance annulation</span>
+                      <span className="mt-1 block text-xs leading-relaxed text-[#888888]">
+                        Ajouter la couverture annulation (10% de l’acompte)
+                      </span>
+                    </span>
+                  </label>
+                </div>
+
+                <div>
+                  <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-[#888888]">Demande spéciale</p>
+                  <Textarea
+                    minRows={3}
+                    value={options.specialRequests}
+                    onValueChange={(value) => setOptions((prev) => ({ ...prev, specialRequests: value }))}
+                    variant="bordered"
+                    color="primary"
+                    radius="sm"
+                    classNames={fieldClassNames}
+                  />
+                </div>
               </div>
             ) : null}
 
-            {clientSecret ? (
-              <>
-                <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-3 text-xs text-[#888888]">
-                  Réservation créée ({reservationId}).
-                  <br />
-                  Vous pouvez finaliser votre paiement ci-dessous.
-                </div>
+            {isStepTwo ? (
+              <div className="mt-6 space-y-4">
+                {!stripePromise ? (
+                  <div className="rounded-lg border border-[#C4567A]/30 bg-[#0A0F2E] p-3 text-xs text-[#C4567A]">
+                    Clé Stripe publishable absente. Définissez `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
+                  </div>
+                ) : null}
 
-                {stripePromise && reservationId ? (
+                {!clientSecret ? (
+                  <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-4">
+                    <p className="text-sm text-[#F7F6F3]">Paiement prêt à être initialisé</p>
+                    <p className="mt-1 text-xs text-[#888888]">
+                      Nous créons d’abord votre réservation, puis Stripe active le formulaire de paiement.
+                    </p>
+                  </div>
+                ) : null}
+
+                {clientSecret && stripePromise && reservationId ? (
                   <Elements
                     stripe={stripePromise}
                     options={{
@@ -344,90 +553,108 @@ export default function CheckoutClient({
                       reservationId={reservationId}
                       eventId={event.id}
                       tableId={table.eventTableId}
-                      onSuccess={(message) => setPaymentMessage(message)}
+                      formId={stripeFormId}
+                      hideInternalButton
+                      onSuccess={(message) => {
+                        setPaymentMessage(message);
+                        setStep(3);
+                      }}
                       onError={(message) => setPaymentError(message)}
                     />
                   </Elements>
                 ) : null}
-              </>
-            ) : null}
 
-            {!clientSecret ? (
-              <button
-                type="button"
-                className="nt-btn nt-btn-primary min-h-11 w-full px-4 py-3 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={submitReservation}
-                disabled={isPending}
-              >
-                {isPending ? "Initialisation..." : "Initialiser le paiement"}
-              </button>
-            ) : null}
-          </div>
-        ) : null}
-
-        <div className="mt-6 flex gap-2">
-          <button
-            type="button"
-            className="nt-btn min-h-11 border border-[#C9973A]/30 px-4 py-2 text-sm text-[#F7F6F3] transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B] disabled:cursor-not-allowed disabled:opacity-40"
-            onClick={() => setStep((prev) => Math.max(1, prev - 1))}
-            disabled={step === 1}
-          >
-            Retour
-          </button>
-          {step < 3 ? (
-            <button
-              type="button"
-              className="nt-btn nt-btn-primary ml-auto min-h-11 px-4 py-2 text-sm transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12172B]"
-              onClick={() => setStep((prev) => Math.min(3, prev + 1))}
-            >
-              Continuer
-            </button>
-          ) : null}
-        </div>
-      </section>
-
-      <aside className="rounded-xl border border-[#C9973A]/20 bg-[#12172B] p-5">
-        <h2 className="nt-heading text-2xl text-[#F7F6F3]">Récapitulatif</h2>
-        <div className="mt-4 space-y-3 text-sm text-[#F7F6F3]">
-          <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-3">
-            <p className="font-semibold">{event.name}</p>
-            <p className="text-xs text-[#888888]">
-              {new Intl.DateTimeFormat("fr-FR", { dateStyle: "full", timeStyle: "short" }).format(
-                new Date(event.eventDate)
-              )}
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-3">
-            <p className="text-xs uppercase tracking-[0.15em] text-[#888888]">Table</p>
-            <p className="mt-1 font-semibold">{table.name}</p>
-            <p className="text-xs text-[#888888]">
-              Zone {table.zone ?? "vip"} · {table.capacity} pers.
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-[#C9973A]/20 bg-[#0A0F2E] p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[#888888]">Prix table</span>
-              <span>{formatEuros(table.dynamicPrice)}</span>
-            </div>
-            <div className="mt-1 flex items-center justify-between">
-              <span className="text-[#888888]">Acompte (40%)</span>
-              <span>{formatEuros(prepaymentAmount)}</span>
-            </div>
-            <div className="mt-1 flex items-center justify-between">
-              <span className="text-[#888888]">Assurance</span>
-              <span>{formatEuros(insuranceAmount)}</span>
-            </div>
-            <div className="mt-3 border-t border-[#C9973A]/20 pt-2 text-base font-semibold text-[#C9973A]">
-              <div className="flex items-center justify-between">
-                <span>À payer maintenant</span>
-                <span>{formatEuros(totalNow)}</span>
+                <p className="mt-4 text-center text-xs text-[#888888]">🔒 Paiement 100% sécurisé · Stripe</p>
               </div>
+            ) : null}
+
+            {isStepThree ? (
+              <div className="mt-8 text-center">
+                <div className="mx-auto flex h-16 w-16 animate-pulse items-center justify-center rounded-full border border-[#3A9C6B]/30 bg-[#3A9C6B]/15 text-3xl text-[#3A9C6B]">
+                  ✓
+                </div>
+                <h2 className="mt-4 font-[Cormorant_Garamond] text-[40px] font-light text-[#C9973A]">
+                  Réservation confirmée !
+                </h2>
+
+                <div className="mx-auto mt-5 max-w-md space-y-1 rounded-xl border border-white/5 bg-[#0A0F2E] p-4 text-left text-sm text-[#F7F6F3]">
+                  <p>{clubName}</p>
+                  <p>{event.name}</p>
+                  <p>{table.name}</p>
+                  <p>{eventDateLabel}</p>
+                  <p className="font-semibold text-[#C9973A]">{formatEuros(totalNow)}</p>
+                </div>
+
+                <Button
+                  as={Link}
+                  href="/dashboard/client/reservations"
+                  color="primary"
+                  radius="none"
+                  className="mt-6 h-12 min-h-[48px] px-8 font-semibold"
+                >
+                  Voir ma réservation
+                </Button>
+              </div>
+            ) : null}
+
+            <div className="mt-6 hidden items-center gap-3 md:flex">
+              <Button
+                variant="bordered"
+                radius="none"
+                  className="h-12 min-h-[48px] border-[#C9973A]/40 bg-transparent text-[#F7F6F3]"
+                isDisabled={step === 1 || isPending}
+                onPress={() => setStep((prev) => Math.max(1, prev - 1))}
+              >
+                Retour
+              </Button>
+
+              {isStepOne ? (
+                <Button
+                  color="primary"
+                  radius="none"
+                  className="ml-auto h-12 min-h-[48px] px-8 font-semibold"
+                  isDisabled={!canContinueStepOne}
+                  onPress={goToNextStep}
+                >
+                  Continuer
+                </Button>
+              ) : null}
+
+              {isStepTwo && !clientSecret ? (
+                <Button
+                  color="primary"
+                  radius="none"
+                  className="ml-auto h-12 min-h-[48px] px-8 font-semibold"
+                  isDisabled={isPending}
+                  onPress={submitReservation}
+                >
+                  {isPending ? "Initialisation..." : "Initialiser le paiement"}
+                </Button>
+              ) : null}
+
+              {isStepTwo && clientSecret ? (
+                <Button
+                  type="submit"
+                  form={stripeFormId}
+                  color="primary"
+                  radius="none"
+                  className="ml-auto h-12 min-h-[48px] px-8 font-semibold"
+                >
+                  Payer et confirmer
+                </Button>
+              ) : null}
             </div>
-          </div>
+          </section>
         </div>
-      </aside>
-    </>
+
+        <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">{summaryCard}</aside>
+      </div>
+
+      {!isStepThree ? (
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#C9973A]/20 bg-[#050508]/95 p-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+          {mobilePrimaryAction}
+        </div>
+      ) : null}
+    </section>
   );
 }
