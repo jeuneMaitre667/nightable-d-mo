@@ -24,6 +24,7 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Changed
 
+- `src/app/page.tsx`: sécurisation des liens des cartes `Clubs partenaires` vers `/clubs` (route stable) pour éviter les impasses liées à des slugs non présents selon l’environnement de données.
 - `package.json`: ajout de la commande `deploy:vercel` pour exécuter le script de publication Vercel.
 - `/demo`: correction des 2 premières images de page (hero + premier visuel section fonctionnalités) en remplaçant les URLs distantes par des assets locaux WebP.
 - `package.json`: suppression de la devDependency temporaire `sharp` après finalisation de l’optimisation des images démo.
@@ -68,6 +69,7 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 
 ### Fixed
 
+- Landing `/`: correction des liens partenaires pouvant sembler "sans redirection" en pointant vers une destination garantie (`/clubs`) dans tous les environnements.
 - Vercel production: correction de la cause racine des `404` globaux (`Framework Preset: Other`) en imposant `framework: nextjs` via `vercel.json`.
 - Auth clubs: blocage des connexions non-club sur `/clubs-acces` avec message explicite et déconnexion immédiate pour éviter l’usage de la page club par des comptes utilisateurs.
 - Auth onboarding: suppression de l’accès auto-inscription `club/promoter` depuis la sélection publique afin d’imposer les canaux prévus (CTA landing pour clubs, lien d’invitation pour promoteurs).

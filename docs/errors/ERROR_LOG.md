@@ -12,6 +12,15 @@ Historique complet archivé dans docs/errors/ERROR_LOG_ARCHIVE.md.
 ## Incidents récents résolus
 
 ---
+**[2026-03-04] — Liens partenaires landing perçus comme non redirigés**
+- File(s) affected: src/app/page.tsx
+- Error: Certaines cartes de la home semblaient "ne rediriger vers rien" selon les environnements.
+- Root cause: Liens dépendants de slugs club (`/clubs/[slug]`) potentiellement non disponibles selon les données seedées.
+- Fix applied: Bascule des liens des cartes partenaires vers la route stable `/clubs`.
+- Status: ✅ Resolved
+---
+
+---
 **[2026-03-04] — Déploiement Vercel `404` malgré build local vert**
 - File(s) affected: vercel.json
 - Error: Les URLs production renvoyaient `404` alors que `npm run build` passait localement.

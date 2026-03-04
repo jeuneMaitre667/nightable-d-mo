@@ -60,6 +60,11 @@ Document opérationnel court: état actuel, priorités, risques et journal réce
 
 ## Journal de sessions (récent)
 
+### 2026-03-04 (stabilisation liens landing)
+
+- `src/app/page.tsx` : redirection des cartes `Clubs partenaires` vers `/clubs` pour garantir une destination valide même si certains slugs club ne sont pas disponibles selon l’environnement.
+- Contrôle smoke des liens de la home relancé en production.
+
 ### 2026-03-04 (fix 404 Vercel production)
 
 - Détection cause racine dans Vercel: projet configuré en preset `Other` (build `0ms` + output statique vide) malgré un build Next local valide.

@@ -33,21 +33,21 @@ const partnerClubs = [
   {
     name: "Raspoutine",
     city: "Paris 8e",
-    href: "/clubs/raspoutine",
+    href: "/clubs",
     image:
       "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
   },
   {
     name: "Bridge Club",
     city: "Paris 8e",
-    href: "/clubs/bridge-club",
+    href: "/clubs",
     image:
       "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=80",
   },
   {
     name: "Manko",
     city: "Paris 8e",
-    href: "/clubs/manko",
+    href: "/clubs",
     image:
       "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1400&q=80",
   },
