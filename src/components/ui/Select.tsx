@@ -34,6 +34,10 @@ interface SelectProps {
    * Classe CSS additionnelle
    */
   className?: string
+  /**
+   * Nom du champ (pour formulaires)
+   */
+  name?: string
 }
 
 export const Select: React.FC<SelectProps> = ({
@@ -43,8 +47,9 @@ export const Select: React.FC<SelectProps> = ({
   options,
   disabled,
   className,
+  name,
 }) => (
-  <RadixSelect.Root value={value} onValueChange={onValueChange} disabled={disabled}>
+  <RadixSelect.Root value={value} onValueChange={onValueChange} disabled={disabled} name={name}>
     <RadixSelect.Trigger
       className={`
         flex items-center justify-between w-full min-w-[140px] h-11 px-4 rounded-lg

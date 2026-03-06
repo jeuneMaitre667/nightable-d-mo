@@ -5,7 +5,6 @@
 
 "use client";
 
-import { createClient } from "@/lib/supabase/server";
 import { Select } from "@/components/ui/Select";
 
 import type { ReactElement } from "react";

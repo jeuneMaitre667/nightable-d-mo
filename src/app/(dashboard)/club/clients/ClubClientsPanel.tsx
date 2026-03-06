@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type ClientStatusType = "fidele" | "top" | "reactivate";
+type ClientStatusType = "fidele" | "top" | "reactivate" | "vip";
 
 type ClientRow = {
   id: string;
@@ -31,6 +31,7 @@ type ClientRow = {
 type ClubClientsPanelProps = {
   clients: ClientRow[];
   totalClients: number;
+  vipClients?: number;
   monthlyNewClients: number;
   averageValueLabel: string;
   topTenValueLabel: string;
@@ -41,6 +42,9 @@ type ClubClientsPanelProps = {
 };
 
 function statusBadgeClass(statusType: ClientStatusType): string {
+  if (statusType === "vip") {
+    return "border border-[#7C3AED]/35 bg-[#7C3AED]/14 text-[#C4B5FD]";
+  }
   if (statusType === "fidele") {
     return "border border-[#3A9C6B]/35 bg-[#3A9C6B]/14 text-[#8DDBB6]";
   }
@@ -62,7 +66,7 @@ function phoneHref(phone: string): string {
 export function ClubClientsPanel({
   clients,
   totalClients,
-  vipClients,
+  vipClients: _vipClients,
   monthlyNewClients,
   averageValueLabel,
   topTenValueLabel,
@@ -170,7 +174,7 @@ export function ClubClientsPanel({
               className="xl:min-w-[320px] min-h-11 bg-[#0A0F2E] border border-[#2A2F4A] text-[#F7F6F3]"
             />
             <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden">
-              <Tabs value={scope} onValueChange={v => setScope(v as "all" | "top" | "reactivate")}
+              <Tabs value={scope} onChange={v => setScope(v as "all" | "top" | "reactivate")}
                 className="bg-transparent p-0 gap-2 flex">
                 <TabsList>
                   <TabsTrigger value="all">Tous</TabsTrigger>

@@ -150,8 +150,8 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
     }
   }
 
-  const mobileTabs = menuItems.slice(0, 5);
-  const firstName = typeof profile?.first_name === "string" && profile.first_name.trim().length > 0
+  const _mobileTabs = menuItems.slice(0, 5);
+  const _firstName = typeof profile?.first_name === "string" && profile.first_name.trim().length > 0
     ? profile.first_name.trim()
     : "Club";
 

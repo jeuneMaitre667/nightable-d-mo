@@ -4,7 +4,6 @@
 // NightTable usage: club CRM page for clients and VIP segmentation
 
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { normalizeRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { ClubClientsPanel } from "./ClubClientsPanel";
@@ -90,7 +89,7 @@ interface ClubClientsPageProps {
 
 export default async function ClubClientsPage({ searchParams }: ClubClientsPageProps): Promise<ReactElement> {
   // Redirections d’onglets supprimés/renommés
-  const tab = typeof searchParams?.tab === "string" ? searchParams.tab : Array.isArray(searchParams?.tab) ? searchParams.tab[0] : undefined;
+  const _tab = typeof searchParams?.tab === "string" ? searchParams.tab : Array.isArray(searchParams?.tab) ? searchParams.tab[0] : undefined;
   // Ajoute ici d'autres redirections d'onglets si besoin
 // Suppression de la logique Femmes VIP (tab=femmes-vip)
   const supabase = await createClient();

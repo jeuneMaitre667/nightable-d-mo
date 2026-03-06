@@ -14,7 +14,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 }
 
 // AppSidebar: main sidebar component
-export function AppSidebar({ role = "club" }: { role?: string }) {
+export function AppSidebar({ role: _role = "club" }: { role?: string }) {
   // Sidebar structure: header, main nav
   return (
     <aside className="bg-[--color-bg-secondary] border-r border-[--color-accent]/10 flex flex-col h-full min-h-screen w-[var(--sidebar-width,16rem)]">

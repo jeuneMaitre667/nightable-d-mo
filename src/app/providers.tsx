@@ -5,8 +5,8 @@ type ProvidersProps = {
   children: React.ReactNode
 }
 
-// Pré-configuration HeroUI pour le thème Banani NightTable Booking
-const heroUITheme = {
+// Pré-configuration HeroUI pour le thème Banani NightTable Booking (réservé)
+const _heroUITheme = {
   colors: {
     primary: {
       DEFAULT: '#7C3AED',

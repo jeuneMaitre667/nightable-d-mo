@@ -1,1 +1,1 @@
-export { default as Page } from '../../safety/page'
+export { default as Page } from '../safety/page'

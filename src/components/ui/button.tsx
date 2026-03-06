@@ -8,7 +8,7 @@
 import React from 'react'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'primary' | 'outline' | 'ghost'
+  variant?: 'default' | 'primary' | 'secondary' | 'outline' | 'ghost'
   asChild?: boolean
 }
 
@@ -22,6 +22,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     switch (variant) {
       case 'primary':
         variantClass = 'bg-[--color-accent] text-[--color-bg] hover:brightness-110'
+        break
+      case 'secondary':
+        variantClass = 'bg-[--color-bg-secondary] text-[--color-fg] border border-[--color-accent]/20'
         break
       case 'outline':
         variantClass = 'border border-[--color-accent] text-[--color-accent] hover:bg-[--color-accent]/10'

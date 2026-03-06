@@ -17,6 +17,7 @@ interface TabsProps {
   value: string
   onChange: (value: string) => void
   children: React.ReactNode
+  className?: string
 }
 
 interface TabsListProps {
@@ -30,10 +31,10 @@ interface TabsTriggerProps {
   className?: string
 }
 
-export function Tabs({ value, onChange, children }: TabsProps) {
+export function Tabs({ value, onChange, children, className = '' }: TabsProps) {
   return (
     <TabsContext.Provider value={{ value, onChange }}>
-      <div data-state={value}>
+      <div data-state={value} className={className}>
         {children}
         {/* (Remplacement des couleurs dans TabsTrigger plus bas) */}
       </div>

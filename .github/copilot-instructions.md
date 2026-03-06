@@ -16,13 +16,52 @@ For every dashboard (club, client, promoter, vip), the physical folder structure
 - Add this rule to every PR/commit that touches dashboard folder structure.
 
 See docs/DASHBOARD_FOLDER_ORDER.md for details and rationale.
+
 # NightTable — Copilot Instructions
+
+**Single source of truth for AI-assisted coding.** When coding for NightTable, always take this file into account. Add new useful instructions here when you discover recurring patterns or rules.
 
 ## Project Overview
 NightTable is a premium B2B2C SaaS platform for nightclub table reservations in Paris.
 Stack: Next.js 14 (App Router), TypeScript, Supabase, Stripe, Tailwind CSS, OpenAI.
 5 user roles: client, club, promoter, female_vip, admin.
 Design: dark luxury aesthetic — gold (#C9973A) on near-black (#050508). No light mode.
+Alternative accent (product brief): violet #7C3AED — use for new UI when DESIGN_SYSTEM or brief specifies it; otherwise keep consistency with existing pages.
+
+---
+
+## How to use AI / Copilot when coding — MANDATORY
+
+- **Always read the concerned files first** before writing or modifying code. Never assume file contents.
+- **One clear task per request** when possible; for multiple changes, number them or split into follow-ups.
+- **Reference files explicitly**: use @file or @folder so the assistant has the exact context (e.g. `@src/app/(dashboard)/client/02-reservations/`).
+- **When fixing bugs**: give the exact file path and line number, the observed behaviour and the expected behaviour.
+- **Respect this document**: when coding for NightTable, apply the rules in this file (coding, roles, Server Actions, responsive, etc.).
+- **Workspace setup**: respect `.vscode/settings.json` and use the recommended extensions (Tailwind, ESLint, Prettier, Error Lens, Dotenv) for consistency.
+
+---
+
+## Lint & quality gate — MANDATORY
+
+- **Always run `npm run lint`** after any code modification and fix all reported issues before considering the task done.
+- Do not introduce new lint errors or disable rules without a justified comment and team agreement.
+
+---
+
+## Data & auth — never break
+
+- **Supabase Auth**: never modify signUp, signIn, OTP or role-based redirect logic; only add features around it.
+- **No mock data** where Supabase is connected: always fetch from Supabase; no hardcoded lists or fake data in production paths.
+- **Role redirects**: never remove or alter the redirect logic by role (client → /dashboard/client, club → /dashboard/club, etc.).
+
+---
+
+## Stripe & payments
+
+- All Stripe calls server-side only; always verify webhook signatures before processing.
+- In development use Stripe test mode keys; never commit live secret keys.
+- When adding or changing webhook handlers, document the event and the handler in CHANGELOG.md.
+- Use Stripe TypeScript types; never cast `event.data.object` manually.
 
 ---
 

@@ -7,7 +7,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeRole } from "@/lib/auth";
 
-import ClubHomePanels from "./ClubHomePanels";
 import ClubDashboardHomeClient from "./ClubDashboardHomeClient";
 
 import type { ReactElement } from "react";
@@ -100,12 +99,6 @@ function mondayOf(date: Date): Date {
   d.setDate(d.getDate() + diff);
   d.setHours(0, 0, 0, 0);
   return d;
-}
-
-function formatWeekLabel(date: Date): string {
-  const day = `${date.getDate()}`.padStart(2, "0");
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  return `${day}/${month}`;
 }
 
 // no client hooks in server component
@@ -249,7 +242,7 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
     },
   ];
 
-  const reservationRows = reservationsList.map((reservation) => ({
+  const _reservationRows = reservationsList.map((reservation) => ({
     id: reservation.id,
     clientName: fullName(reservation.client_profiles?.first_name, reservation.client_profiles?.last_name),
     clientEmail:
@@ -269,14 +262,14 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
 
   const today = new Date();
   const currentWeekMonday = mondayOf(today);
-  const weekStarts = Array.from({ length: 5 }, (_, idx) => {
+  const _weekStarts = Array.from({ length: 5 }, (_, idx) => {
     const d = new Date(currentWeekMonday);
     d.setDate(currentWeekMonday.getDate() - (4 - idx) * 7);
     return d;
   });
 
   // revenueSeries is calculated client-side because it depends on the selected period
-  const revenueSeries = [];
+  const _revenueSeries: unknown[] = [];
 
   const zoneMap = new Map<string, number>();
   for (const table of tablesReserved) {

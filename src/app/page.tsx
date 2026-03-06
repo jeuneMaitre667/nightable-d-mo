@@ -12,7 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
-import fr from "date-fns/locale/fr";
+import { fr } from "date-fns/locale/fr";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -29,8 +29,20 @@ export const metadata: Metadata = {
 };
 
 
+type ClubRow = {
+  id: string;
+  name: string;
+  slug: string;
+  district?: string | null;
+  genres?: string | string[] | null;
+  min_spend?: number | null;
+  cover_url?: string | null;
+  arrival_time?: string | null;
+  capacity?: number | null;
+};
+
 // Fetch clubs from Supabase (Server Component)
-async function getClubs() {
+async function getClubs(): Promise<ClubRow[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("clubs")
@@ -38,7 +50,7 @@ async function getClubs() {
     .order("priority", { ascending: false })
     .limit(3); // 3 cards per row, like the reference
   if (error) return [];
-  return data || [];
+  return (data || []) as ClubRow[];
 }
 
 export default async function HomePage() {
@@ -133,7 +145,7 @@ export default async function HomePage() {
                 <div className="flex flex-wrap gap-2 text-[11px] text-[#A1A1B5]">
                   <span>{club.district}</span>
                   <span>·</span>
-                  <span>{club.genres?.join(', ')}</span>
+                  <span>{Array.isArray(club.genres) ? club.genres.join(", ") : club.genres ?? ""}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs text-[#A1A1B5]">{club.capacity} pers</span>
@@ -199,77 +211,3 @@ export default async function HomePage() {
   );
 }
 
-// Sous-composants internes pour la landing
-function TrustBadge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#1A1A24] text-[#7C3AED] text-xs font-semibold uppercase tracking-widest border border-[#2A2A35]">
-      {children}
-    </span>
-  );
-}
-
-function FilterPill({ children, active }: { children: React.ReactNode; active?: boolean }) {
-  return (
-    <button type="button" tabIndex={-1} className={`px-4 py-1 rounded-full text-xs font-semibold transition border ${active ? "bg-[#7C3AED] text-white border-[#7C3AED]" : "bg-[#1A1A24] text-[#71717A] border-[#2A2A35]"}`}>{children}</button>
-  );
-}
-
-function ClubCard({ club }: { club: any }) {
-  return (
-    <Link href={`/clubs/${club.slug}`} className="group relative aspect-video overflow-hidden rounded-xl border border-[#2A2A35] bg-[#111118] shadow-lg transition-all duration-200 hover:border-[#7C3AED] hover:shadow-[0_0_20px_rgba(124,58,237,0.18)]">
-      <Image
-        src={club.cover_url || "/demo/nt-landing-hero.webp"}
-        alt={club.name}
-        fill
-        className="object-cover transition-transform duration-300 group-hover:scale-105"
-        sizes="(max-width: 768px) 100vw, 33vw"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-      <div className="absolute top-3 left-3">
-        <span className="px-3 py-1 rounded-full bg-[#7C3AED] text-white text-xs font-semibold shadow">Top club · {club.district || "Paris"}</span>
-      </div>
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <h3 className="text-lg font-bold mb-1 drop-shadow-[0_0_10px_rgba(124,58,237,0.18)]">{club.name}</h3>
-        <div className="flex flex-wrap gap-2 text-xs text-[#B5B5C3] mb-1">
-          <span>{club.genres}</span>
-          <span>· {club.capacity || 6} pers/table</span>
-          <span>· Arrivée avant {club.arrival_time || "1h"}</span>
-        </div>
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-[#7C3AED] font-semibold">Min. {club.min_spend ? club.min_spend + "€" : "—"}</span>
-          <span className="ml-2 px-2 py-0.5 rounded-full bg-[#1A1A24] text-[#7C3AED] text-[11px] font-semibold uppercase">Confirmation instantanée</span>
-        </div>
-        <div className="mt-3">
-          <span className="inline-block px-4 py-2 rounded-md bg-[#7C3AED] text-white font-semibold text-xs shadow hover:bg-[#6D28D9] transition">Voir les tables</span>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function StepCard({ num, title, children }: { num: number; title: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col items-start bg-[#09090B] rounded-xl border border-[#2A2A35] p-6 shadow">
-      <span className="mb-3 inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#7C3AED] text-white font-bold text-base">{num}</span>
-      <h4 className="text-lg font-semibold mb-2">{title}</h4>
-      <p className="text-[#B5B5C3] text-sm">{children}</p>
-    </div>
-  );
-}
-
-function ValueCard({ title, subtitle, bullets }: { title: string; subtitle: string; bullets: string[] }) {
-  return (
-    <div className="bg-[#111118] rounded-xl border border-[#2A2A35] p-8 shadow flex flex-col gap-3">
-      <span className="mb-2 text-xs font-bold uppercase tracking-widest text-[#7C3AED]">{subtitle}</span>
-      <h5 className="text-xl font-bold mb-3">{title}</h5>
-      <ul className="flex flex-col gap-2">
-        {bullets.map((b, i) => (
-          <li key={i} className="flex items-center gap-2 text-[#FAFAFA]">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#7C3AED]" />
-            {b}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // lightweight local chip component used only on this page
-function Chip({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function Chip({ children, className = "" }: { children: React.ReactNode; className?: string; size?: string; radius?: string; variant?: string }) {
   return (
     <span className={`inline-flex items-center rounded-full px-2 py-1 text-[11px] font-medium ${className}`}>{children}</span>
   );

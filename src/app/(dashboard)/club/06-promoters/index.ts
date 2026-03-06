@@ -1,4 +1,4 @@
-export { default as PromotersTable } from '../../promoters/PromotersTable'
-export { default as PendingCommissionsTable } from '../../promoters/PendingCommissionsTable'
-export { default as AddPromoterModal } from '../../promoters/AddPromoterModal'
-export { default as Page } from '../../promoters/page'
+export { PromotersTable } from '../promoters/PromotersTable'
+export { PendingCommissionsTable } from '../promoters/PendingCommissionsTable'
+export { AddPromoterModal } from '../promoters/AddPromoterModal'
+export { default as Page } from '../promoters/page'
