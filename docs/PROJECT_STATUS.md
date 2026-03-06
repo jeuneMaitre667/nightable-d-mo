@@ -1,10 +1,100 @@
+2026-03-06 — Migration thème "midnight neon" (noir/violet/bleu/rose), refonte visuelle landing/public (glow, gradient, shadow), correction exhaustive des erreurs lint, QA visuelle — aucun bloqueur
+2026-03-05 — Header NightTable restauré sur /login (texte, lien accueil) — aucun bloqueur
+2026-03-05 — Bloc NT NightTable supprimé au-dessus du formulaire /login — aucun bloqueur
+2026-03-05 — Header /login : logo remplacé par texte NightTable (style landing) — aucun bloqueur
+2026-03-05 — Correction propriétés SVG (clipRule/fillRule) sur /login — aucun bloqueur
+2026-03-05 — Ajout header logo sur /login, suppression texte NightTable — aucun bloqueur
+2026-03-05 — Ajout menu Femmes VIP (club), création page et loading/error — aucun bloqueur
+# PROJECT STATUS
+
+## Done
+- ✅ Suppression complète de la route Femmes VIP (club)
+- ✅ Réorganisation physique des dossiers dashboard club
+- ✅ Correction des erreurs sidebar club
+
+## In progress
+- Rien
+
+## Todo
+- QA visuelle finale landing/public (midnight neon)
+- QA navigation/UX dashboards (palette, responsive, effets)
+- Recréer la page Femmes VIP proprement si besoin
+- Continuer la refonte navigation/UX club
+
+## Session log
+2026-03-05 — Suppression complète de la route Femmes VIP, nettoyage sidebar, plus d'erreur — aucun bloqueur
+2026-03-05 — Ajout du menu Femmes VIP sous Clients dans la sidebar club, création de la page dédiée — aucun blocage
+Session log:
+2026-03-05 — Ajout du lien Femmes VIP dans la sidebar club (juste après Clients, route /dashboard/club/03-femmes-vip, page créée)
+**Done**
+2026-03-05 — Ajout du menu Promoteur au-dessus de Plan des tables dans la sidebar club, redirection correcte — aucun blocage
+Session log:
+2026-03-05 — Ajout du lien Promoteur dans la sidebar club (juste avant Plan des tables, route /dashboard/club/promoters)
+**Done**
+2026-06-04 — Correction modules non valides (export défaut) sur tous les dashboards (club, promoter, vip) — aucun blocage
+Session log:
+2026-06-04 — Correction "File is not a module" (export défaut manquant) sur 07-events, 02-commissions, 02-invitations — build Next.js OK, plus d'erreurs
+2026-03-05 — Suppression section Femmes VIP sidebar club (src/components/ui/sidebar.tsx) — aucun blocage
+Session log:
+2026-03-05 — Suppression complète du lien Femmes VIP dans la sidebar club (reset navigation)
+2026-03-05 — Correction redirection tab=femmes-vip (searchParams, Next.js App Router) — aucun blocage
+2026-03-05 — Correction routes Femmes VIP, suppression doublons, nettoyage des réexportations — aucun blocage
+[2026-03-05] — Déplacement page Femmes VIP au même niveau que clients (route indépendante /dashboard/club/femmes-vip) — aucun blocage
+[2026-03-05] — Correction imports et typage Badge sur page Femmes VIP (plus d'erreurs TypeScript, build OK) — aucun blocage
+[2026-03-01] — Refonte complète page Femmes VIP club (grille, badges, filtres, actions, responsive) — aucun blocage
+Session log:
+2026-03-05 — Correction : Femmes VIP non affiché sur /dashboard/club/clients?tab=femmes-vip (rendu conditionnel SSR dans page.tsx) — aucun blocage
+2026-03-05 — Création page Femmes VIP club (dashboard/club/clients/femmes-vip) — aucun blocage
+Session log:
+2026-03-05 — Correction ReferenceError: Button is not defined (ClubHomePanels) — aucun blocage
+Session log:
+2026-03-05 — Uniformisation de tous les boutons d'action du dashboard club (couleur, forme, variant Button shadcn/ui, NightTable) — aucun blocage
+Session log:
+2026-03-05 — Bouton "Nouvelle réservation" déplacé à droite (header réservations) — aucun blocage
+Session log:
+2026-03-05 — Suppression bouton "Ajouter un contact" page clients — aucun blocage
+Session log:
+2026-03-05 — Header réservations : titre et bouton à gauche, suppression bouton Exporter — aucun blocage
+Session log:
+2026-03-05 — Boutons Exporter ajoutés (clients, réservations) — aucun blocage
+Session log:
+2026-03-05 — Icône Femmes VIP sidebar harmonisée (blanc, plus de doré) — aucun blocage
+Session log:
+2026-03-05 — Harmonisation couleur Femmes VIP sidebar (plus de doré, couleur menu standard) — aucun blocage
+**Done**
+✅ Correction import sidebar (radix-nova/sidebar), refactor composant local, build Next.js OK, sidebar visible sur tous les dashboards
+✅ Nouvelle sidebar NightTable (shadcn/ui radix-nova) appliquée à tous les dashboards, branding, collapsible, responsive, suppression anciens composants
+✅ Refonte UI complète du dashboard club (ClubHomePanels.tsx) selon la maquette Velvet Rope, full Tailwind, responsive, branding NightTable, sans HeroUI
+✅ Sidebar header text replaced with NightTable (was Velvet Rope) to match public landing
+✅ Tous les selects natifs remplacés par un composant Select Radix UI NightTable (shadcn/ui, gold, popover, accessibilité, animation fadeIn, focus ring gold)
+✅ Résolution erreur `await` non-async sur `src/app/(dashboard)/club/page.tsx` ; extractions client/server et nettoyage de `ClubHomePanels.tsx`
+✅ Page /reserve : migration complète, tous les menus déroulants utilisent Select Radix UI NightTable
+✅ Fix référence `period` non définie et migration du calcul CA côté client (ClubDashboardHomeClient)
+
+**Session log**
+[2026-03-05] — Correction import sidebar (radix-nova/sidebar), refactor composant local, build Next.js OK, sidebar visible sur tous les dashboards — aucun blocage
+[2024-06-04] — Migration sidebar NightTable sur tous les dashboards (SidebarProvider + AppSidebar) — aucun blocage
+[2024-06-04] — Refonte UI dashboard club (ClubHomePanels.tsx) pour correspondance parfaite à la maquette — aucun blocage
+[2024-06-04] — Migration complète des selects natifs vers Select Radix UI NightTable sur la page /reserve (public) — aucun blocage
+[2026-03-05] — Migration complète des selects natifs vers Radix UI Select NightTable (dashboard club, composant réutilisable, style gold, animation, accessibilité) — aucun blocage
+**In progress**
+
+
+**Session log**
+[2026-03-05] — Amélioration visuelle section graphique revenus (fond, alignement, label, responsive, focus, hover gold) — aucun
+[2026-03-05] — Graphique revenus réactif à la période sélectionnée (ClubHomePanels) — aucun
+[2026-03-05] — Déplacement du calcul `revenueSeries` côté client et correction ReferenceError period undefined — aucun blocage
+[2024-06-04] — Correction visibilité + optimisation visuel menu déroulant période (dashboard club) — aucun
+[2026-03-05] — Ajout menu déroulant période revenus on dashboard club — aucun blocage
+[2026-03-05] — Correction erreur build "await" non async et refactor page club (server/client split) — aucun blocage
+[2026-03-05] — Correction du bug shadcn/ui Button (ref ReferenceError) — Aucun blocage
 # NightTable — Suivi d’avancement (vivant)
 
 Document opérationnel court: état actuel, priorités, risques et journal récent.
 
 ## Dernière mise à jour
 
-- Date: 2026-03-04
+- Date: 2026-03-05
 - Auteur: GitHub Copilot
 
 ## Vue synthèse
@@ -12,7 +102,8 @@ Document opérationnel court: état actuel, priorités, risques et journal réce
 - Progression MVP (estimation): 85%
 - Axe prioritaire actuel: QA E2E final des parcours publics et dashboard
 
-## Fait
+
+- Correction design barre de recherche clubs (UI épurée, icône gold, placeholder centré, bordure gold, fond secondaire, focus gold, arrondi XL) sur la page /clubs.
 
 - Documentation et gouvernance: base documentaire consolidée, incidents tracés, règles de contribution alignées.
 - Design & UX: harmonisation cross-rôles (club/promoter/vip/public), responsive mobile-first et états UI homogènes.
@@ -281,3 +372,16 @@ Document opérationnel court: état actuel, priorités, risques et journal réce
 - Ajout des migrations DB publiques puis push distant: 013_public_club_profiles_read.sql, 014_public_read_grants.sql, 015_public_read_policies_refresh.sql.
 - Correction query/runtime côté public: retrait de min_spend (colonne absente) et normalisation relationnelle table:tables sur la page event.
 - Validation finale: build OK et URL réelle /clubs/nighttable-demo-club/events/86d84d29-e2cd-4766-822e-0b7fb0024099 en 200.
+
+### Done
+- ✅ Crash natif Next.js corrigé (Node.js 20.x installé, .nvmrc ajouté)
+
+### In progress
+- Vérification du flow réservation complet (login → réservation)
+
+### Todo
+- Ajouter tests automatisés de compatibilité Node.js
+- Vérifier la CI/CD pour Node 20
+
+### Session log
+2026-03-05 — Crash natif Next.js corrigé, .nvmrc ajouté, serveur OK — aucun blocage

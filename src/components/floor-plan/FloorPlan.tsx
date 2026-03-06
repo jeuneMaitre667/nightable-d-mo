@@ -57,26 +57,26 @@ function formatEuros(value: number): string {
 
 function getTableStyle(table: FloorPlanTable, isSelected: boolean): { fill: string; stroke: string; text: string } {
   if (isSelected) {
-    return { fill: "#C9973A", stroke: "#C9973A", text: "#050508" };
+    return { fill: "var(--color-accent)", stroke: "var(--color-accent)", text: "var(--color-bg)" };
   }
 
   if (table.status === "promo") {
-    return { fill: "transparent", stroke: "#C4567A", text: "#F7F6F3" };
+    return { fill: "transparent", stroke: "var(--color-danger)", text: "var(--color-fg)" };
   }
 
   if (table.status === "reserved") {
-    return { fill: "#2A2F4A", stroke: "#444444", text: "#F7F6F3" };
+    return { fill: "var(--color-bg-card)", stroke: "var(--color-border)", text: "var(--color-fg)" };
   }
 
   if (table.status === "occupied") {
-    return { fill: "#1A2A1A", stroke: "#3A9C6B", text: "#F7F6F3" };
+    return { fill: "var(--color-bg-success)", stroke: "var(--color-success)", text: "var(--color-fg)" };
   }
 
   if (table.status === "available") {
-    return { fill: "transparent", stroke: "#C9973A", text: "#F7F6F3" };
+    return { fill: "transparent", stroke: "var(--color-accent)", text: "var(--color-fg)" };
   }
 
-  return { fill: "#2A2F4A", stroke: "#444444", text: "#888888" };
+  return { fill: "var(--color-bg-card)", stroke: "var(--color-border)", text: "var(--color-muted)" };
 }
 
 export default function FloorPlan({

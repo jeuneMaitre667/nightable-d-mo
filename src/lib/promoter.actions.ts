@@ -366,11 +366,11 @@ export async function createPromoterAction(
         to: parsed.data.email.toLowerCase(),
         subject: "Bienvenue sur NightTable",
         html: `
-          <div style="font-family:Inter,sans-serif;background:#0A0F2E;color:#F7F6F3;padding:24px;border-radius:12px;">
-            <h1 style="color:#C9973A;margin:0 0 8px;">Bienvenue ${parsed.data.firstName}</h1>
+          <div style="font-family:'DM Sans',Inter,sans-serif;background:#1A103D;color:#E1D7FE;padding:24px;border-radius:12px;">
+            <h1 style="color:#A259F7;margin:0 0 8px;">Bienvenue ${parsed.data.firstName}</h1>
             <p>Votre compte promoteur est actif.</p>
             <p><strong>Code promo :</strong> ${promoCode}</p>
-            <p><strong>Lien tracé :</strong> <a href="${trackedLink}" style="color:#E8C96A">${trackedLink}</a></p>
+            <p><strong>Lien tracé :</strong> <a href="${trackedLink}" style="color:#7C5CFA">${trackedLink}</a></p>
             <p>Pensez à réinitialiser votre mot de passe lors de votre première connexion.</p>
           </div>
         `,

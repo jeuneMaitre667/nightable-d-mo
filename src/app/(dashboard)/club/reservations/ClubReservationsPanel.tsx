@@ -7,7 +7,16 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Button, Chip, Input, Tab, Tabs } from "@heroui/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// lightweight local chip component used only on this page
+function Chip({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-1 text-[11px] font-medium ${className}`}>{children}</span>
+  );
+}
 
 type ReservationTiming = "upcoming" | "ongoing" | "past" | "cancelled";
 
@@ -98,25 +107,11 @@ export function ClubReservationsPanel({ reservations, initialQuery = "" }: ClubR
 
   return (
     <section className="space-y-6">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 className="text-lg font-semibold tracking-tight text-[#F7F6F3] md:text-xl">Réservations</h1>
-        <div className="flex flex-wrap items-center gap-2 md:gap-3">
-          <span className="inline-flex min-h-11 items-center rounded-xl border border-white/10 bg-[#0A0F2E]/45 px-3 text-sm font-medium text-[#F7F6F3]">
-            ⏱ Cette semaine
-          </span>
-          <span className="inline-flex min-h-11 items-center rounded-xl border border-white/10 bg-[#0A0F2E]/45 px-3 text-sm font-medium text-[#F7F6F3]">
-            ◲ Filtres enregistrés
-          </span>
-          <Button
-            as={Link}
-            href="/dashboard/club/events/new"
-            color="primary"
-            radius="sm"
-            className="h-11 px-4 text-sm font-semibold"
-          >
-            ＋ Nouvelle réservation
-          </Button>
-        </div>
+        <Button asChild variant="primary" className="h-11 px-6 text-sm font-semibold md:ml-auto">
+          <Link href="/dashboard/club/events/new">＋ Nouvelle réservation</Link>
+        </Button>
       </header>
 
       <section className="space-y-4 rounded-xl border border-[#C9973A]/15 bg-[#12172B] p-4 md:p-6">
@@ -124,15 +119,9 @@ export function ClubReservationsPanel({ reservations, initialQuery = "" }: ClubR
           <div className="flex flex-1 flex-wrap items-center gap-2">
             <Input
               value={query}
-              onValueChange={setQuery}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder="Rechercher un client, une table..."
-              variant="bordered"
-              color="primary"
-              className="min-w-[280px] flex-1"
-              classNames={{
-                inputWrapper: "min-h-11 bg-[#0A0F2E] border border-[#2A2F4A]",
-                input: "text-[#F7F6F3]",
-              }}
+              className="min-w-[280px] flex-1 bg-[#0A0F2E] border border-[#2A2F4A] text-[#F7F6F3]"
             />
             <span className="inline-flex min-h-11 items-center rounded-xl border border-white/10 bg-[#0A0F2E]/45 px-3 text-sm text-[#A0A0A5]">
               ☰ Statut: Tous
@@ -146,9 +135,8 @@ export function ClubReservationsPanel({ reservations, initialQuery = "" }: ClubR
           </div>
           <Button
             type="button"
-            variant="light"
-            className="min-h-11 px-3 text-sm font-semibold text-[#F7F6F3]"
-            onPress={() => {
+            className="min-h-11 px-3 text-sm font-semibold text-[#F7F6F3] bg-[#0A0F2E] hover:bg-[#1A2235]"
+            onClick={() => {
               setQuery("");
               setTiming("all");
             }}
@@ -158,22 +146,14 @@ export function ClubReservationsPanel({ reservations, initialQuery = "" }: ClubR
         </div>
 
         <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden">
-          <Tabs
-            selectedKey={timing}
-            onSelectionChange={(key) => setTiming(String(key) as "all" | ReservationTiming)}
-            variant="underlined"
-            classNames={{
-              tabList: "gap-5",
-              tab: "min-h-11 px-0 text-sm font-medium text-[#888888]",
-              cursor: "bg-[#F7F6F3]",
-              tabContent: "group-data-[selected=true]:text-[#F7F6F3]",
-            }}
-          >
-            <Tab key="all" title="Toutes" />
-            <Tab key="upcoming" title="À venir" />
-            <Tab key="ongoing" title="En cours" />
-            <Tab key="past" title="Passées" />
-            <Tab key="cancelled" title="Annulées" />
+          <Tabs value={timing} onChange={(v) => setTiming(v as "all" | ReservationTiming)}>
+            <TabsList className="gap-5">
+              <TabsTrigger value="all">Toutes</TabsTrigger>
+              <TabsTrigger value="upcoming">À venir</TabsTrigger>
+              <TabsTrigger value="ongoing">En cours</TabsTrigger>
+              <TabsTrigger value="past">Passées</TabsTrigger>
+              <TabsTrigger value="cancelled">Annulées</TabsTrigger>
+            </TabsList>
           </Tabs>
         </div>
 

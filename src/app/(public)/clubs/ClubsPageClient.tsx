@@ -53,17 +53,26 @@ export default function ClubsPageClient({ clubs }: ClubsPageClientProps): React.
           <p className="mx-auto max-w-2xl text-base text-[#888888]">
             Réservez votre table dans les meilleures adresses parisiennes
           </p>
-          <div className="mx-auto max-w-[480px]">
+          <div className="mx-auto max-w-[420px]">
             <Input
               value={query}
               onValueChange={setQuery}
               variant="bordered"
               placeholder="Rechercher un club..."
-              startContent={<span className="text-[#888888]">⌕</span>}
+              startContent={
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true" className="ml-2">
+                  <circle cx="10" cy="10" r="7" stroke="#C9973A" strokeWidth="2" />
+                  <line x1="16.2" y1="16.2" x2="20" y2="20" stroke="#C9973A" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              }
               classNames={{
-                inputWrapper: 'min-h-11 border-[#2A2F4A] bg-[#0A0F2E] px-3',
-                input: 'text-[#F7F6F3] placeholder:text-[#888888]',
+                inputWrapper:
+                  'min-h-12 rounded-2xl border border-[#C9973A] bg-[#0A0F2E] px-4 shadow-none focus-within:ring-2 focus-within:ring-[#C9973A]/30 transition-all duration-200',
+                input:
+                  'text-[#F7F6F3] placeholder:text-[#C9973A] text-center text-base font-medium bg-transparent',
               }}
+              inputMode="search"
+              aria-label="Rechercher un club"
             />
           </div>
         </section>

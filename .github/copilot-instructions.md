@@ -1,3 +1,21 @@
+### Dashboard folder order (MANDATORY)
+For every dashboard (club, client, promoter, vip), the physical folder structure of pages MUST always match the sidebar/tab navigation order:
+
+1. Dashboard (page.tsx or equivalent)
+2. Reservations (reservations/)
+3. Clients (clients/ or waitlist/ for client)
+4. Analytics/Reports (analytics/ or reports/)
+5. Tables (tables/)
+6. Promoters (promoters/ or guestlist/ or promo/)
+7. Events (events/)
+8. Settings (settings/ or profile/ or safety/) — always last
+
+- Prefix folders/files numerically if needed to force order (e.g. 01-dashboard, 02-reservations, ..., 99-settings).
+- This rule applies to ALL dashboards for code/navigation consistency.
+- Any new page or refactor must respect this physical order.
+- Add this rule to every PR/commit that touches dashboard folder structure.
+
+See docs/DASHBOARD_FOLDER_ORDER.md for details and rationale.
 # NightTable — Copilot Instructions
 
 ## Project Overview

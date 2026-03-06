@@ -111,3 +111,5 @@ export function ClientDashboardPanels({
     </div>
   );
 }
+
+export default ClientDashboardPanels;

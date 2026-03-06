@@ -1,0 +1,1 @@
+// ...existing code from club/clients/ClubClientsPanel.tsx

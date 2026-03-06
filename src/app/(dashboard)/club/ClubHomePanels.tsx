@@ -1,24 +1,12 @@
-"use client";
 
-// Component: ClubHomePanels
-// Reference: component.gallery/components/table
-// Inspired by: IBM Carbon dashboard data table pattern
-// NightTable usage: club home soirée panels with HeroUI
+'use client'
 
-import {
-  Avatar,
-  Select,
-  SelectItem,
-  Progress,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-} from "@heroui/react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+// Component: ClubHomePanels (refonte 2024-06, full Tailwind, NightTable dark luxury)
+// Reference: IBM Carbon, Linear, Figma maquette Velvet Rope
+import { Select } from '@/components/ui/Select';
+import { Button } from '@/components/ui/button';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import type { ReactElement } from 'react';
 
 type MetricItem = {
   id: string;
@@ -27,7 +15,6 @@ type MetricItem = {
   deltaLabel: string;
   isPositive: boolean;
 };
-
 type ReservationItem = {
   id: string;
   clientName: string;
@@ -37,17 +24,8 @@ type ReservationItem = {
   amountLabel: string;
   status: string;
 };
-
-type RevenuePoint = {
-  label: string;
-  value: number;
-};
-
-type SpaceRow = {
-  name: string;
-  percent: number;
-};
-
+type RevenuePoint = { label: string; value: number };
+type SpaceRow = { name: string; percent: number };
 type ClubHomePanelsProps = {
   dashboardDateLabel: string;
   metrics: MetricItem[];
@@ -55,14 +33,16 @@ type ClubHomePanelsProps = {
   spaceRows: SpaceRow[];
   reservations: ReservationItem[];
   promotersCount: number;
+  period: string;
+  setPeriod: (p: string) => void;
 };
 
-function statusConfig(status: string): { label: string; color: "success" | "warning" | "danger" | "default" } {
-  if (status === "confirmed") return { label: "Confirmée", color: "success" };
-  if (status === "pending" || status === "payment_pending") return { label: "Acompte payé", color: "warning" };
-  if (status === "cancelled") return { label: "Annulée", color: "default" };
-  return { label: "En attente", color: "warning" };
-}
+const statusBadge = (status: string) => {
+  if (status === 'confirmed') return <span className="inline-block rounded-full bg-[#3A9C6B]/15 text-[#3A9C6B] border border-[#3A9C6B]/30 px-3 py-1 text-[12px] font-semibold">Confirmée</span>;
+  if (status === 'pending' || status === 'payment_pending') return <span className="inline-block rounded-full bg-[#C9973A]/15 text-[#C9973A] border border-[#C9973A]/30 px-3 py-1 text-[12px] font-semibold">Acompte payé</span>;
+  if (status === 'cancelled') return <span className="inline-block rounded-full bg-[#C4567A]/15 text-[#C4567A] border border-[#C4567A]/30 px-3 py-1 text-[12px] font-semibold">Annulée</span>;
+  return <span className="inline-block rounded-full bg-[#888888]/15 text-[#888888] border border-[#888888]/30 px-3 py-1 text-[12px] font-semibold">En attente</span>;
+};
 
 export default function ClubHomePanels({
   dashboardDateLabel,
@@ -71,165 +51,133 @@ export default function ClubHomePanels({
   spaceRows,
   reservations,
   promotersCount,
-}: ClubHomePanelsProps): React.JSX.Element {
+  period,
+  setPeriod,
+}: ClubHomePanelsProps): ReactElement {
   return (
-    <div className="space-y-5">
-      <header className="flex flex-col gap-3 rounded-xl border border-white/5 bg-[#1A1D24] p-5 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-8 w-full">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-[#555555]">Dashboard club</p>
-          <h1 className="text-[20px] font-semibold text-[#F7F6F3]">Tableau de bord</h1>
+          <h1 className="text-[22px] md:text-[28px] font-semibold text-[#F7F6F3] tracking-tight">Aperçu analytique</h1>
           <p className="text-[13px] text-[#888888]">{dashboardDateLabel}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <a
-            href="/dashboard/club/events"
-            className="inline-flex min-h-10 items-center rounded-md border border-white/10 bg-transparent px-4 py-2 text-[13px] font-medium text-[#F7F6F3] transition-all duration-150 hover:bg-white/5"
-          >
-            Réservations
-          </a>
-          <a
-            href="/dashboard/club/events/new"
-            className="inline-flex min-h-10 items-center rounded-md bg-[#C9973A] px-4 py-2 text-[13px] font-medium text-[#050508] transition-all duration-150 hover:brightness-110"
-          >
-            Nouvel événement
-          </a>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="min-h-11 px-5 text-sm font-semibold">
+            Exporter
+          </Button>
         </div>
-      </header>
+      </div>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {/* Metrics cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {metrics.map((metric) => (
-          <article key={metric.id} className="rounded-xl border border-white/5 bg-[#1A1D24] p-5">
-            <p className="mb-1 text-[12px] text-[#888888]">{metric.label}</p>
-            <p className="text-[28px] font-semibold text-[#F7F6F3]">{metric.value}</p>
-            <p className={`mt-1 text-[12px] ${metric.isPositive ? "text-[#3A9C6B]" : "text-[#C4567A]"}`}>
-              {metric.deltaLabel}
-            </p>
-          </article>
-        ))}
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-[3fr_2fr]">
-        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-[14px] font-bold text-[#F7F6F3]">Évolution des revenus</h2>
-              <p className="text-[12px] text-[#888888]">Revenus hebdomadaires</p>
-            </div>
-            <Select
-              size="sm"
-              variant="bordered"
-              selectedKeys={["hebdo"]}
-              className="w-[150px]"
-              classNames={{
-                trigger: "border-white/10 bg-[#111318]",
-                value: "text-[#F7F6F3] text-[12px]",
-              }}
-              aria-label="Période revenus"
-            >
-              <SelectItem key="hebdo">Hebdomadaire</SelectItem>
-            </Select>
+          <div key={metric.id} className="rounded-xl bg-[#12172B] border border-[#C9973A]/15 p-6 flex flex-col gap-2 shadow-[0_4px_24px_rgba(201,151,58,0.08)]">
+            <div className="text-[13px] text-[#888888]">{metric.label}</div>
+            <div className="text-[28px] font-bold text-[#F7F6F3]">{metric.value}</div>
+            <div className={`text-[13px] font-medium ${metric.isPositive ? 'text-[#3A9C6B]' : 'text-[#C4567A]'}`}>{metric.deltaLabel}</div>
           </div>
-          <div className="h-[220px] min-w-0 w-full">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
-              <BarChart data={revenueSeries} margin={{ top: 8, right: 8, left: -24, bottom: 0 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="label" stroke="#555555" tickLine={false} axisLine={false} fontSize={11} />
-                <YAxis stroke="#555555" tickLine={false} axisLine={false} fontSize={11} />
+        ))}
+      </div>
+
+      {/* Main content: chart + spaces */}
+      <div className="grid grid-cols-1 lg:grid-cols-[2.5fr_1.2fr] gap-4">
+        {/* Revenue chart */}
+        <div className="rounded-xl bg-[#181B2A] border border-[#C9973A]/10 p-0 overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between border-b border-[#C9973A]/10 bg-[#12172B] px-6 pt-5 pb-3">
+            <div className="flex items-center gap-3">
+              <h2 className="text-[16px] font-bold text-[#F7F6F3]">Évolution des revenus</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <Select
+                value={period}
+                onValueChange={setPeriod}
+                options={[
+                  { label: 'Journalier', value: 'day' },
+                  { label: 'Hebdomadaire', value: 'hebdo' },
+                  { label: 'Mensuel', value: 'month' },
+                ]}
+                className="w-[140px]"
+              />
+            </div>
+          </div>
+          <div className="h-[220px] w-full px-2 md:px-6 pb-6 pt-2 bg-[#181B2A]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={revenueSeries} barSize={36}>
+                <XAxis dataKey="label" stroke="#888888" tickLine={false} axisLine={false} fontSize={13} />
+                <YAxis stroke="#888888" tickLine={false} axisLine={false} fontSize={13} />
                 <Tooltip
                   cursor={{ fill: "rgba(255,255,255,0.02)" }}
-                  contentStyle={{
-                    background: "#111318",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: "8px",
-                    color: "#F7F6F3",
-                  }}
+                  contentStyle={{ background: "#111318", border: "1px solid #C9973A33", borderRadius: 8, color: "#F7F6F3" }}
                 />
-                <Bar dataKey="value" fill="#C9973A" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="value" fill="#7C5CFA" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </article>
+        </div>
 
-        <article className="rounded-xl border border-white/5 bg-[#1A1D24] p-5">
-          <h2 className="text-[14px] font-bold text-[#F7F6F3]">Espaces les plus prisés</h2>
-          <p className="mb-4 text-[12px] text-[#888888]">Répartition des réservations par zone</p>
-          <div className="space-y-3">
+        {/* Spaces popularity */}
+        <div className="rounded-xl bg-[#1A1D24] border border-[#C9973A]/15 p-6 flex flex-col">
+          <h2 className="text-[15px] font-bold text-[#F7F6F3] mb-1">Espaces les plus prisés</h2>
+          <p className="mb-4 text-[12px] text-[#888888]">Répartition par zone</p>
+          <div className="flex flex-col gap-4">
             {spaceRows.map((space) => (
-              <div key={space.name}>
-                <div className="mb-1 flex items-center justify-between text-[13px]">
-                  <span className="text-[#F7F6F3]">{space.name}</span>
-                  <span className="text-[#888888]">{space.percent}%</span>
+              <div key={space.name} className="w-full">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[13px] text-[#F7F6F3]">{space.name}</span>
+                  <span className="text-[13px] text-[#7C5CFA] font-semibold">{space.percent}%</span>
                 </div>
-                <Progress
-                  value={space.percent}
-                  color="primary"
-                  size="sm"
-                  aria-label={`Taux de réservation ${space.name}`}
-                  classNames={{
-                    track: "bg-white/5",
-                    indicator: "bg-[#C9973A]",
-                  }}
-                />
+                <div className="w-full h-2 bg-[#12172B] rounded-full overflow-hidden">
+                  <div className="h-2 rounded-full transition-all duration-300" style={{ width: `${space.percent}%`, background: '#7C5CFA' }} />
+                </div>
               </div>
             ))}
-            <p className="pt-2 text-[12px] text-[#888888]">{promotersCount} promoteur(s) actif(s) ce soir</p>
           </div>
-        </article>
-      </section>
+          <div className="pt-4 text-[12px] text-[#888888]">{promotersCount} promoteur(s) actif(s) ce soir</div>
+        </div>
+      </div>
 
-      <section className="rounded-xl border border-white/5 bg-[#1A1D24] p-5">
-        <div className="mb-3 flex items-center justify-between">
+      {/* Recent reservations table */}
+      <div className="rounded-xl bg-[#1A1D24] border border-white/5 p-6">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-[16px] font-semibold text-[#F7F6F3]">Réservations récentes</h2>
-          <a href="/dashboard/club/events" className="text-[13px] text-[#C9973A] hover:underline">
-            Voir tout
-          </a>
+          <a href="/dashboard/club/events" className="text-[13px] text-[#7C5CFA] hover:underline">Voir tout</a>
         </div>
         <div className="overflow-x-auto">
-          <Table
-            removeWrapper
-            aria-label="Réservations récentes"
-            classNames={{
-              th: "bg-transparent text-left text-[11px] uppercase tracking-widest text-[#555555] border-b border-white/5 pb-3",
-              td: "border-b border-white/5 py-4 text-[#F7F6F3]",
-              tr: "hover:bg-white/5",
-            }}
-          >
-            <TableHeader>
-              <TableColumn>CLIENT</TableColumn>
-              <TableColumn>DATE &amp; HEURE</TableColumn>
-              <TableColumn>TABLE / ZONE</TableColumn>
-              <TableColumn>MONTANT</TableColumn>
-              <TableColumn>STATUT</TableColumn>
-            </TableHeader>
-            <TableBody emptyContent={"Aucune réservation récente."}>
-              {reservations.map((reservation) => {
-                const status = statusConfig(reservation.status);
-                return (
-                  <TableRow key={reservation.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar size="sm" name={reservation.clientName} className="bg-[#C9973A]/15 text-[#C9973A]" />
-                        <div>
-                          <p className="text-[14px] font-bold text-[#F7F6F3]">{reservation.clientName}</p>
-                          <p className="text-[11px] text-[#888888]">{reservation.clientEmail}</p>
-                        </div>
+          <table className="w-full text-left border-separate border-spacing-y-2">
+            <thead>
+              <tr>
+                <th className="text-[11px] uppercase tracking-widest text-[#888888] font-semibold pb-2">Client</th>
+                <th className="text-[11px] uppercase tracking-widest text-[#888888] font-semibold pb-2">Date de l&apos;événement</th>
+                <th className="text-[11px] uppercase tracking-widest text-[#888888] font-semibold pb-2">Table / Espace</th>
+                <th className="text-[11px] uppercase tracking-widest text-[#888888] font-semibold pb-2">Montant</th>
+                <th className="text-[11px] uppercase tracking-widest text-[#888888] font-semibold pb-2">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reservations.map((r) => (
+                <tr key={r.id} className="bg-[#181B2A] rounded-xl">
+                  <td className="py-3 pr-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#C9973A]/20 flex items-center justify-center text-[#C9973A] font-bold text-[15px]">
+                        {r.clientName.split(' ').map((n) => n[0]).join('').slice(0,2)}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-[13px] text-[#888888]">{reservation.dateTimeLabel}</TableCell>
-                    <TableCell className="text-[13px] text-[#F7F6F3]">{reservation.tableZoneLabel}</TableCell>
-                    <TableCell className="text-[14px] font-medium text-[#F7F6F3]">{reservation.amountLabel}</TableCell>
-                    <TableCell>
-                      <Chip size="sm" variant="flat" color={status.color}>
-                        <span className="text-[10px] uppercase tracking-[0.04em]">{status.label}</span>
-                      </Chip>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                      <div>
+                        <div className="text-[14px] font-semibold text-[#F7F6F3]">{r.clientName}</div>
+                        <div className="text-[12px] text-[#888888]">{r.clientEmail}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-3 pr-4 text-[13px] text-[#F7F6F3]">{r.dateTimeLabel}</td>
+                  <td className="py-3 pr-4 text-[13px] text-[#F7F6F3]">{r.tableZoneLabel}</td>
+                  <td className="py-3 pr-4 text-[14px] font-medium text-[#F7F6F3]">{r.amountLabel}</td>
+                  <td className="py-3">{statusBadge(r.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

@@ -1,10 +1,109 @@
+## Unreleased
+
+### Changed
+- Migration complète du thème NightTable vers "midnight neon" (noir/violet/bleu/rose) :
+  - `globals.css`, `tailwind.config.ts`, `providers.tsx` : nouveaux tokens, polices, breakpoints
+  - Tous les composants UI (`src/components/ui/*`) migrés sur la nouvelle palette
+  - FloorPlan, emails transactionnels, landing, public, dashboard : remplacement global des couleurs legacy
+  - Effets visuels glow/gradient/shadow appliqués sur landing et sections publiques
+  - QA visuelle et responsive sur tous les parcours
+
+### Fixed
+- Correction exhaustive des erreurs lint (JSX/TS) sur tout le projet, build Next.js OK
+
+### Added
+- Documentation mise à jour : ERROR_LOG.md, PROJECT_STATUS.md, CHANGELOG.md
+
+### Fixed
+- /login : restauration du header NightTable (texte, lien accueil) au-dessus du formulaire
+### Changed
+- /login : suppression du bloc NT NightTable au-dessus du formulaire de connexion (plus de header)
+### Changed
+- /login : le header logo est remplacé par le texte "NightTable" (style landing page)
+### Fixed
+- /login : correction des propriétés SVG (clipRule, fillRule) pour éviter les warnings React/Next.js
+### Changed
+- /login : ajout d’un header avec logo cliquable, suppression du texte NightTable (alignement page d’accueil)
+### Added
+- src/app/(dashboard)/club/04-femmes-vip/page.tsx : nouvelle page Femmes VIP (club)
+- Sidebar club : menu Femmes VIP ajouté au-dessus de Promoteurs
+## Unreleased
+
+### Fixed
+- Route Femmes VIP (club): suppression totale du dossier, des liens sidebar, et de la logique de redirection (plus de 404 ni de résidu)
+- Sidebar club: correction structure JSX après suppression du lien Femmes VIP
+### Added
+- sidebar.tsx : Ajout du menu Femmes VIP juste sous Clients (route /dashboard/club/03-femmes-vip, icône Users, page créée)
+### Added
+- sidebar.tsx : Ajout du menu Promoteur juste au-dessus de Plan des tables (route /dashboard/club/promoters, icône Users)
+### Fixed
+- 07-events, 02-commissions, 02-invitations : Correction "File is not a module" (ajout export default sur tous les fichiers de page/composant concernés, Next.js build OK)
+- src/app/(dashboard)/club/femmes-vip/page.tsx, loading.tsx, error.tsx, ClubFemmesVipPanel.tsx : déplacement de la page Femmes VIP au même niveau que clients (route indépendante /dashboard/club/femmes-vip)
+- ClubFemmesVipPanel.tsx, page.tsx, loading.tsx, error.tsx : nouvelle page Femmes VIP du club (dashboard/club/clients/femmes-vip), UI NightTable, mock data, responsive, empty/error states.
+- src/app/(dashboard)/club/clients/femmes-vip/page.tsx : corrections imports (top-level), suppression double export default, typage Badge (plus d'erreurs TypeScript, build OK)
+- ClubHomePanels.tsx: ReferenceError Button is not defined (import manquant corrigé)
+### Changed
+ - ClubFemmesVipPanel.tsx: refonte complète de la page Femmes VIP club en grille de cartes, badges, filtres, header, actions, responsive, selon la maquette.
+- Tous les boutons d'action du dashboard club (ClubHomePanels, ClubClientsPanel, ClubReservationsPanel, ClubVipPanels, ClubReservationsError) sont maintenant uniformisés : couleur, forme, variant Button shadcn/ui, palette NightTable, radius, taille, hover/focus cohérents.
+### Changed
+- ClubReservationsPanel.tsx: Bouton "Nouvelle réservation" déplacé à droite dans le header.
+### Changed
+- ClubClientsPanel.tsx: Suppression du bouton "Ajouter un contact" dans le header de la page clients.
+### Changed
+- ClubReservationsPanel.tsx: Titre et bouton "Nouvelle réservation" alignés à gauche, bouton "Exporter" supprimé du header.
+### Added
+- ClubClientsPanel.tsx: Bouton "Exporter" ajouté à la page clients (aligné avec le style du dashboard).
+- ClubReservationsPanel.tsx: Bouton "Exporter" ajouté à la page réservations (aligné avec le style du dashboard).
+### Changed
+- sidebar.tsx: Icône à côté de "Femmes VIP" passée du doré au blanc pour cohérence visuelle.
+### Changed
+- sidebar.tsx: Couleur dorée retirée du lien "Femmes VIP" dans la sidebar, harmonisée avec les autres menus.
+### Changed
+
+src/components/ui/sidebar.tsx : Femmes VIP déplacé sous Clients, suppression section dédiée en bas
+
+src/components/ui/sidebar.tsx : Refonte sidebar club (Clients & VIPs → Clients, ajout section Femmes VIP, structure radix-nova)
+
+src/app/(dashboard)/club/clients/ClubClientsPanel.tsx : Suppression de tout ce qui concerne les clients VIP (onglet, stats, segments, filtrage, labels)
+
+src/app/(dashboard)/club/clients/ClubClientsPanel.tsx : Suppression du bouton "Filtres avancés" (simplification UI)
+- Nouvelle sidebar NightTable (shadcn/ui radix-nova) appliquée à tous les dashboards (SidebarProvider + AppSidebar), branding, collapsible, responsive, suppression DashboardSidebarNav/DashboardMobileNav.
+### Changed
+- src/app/(dashboard)/club/ClubHomePanels.tsx : refonte UI complète du dashboard club pour correspondre à la maquette Velvet Rope (fond, cards, graphique, barres, table, badges, responsive, branding NightTable, full Tailwind, sans HeroUI).
+### Changed
+- Tous les menus déroulants natifs remplacés par un composant Select Radix UI NightTable (shadcn/ui, gold, popover, accessibilité, animation fadeIn, focus ring gold).
+- Page /reserve : tous les <select> remplacés par Select Radix UI NightTable, gestion d'état via hooks, UX unifiée.
+### Changed
+- ClubHomePanels.tsx: Sélecteur période remplacé par un bouton natif stylé (shadcn/radix, gold, accessible, responsive).
+### Changed
+- ClubHomePanels.tsx: Amélioration visuelle de la section graphique revenus et du menu déroulant (fond, alignement, label, responsive, focus, hover gold).
+### Changed
+- ClubHomePanels.tsx, page.tsx: Le graphique d'évolution des revenus est désormais réactif à la période sélectionnée (journalier, hebdomadaire, mensuel).
+### Fixed
+- ClubHomePanels.tsx: Correction de la visibilité et optimisation du rendu du menu déroulant période pour l'évolution des revenus (dashboard club).
+### Added
+- ClubHomePanels.tsx: ajout d'un menu déroulant pour trier l'évolution des revenus par période (journalier, hebdomadaire, mensuel)
 # Changelog
 
 Toutes les évolutions notables du projet NightTable sont documentées dans ce fichier.
 
 ## Unreleased
 
+### Fixed
+- src/app/(dashboard)/club/clients/page.tsx : Correction de la redirection Femmes VIP (tab=femmes-vip) via searchParams Next.js App Router, plus d’erreur cookies().get, UX propre.
+
+### Fixed
+- src/app/(dashboard)/club/femmes-vip/* : Suppression de toutes les réexportations vers l'ancien dossier clients/femmes-vip (dossier supprimé)
+- src/app/(dashboard)/club/femmes-vip/page.tsx, ClubFemmesVipPanel.tsx, error.tsx, loading.tsx : Correction des routes en doublon, plus aucune référence à clients/femmes-vip, tout est local.
+- Vérification complète de toutes les routes dashboard club : plus de doublon, plus de conflit, navigation saine.
+
 ### Added
+ src/app/(dashboard)/club/clients/ClubClientsPanel.tsx : Migration HeroUI → shadcn/ui sur la page clients (boutons, input, tabs)
+
+### Fixed
+- src/app/(dashboard)/club/page.tsx : correction de l'erreur "await isn't allowed in non-async function" et refactor serveur/client
+- src/app/(dashboard)/club/page.tsx: removed server-side `period` reference causing ReferenceError; migrated revenueSeries computation to `ClubDashboardHomeClient.tsx` reacting to period state.
+- src/components/ui/sidebar.tsx : suppression de l'import inexistant 'radix-nova/sidebar', refactor complet en composant local, correction structure, build OK, sidebar visible sur tous les dashboards.
 
 - `vercel.json`: configuration explicite Vercel pour forcer le preset `nextjs` et éviter les déploiements statiques vides (`404`).
 - `scripts/vercel-deploy.ps1`: script d’automatisation publication (`main`, checks lint/build, push, déploiement Vercel prod) avec options `-DryRun`, `-SkipChecks`, `-SkipDeploy`, `-ForceMain`.
@@ -21,8 +120,11 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
 - Gouvernance projet renforcée: règles responsive/consistency ajoutées dans `.github/copilot-instructions.md`.
 - Documentation: création de `docs/PROJECT_STATUS_ARCHIVE.md` pour externaliser l’historique détaillé.
 - Documentation incidents: création de `docs/errors/ERROR_LOG_ARCHIVE.md` pour préserver l’historique complet du log d’erreurs.
+- `.nvmrc`: fichier de version Node.js (20) ajouté pour garantir la compatibilité sur tous les environnements
 
-### Changed
+
+### Fixed
+- `src/app/(public)/clubs/ClubsPageClient.tsx`: Correction et refonte du design de la barre de recherche clubs (UI épurée, icône gold, placeholder centré, bordure gold, fond secondaire, focus gold, arrondi XL) pour correspondre à la charte NightTable.
 
 - `src/app/page.tsx`: sécurisation des liens des cartes `Clubs partenaires` vers `/clubs` (route stable) pour éviter les impasses liées à des slugs non présents selon l’environnement de données.
 - `package.json`: ajout de la commande `deploy:vercel` pour exécuter le script de publication Vercel.
@@ -148,8 +250,12 @@ Toutes les évolutions notables du projet NightTable sont documentées dans ce f
   - `docs/NightTable_DevGuide.docx`
   - `docs/NightTable_BusinessPlan_V3.txt`
   - `docs/NightTable_DevGuide.txt`
+- `.nvmrc`: fichier de version Node.js (20) ajouté pour garantir la compatibilité sur tous les environnements
 
 ### Git
 
 - Commit de référence: `ef434cf`
 - Tag annoté: `v0.1-docs`
+
+### Fixed
+- src/components/ui/sidebar.tsx : Suppression complète du lien/section Femmes VIP dans la sidebar club (reset navigation)

@@ -1,11 +1,24 @@
 'use client'
 
-import { HeroUIProvider } from '@heroui/react'
 
 type ProvidersProps = {
   children: React.ReactNode
 }
 
+// Pré-configuration HeroUI pour le thème Banani NightTable Booking
+const heroUITheme = {
+  colors: {
+    primary: {
+      DEFAULT: '#7C3AED',
+      foreground: '#FFFFFF',
+    },
+    background: '#09090B',
+    foreground: '#FAFAFA',
+  },
+};
+
 export function Providers({ children }: ProvidersProps): React.JSX.Element {
-  return <HeroUIProvider>{children}</HeroUIProvider>
+  // HeroUIProvider désactivé pour debug crash
+  // <HeroUIProvider theme={heroUITheme}>{children}</HeroUIProvider>
+  return <>{children}</>;
 }

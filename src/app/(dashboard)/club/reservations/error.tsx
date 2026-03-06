@@ -1,4 +1,5 @@
 "use client";
+import { Button } from '@/components/ui/button';
 
 // Component: ClubReservationsError
 // Reference: component.gallery/components/card
@@ -18,13 +19,9 @@ export default function ClubReservationsError({ error, reset }: ClubReservations
       <p className="mt-3 text-sm text-[#888888]">
         {error.message || "Une erreur inattendue est survenue pendant le chargement des réservations."}
       </p>
-      <button
-        type="button"
-        onClick={reset}
-        className="mt-6 min-h-12 rounded-lg border border-[#C9973A]/40 px-5 py-2 text-sm font-semibold text-[#C9973A] transition-all duration-200 ease-in-out hover:bg-[#C9973A]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9973A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1D24]"
-      >
+      <Button variant="outline" className="mt-6 min-h-12 px-5 text-sm font-semibold" onClick={reset}>
         Réessayer
-      </button>
+      </Button>
     </section>
   );
 }

@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { normalizeRole } from "@/lib/auth";
 
 import ClubHomePanels from "./ClubHomePanels";
+import ClubDashboardHomeClient from "./ClubDashboardHomeClient";
 
 import type { ReactElement } from "react";
 
@@ -107,6 +108,8 @@ function formatWeekLabel(date: Date): string {
   return `${day}/${month}`;
 }
 
+// no client hooks in server component
+
 export default async function ClubDashboardHomePage(): Promise<ReactElement> {
   const supabase = await createClient();
   const {
@@ -127,6 +130,8 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
   if (role !== "club" && role !== "admin") {
     redirect("/dashboard");
   }
+
+  // fetch data for the dashboard
 
   const { data: eventOfTonight, error: eventError } = await supabase
     .from("events")
@@ -270,23 +275,8 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
     return d;
   });
 
-  const revenueSeries = weekStarts.map((start) => {
-    const end = new Date(start);
-    end.setDate(start.getDate() + 7);
-
-    const weekTotal = reservationsList.reduce((sum, reservation) => {
-      const createdAt = new Date(reservation.created_at);
-      if (createdAt >= start && createdAt < end) {
-        return sum + Number(reservation.prepayment_amount ?? 0);
-      }
-      return sum;
-    }, 0);
-
-    return {
-      label: formatWeekLabel(start),
-      value: Math.round(weekTotal),
-    };
-  });
+  // revenueSeries is calculated client-side because it depends on the selected period
+  const revenueSeries = [];
 
   const zoneMap = new Map<string, number>();
   for (const table of tablesReserved) {
@@ -309,13 +299,22 @@ export default async function ClubDashboardHomePage(): Promise<ReactElement> {
     spaceRows.push({ name: "Bars", percent: 0 });
   }
 
+  const clientReservations = reservationsList.map((r) => ({
+    id: r.id,
+    clientName: fullName(r.client_profiles?.first_name, r.client_profiles?.last_name),
+    clientEmail: clientEmailById.get(r.client_id ?? "") ?? "email@nighttable.app",
+    created_at: r.created_at,
+    event_table_id: r.event_table_id,
+    prepayment_amount: Number(r.prepayment_amount ?? 0),
+    status: r.status,
+  }));
+
   return (
-    <ClubHomePanels
+    <ClubDashboardHomeClient
       dashboardDateLabel={tonightDateLabel()}
       metrics={metricItems}
-      revenueSeries={revenueSeries}
       spaceRows={spaceRows}
-      reservations={reservationRows}
+      rawReservations={clientReservations}
       promotersCount={promotersCount}
     />
   );

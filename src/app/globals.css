@@ -1,29 +1,38 @@
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #050508;
-  --background-secondary: #0a0f2e;
-  --background-card: #12172b;
-  --foreground: #f7f6f3;
-  --muted: #888888;
-  --gold: #c9973a;
-  --gold-light: #e8c96a;
-  --rose: #c4567a;
-  --blue: #3a6bc9;
-  --green: #3a9c6b;
+  --background:                  #09090B;
+  --foreground:                  #FAFAFA;
+  --border:                      #E4E4E7;
+  --input:                       #09090B;
+  --primary:                     #7C3AED;
+  --primary-foreground:          #FFFFFF;
+  --secondary:                   #09090B;
+  --secondary-foreground:        #E0E7FF;
+  --muted:                       #09090B;
+  --muted-foreground:            #71717A;
+  --success:                     #22C55E;
+  --success-foreground:          #09090B;
+  --accent:                      #EF4444;
+  --accent-foreground:           #FFFFFF;
+  --destructive:                 #EF4444;
+  --destructive-foreground:      #FFFFFF;
+  --warning:                     #F59E0B;
+  --warning-foreground:          #1C1400;
+  --card:                        #09090B;
+  --card-foreground:             #FAFAFA;
+  --sidebar:                     #09090B;
+  --sidebar-foreground:          #E0E7FF;
+  --sidebar-primary:             #7C3AED;
+  --sidebar-primary-foreground:  #FFFFFF;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-dm-sans);
-  --font-serif: var(--font-cormorant);
-}
-
-body {
+html, body {
+  font-family: 'DM Sans', sans-serif;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-dm-sans), Arial, Helvetica, sans-serif;
 }
 
 .nt-heading {

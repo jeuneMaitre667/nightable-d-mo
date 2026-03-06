@@ -139,3 +139,5 @@ export function ClientReservationsTable({
     </div>
   );
 }
+
+export default ClientReservationsTable;

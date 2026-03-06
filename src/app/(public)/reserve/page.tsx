@@ -3,8 +3,10 @@
 // Inspired by: Shopify Polaris pattern
 // NightTable usage: public reservation configurator before checkout
 
-import { cookies } from "next/headers";
+"use client";
+
 import { createClient } from "@/lib/supabase/server";
+import { Select } from "@/components/ui/Select";
 
 import type { ReactElement } from "react";
 
@@ -38,44 +40,29 @@ const tables = [
   { id: "loge-8", label: "Loge Premium (8 pers)", multiplier: 1.8 },
 ];
 
+import { useState, useEffect } from "react";
+
 function getById<T extends { id: string }>(items: T[], id: string, fallback: T) {
   return items.find((item) => item.id === id) ?? fallback;
 }
 
-export default async function ReservePage({ searchParams }: ReservePageProps): Promise<ReactElement> {
-  const params = await searchParams;
-  const supabase = await createClient();
+export default function ReservePage({ searchParams }: ReservePageProps): ReactElement {
+  const [selectedClub, setSelectedClub] = useState(clubs[0].slug);
+  const [selectedEventId, setSelectedEventId] = useState(events[0].id);
+  const [selectedTableId, setSelectedTableId] = useState(tables[0].id);
+  const [guestsCount, setGuestsCount] = useState(4);
+  const [promoCode, setPromoCode] = useState<string | null>(null);
 
-  const promoCode = params.promo?.trim() || null;
-
-  if (promoCode) {
-    try {
-      const { data: promoter } = await supabase
-        .from("promoter_profiles")
-        .select("id")
-        .eq("promo_code", promoCode)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (promoter) {
-        const cookieStore = await cookies();
-        cookieStore.set("nighttable_promo", promoCode, {
-          maxAge: 172800,
-          path: "/",
-          sameSite: "lax",
-          secure: process.env.NODE_ENV === "production",
-          httpOnly: true,
-        });
-      }
-    } catch {
-      // Ignore silently: promo tracking should never block reservation page.
-    }
-  }
-
-  const selectedClub = params.club ?? clubs[0].slug;
-  const selectedEventId = params.event ?? events[0].id;
-  const selectedTableId = params.table ?? tables[0].id;
-  const guestsCount = Math.max(1, Number(params.guests ?? "4") || 4);
+  useEffect(() => {
+    (async () => {
+      const params = await searchParams;
+      setPromoCode(params.promo?.trim() || null);
+      setSelectedClub(params.club ?? clubs[0].slug);
+      setSelectedEventId(params.event ?? events[0].id);
+      setSelectedTableId(params.table ?? tables[0].id);
+      setGuestsCount(Math.max(1, Number(params.guests ?? "4") || 4));
+    })();
+  }, [searchParams]);
 
   const event = getById(events, selectedEventId, events[0]);
   const table = getById(tables, selectedTableId, tables[0]);
@@ -109,41 +96,51 @@ export default async function ReservePage({ searchParams }: ReservePageProps): P
 
               <div>
                 <label htmlFor="club" className="nt-label mb-1 block">Club</label>
-                <select id="club" name="club" defaultValue={selectedClub} className="nt-input">
-                  {clubs.map((club) => (
-                    <option key={club.slug} value={club.slug}>{club.label}</option>
-                  ))}
-                </select>
+                <Select
+                  value={selectedClub}
+                  onValueChange={(val) => setSelectedClub(val)}
+                  options={clubs.map((club) => ({ label: club.label, value: club.slug }))}
+                  placeholder="Choisir un club"
+                  name="club"
+                  className="nt-input"
+                />
               </div>
 
               <div>
                 <label htmlFor="event" className="nt-label mb-1 block">Soirée</label>
-                <select id="event" name="event" defaultValue={selectedEventId} className="nt-input">
-                  {events.map((item) => (
-                    <option key={item.id} value={item.id}>{item.label}</option>
-                  ))}
-                </select>
+                <Select
+                  value={selectedEventId}
+                  onValueChange={(val) => setSelectedEventId(val)}
+                  options={events.map((item) => ({ label: item.label, value: item.id }))}
+                  placeholder="Choisir une soirée"
+                  name="event"
+                  className="nt-input"
+                />
               </div>
 
               <div>
                 <label htmlFor="table" className="nt-label mb-1 block">Format table</label>
-                <select id="table" name="table" defaultValue={selectedTableId} className="nt-input">
-                  {tables.map((item) => (
-                    <option key={item.id} value={item.id}>{item.label}</option>
-                  ))}
-                </select>
+                <Select
+                  value={selectedTableId}
+                  onValueChange={(val) => setSelectedTableId(val)}
+                  options={tables.map((item) => ({ label: item.label, value: item.id }))}
+                  placeholder="Choisir un format"
+                  name="table"
+                  className="nt-input"
+                />
               </div>
 
               <div>
                 <label htmlFor="guests" className="nt-label mb-1 block">Nombre de personnes</label>
-                <input
-                  id="guests"
-                  name="guests"
-                  type="number"
-                  min={1}
-                  defaultValue={guestsCount}
-                  className="nt-input"
-                />
+                  <input
+                    id="guests"
+                    name="guests"
+                    type="number"
+                    min={1}
+                    value={guestsCount}
+                    onChange={e => setGuestsCount(Number(e.target.value))}
+                    className="nt-input"
+                  />
               </div>
 
               <button

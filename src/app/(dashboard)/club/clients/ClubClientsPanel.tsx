@@ -7,9 +7,11 @@
 
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Button, Input, Tab, Tabs } from "@heroui/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type ClientStatusType = "vip" | "fidele" | "top" | "reactivate";
+type ClientStatusType = "fidele" | "top" | "reactivate";
 
 type ClientRow = {
   id: string;
@@ -29,30 +31,22 @@ type ClientRow = {
 type ClubClientsPanelProps = {
   clients: ClientRow[];
   totalClients: number;
-  vipClients: number;
   monthlyNewClients: number;
   averageValueLabel: string;
   topTenValueLabel: string;
   segments: {
-    vip: number;
     fidele: number;
     reactivate: number;
   };
 };
 
 function statusBadgeClass(statusType: ClientStatusType): string {
-  if (statusType === "vip") {
-    return "border border-[#C9973A]/35 bg-[#C9973A]/14 text-[#F3DFB4]";
-  }
-
   if (statusType === "fidele") {
     return "border border-[#3A9C6B]/35 bg-[#3A9C6B]/14 text-[#8DDBB6]";
   }
-
   if (statusType === "reactivate") {
     return "border border-[#C4567A]/35 bg-[#C4567A]/14 text-[#F2C7D5]";
   }
-
   return "border border-[#C9973A]/35 bg-[#C9973A]/14 text-[#F3DFB4]";
 }
 
@@ -75,7 +69,7 @@ export function ClubClientsPanel({
   segments,
 }: ClubClientsPanelProps): React.JSX.Element {
   const [search, setSearch] = useState<string>("");
-  const [scope, setScope] = useState<"all" | "vip" | "top" | "reactivate">("all");
+  const [scope, setScope] = useState<"all" | "top" | "reactivate">("all");
   const filtersRef = useRef<HTMLElement | null>(null);
 
   function focusSearchInput(): void {
@@ -87,25 +81,19 @@ export function ClubClientsPanel({
 
   const filteredClients = useMemo(() => {
     const normalized = search.trim().toLowerCase();
-
     return clients.filter((client) => {
       const matchesScope =
         scope === "all"
           ? true
-          : scope === "vip"
-            ? client.statusType === "vip"
-            : scope === "top"
-              ? client.statusType === "top"
-              : client.statusType === "reactivate";
-
+          : scope === "top"
+            ? client.statusType === "top"
+            : client.statusType === "reactivate";
       if (!matchesScope) {
         return false;
       }
-
       if (!normalized) {
         return true;
       }
-
       return (
         client.fullName.toLowerCase().includes(normalized) ||
         client.contactLine.toLowerCase().includes(normalized) ||
@@ -117,27 +105,10 @@ export function ClubClientsPanel({
   return (
     <section className="space-y-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-lg font-semibold tracking-tight text-[#F7F6F3] md:text-xl">Clients & VIPs</h1>
+        <h1 className="text-lg font-semibold tracking-tight text-[#F7F6F3] md:text-xl">Clients</h1>
         <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="bordered"
-            className="min-h-11 border-[#2A2F4A] px-4 text-sm text-[#F7F6F3]"
-            onPress={() => {
-              filtersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-              setTimeout(() => {
-                focusSearchInput();
-              }, 120);
-            }}
-          >
-            ⚙ Filtres avancés
-          </Button>
-          <Button
-            as={Link}
-            href="/dashboard/club/reservations"
-            className="min-h-11 bg-[#C9973A] px-4 text-sm font-semibold text-[#050508]"
-          >
-            + Ajouter un contact
+          <Button variant="outline" className="min-h-11 px-4 text-sm font-semibold">
+            Exporter
           </Button>
         </div>
       </header>
@@ -152,13 +123,7 @@ export function ClubClientsPanel({
               <p className="mt-2 text-4xl font-semibold text-[#F7F6F3]">{totalClients}</p>
               <p className="mt-1 text-sm text-[#3A9C6B]">+{monthlyNewClients} nouveaux ce mois</p>
             </div>
-            <div>
-              <p className="text-sm text-[#888888]">Clients VIP</p>
-              <p className="mt-2 text-4xl font-semibold text-[#F7F6F3]">{vipClients}</p>
-              <p className="mt-1 text-sm text-[#3A9C6B]">
-                {totalClients > 0 ? Math.round((vipClients / totalClients) * 100) : 0}% de la base
-              </p>
-            </div>
+            {/* Bloc Clients VIP supprimé */}
             <div>
               <p className="text-sm text-[#888888]">Valeur vie client moyenne</p>
               <p className="mt-2 text-4xl font-semibold text-[#F7F6F3]">{averageValueLabel}</p>
@@ -171,13 +136,6 @@ export function ClubClientsPanel({
           <h2 className="text-[30px] font-semibold leading-none text-[#F7F6F3]">Segments clés</h2>
           <p className="mt-1 text-sm text-[#888888]">Groupes de clients les plus importants</p>
           <div className="mt-6 space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-[#F7F6F3]"><span className="mr-2 text-[#7D5DF6]">●</span>VIP Carré Platine</p>
-                <p className="text-sm text-[#888888]">Panier moyen &gt; 1500 €</p>
-              </div>
-              <p className="text-sm font-semibold text-[#F7F6F3]">{segments.vip} clients</p>
-            </div>
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-[#F7F6F3]"><span className="mr-2 text-[#3A9C6B]">●</span>Fidèles Week-end</p>
@@ -200,37 +158,25 @@ export function ClubClientsPanel({
         <div className="flex flex-col gap-4 border-b border-white/5 px-6 py-5 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-[#F7F6F3]">Liste des clients</h2>
-            <p className="mt-1 text-sm text-[#888888]">Historique et valeur des meilleurs clients et VIPs</p>
+            <p className="mt-1 text-sm text-[#888888]">Historique et valeur des meilleurs clients</p>
           </div>
 
           <div className="flex w-full flex-col gap-3 xl:w-auto xl:min-w-[560px] xl:flex-row xl:items-center">
             <Input
               value={search}
-              onValueChange={setSearch}
+              onChange={e => setSearch(e.target.value)}
               id="clients-search-input"
               placeholder="Rechercher un nom, téléphone, email..."
-              variant="bordered"
-              color="primary"
-              className="xl:min-w-[320px]"
-              classNames={{
-                inputWrapper: "min-h-11 bg-[#0A0F2E] border border-[#2A2F4A]",
-                input: "text-[#F7F6F3]",
-              }}
+              className="xl:min-w-[320px] min-h-11 bg-[#0A0F2E] border border-[#2A2F4A] text-[#F7F6F3]"
             />
             <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden">
-              <Tabs
-                selectedKey={scope}
-                onSelectionChange={(key) => setScope(String(key) as "all" | "vip" | "top" | "reactivate")}
-                variant="solid"
-                classNames={{
-                  tabList: "bg-transparent p-0 gap-2",
-                  tab: "min-h-9 rounded-full border border-transparent px-4 text-sm text-[#888888] data-[selected=true]:bg-[#C9973A] data-[selected=true]:text-[#050508]",
-                }}
-              >
-                <Tab key="all" title="Tous" />
-                <Tab key="vip" title="VIP" />
-                <Tab key="top" title="Top CA" />
-                <Tab key="reactivate" title="À relancer" />
+              <Tabs value={scope} onValueChange={v => setScope(v as "all" | "top" | "reactivate")}
+                className="bg-transparent p-0 gap-2 flex">
+                <TabsList>
+                  <TabsTrigger value="all">Tous</TabsTrigger>
+                  <TabsTrigger value="top">Top CA</TabsTrigger>
+                  <TabsTrigger value="reactivate">À relancer</TabsTrigger>
+                </TabsList>
               </Tabs>
             </div>
           </div>
@@ -245,7 +191,7 @@ export function ClubClientsPanel({
               <Button
                 type="button"
                 className="min-h-11 bg-[#C9973A] px-4 text-sm font-semibold text-[#050508]"
-                onPress={() => {
+                onClick={() => {
                   setSearch("");
                   setScope("all");
                   focusSearchInput();
@@ -253,13 +199,8 @@ export function ClubClientsPanel({
               >
                 Réinitialiser les filtres
               </Button>
-              <Button
-                as={Link}
-                href="/dashboard/club/reservations"
-                variant="bordered"
-                className="min-h-11 border-[#2A2F4A] px-4 text-sm text-[#F7F6F3]"
-              >
-                Voir les réservations
+              <Button asChild variant="secondary" className="min-h-11 border-[#2A2F4A] px-4 text-sm text-[#F7F6F3]">
+                <Link href="/dashboard/club/reservations">Voir les réservations</Link>
               </Button>
             </div>
           </div>
@@ -301,32 +242,17 @@ export function ClubClientsPanel({
                       <td className="px-6 py-4 text-base text-[#9AA2B3]">{client.lastVisitLabel}</td>
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-2">
-                          <Button
-                            as={Link}
-                            href={`/dashboard/club/reservations?q=${encodeURIComponent(client.fullName)}`}
-                            variant="bordered"
-                            className="min-h-11 border-[#C9973A]/40 px-3 text-xs font-semibold text-[#F3DFB4]"
-                          >
-                            ◉ Voir fiche
+                          <Button asChild variant="secondary" className="min-h-11 border-[#C9973A]/40 px-3 text-xs font-semibold text-[#F3DFB4]">
+                            <Link href={`/dashboard/club/reservations?q=${encodeURIComponent(client.fullName)}`}>◉ Voir fiche</Link>
                           </Button>
                           {client.phone ? (
-                            <Button
-                              as={Link}
-                              href={phoneHref(client.phone)}
-                              variant="bordered"
-                              className="min-h-11 border-[#3A6BC9]/35 px-3 text-xs font-semibold text-[#C9DAF8]"
-                            >
-                              ☎ Appeler
+                            <Button asChild variant="secondary" className="min-h-11 border-[#3A6BC9]/35 px-3 text-xs font-semibold text-[#C9DAF8]">
+                              <Link href={phoneHref(client.phone)}>☎ Appeler</Link>
                             </Button>
                           ) : null}
                           {client.email ? (
-                            <Button
-                              as={Link}
-                              href={`mailto:${client.email}`}
-                              variant="bordered"
-                              className="min-h-11 border-[#3A9C6B]/35 px-3 text-xs font-semibold text-[#8DDBB6]"
-                            >
-                              ✉ Email
+                            <Button asChild variant="secondary" className="min-h-11 border-[#3A9C6B]/35 px-3 text-xs font-semibold text-[#8DDBB6]">
+                              <Link href={`mailto:${client.email}`}>✉ Email</Link>
                             </Button>
                           ) : null}
                         </div>
@@ -367,32 +293,17 @@ export function ClubClientsPanel({
                       <span className="text-[#888888]">Dernière venue</span>
                       <span className="text-[#F7F6F3]">{client.lastVisitLabel}</span>
                     </div>
-                    <Button
-                      as={Link}
-                      href={`/dashboard/club/reservations?q=${encodeURIComponent(client.fullName)}`}
-                      variant="bordered"
-                      className="mt-2 min-h-11 w-full border-[#C9973A]/40 text-xs font-semibold text-[#F3DFB4]"
-                    >
-                      ◉ Voir fiche client
+                    <Button asChild variant="secondary" className="mt-2 min-h-11 w-full border-[#C9973A]/40 text-xs font-semibold text-[#F3DFB4]">
+                      <Link href={`/dashboard/club/reservations?q=${encodeURIComponent(client.fullName)}`}>◉ Voir fiche client</Link>
                     </Button>
                     {client.phone ? (
-                      <Button
-                        as={Link}
-                        href={phoneHref(client.phone)}
-                        variant="bordered"
-                        className="min-h-11 w-full border-[#3A6BC9]/35 text-xs font-semibold text-[#C9DAF8]"
-                      >
-                        ☎ Appeler
+                      <Button asChild variant="secondary" className="min-h-11 w-full border-[#3A6BC9]/35 text-xs font-semibold text-[#C9DAF8]">
+                        <Link href={phoneHref(client.phone)}>☎ Appeler</Link>
                       </Button>
                     ) : null}
                     {client.email ? (
-                      <Button
-                        as={Link}
-                        href={`mailto:${client.email}`}
-                        variant="bordered"
-                        className="min-h-11 w-full border-[#3A9C6B]/35 text-xs font-semibold text-[#8DDBB6]"
-                      >
-                        ✉ Envoyer un email
+                      <Button asChild variant="secondary" className="min-h-11 w-full border-[#3A9C6B]/35 text-xs font-semibold text-[#8DDBB6]">
+                        <Link href={`mailto:${client.email}`}>✉ Envoyer un email</Link>
                       </Button>
                     ) : null}
                   </div>
