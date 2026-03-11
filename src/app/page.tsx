@@ -47,7 +47,7 @@ const DEMO_CLUBS_FALLBACK: ClubRow[] = [
     min_spend: 250,
     cover_url: null,
     arrival_time: "1h30",
-    capacity: "2-8",
+    capacity: 8,
   },
   {
     id: "demo-2",
@@ -58,7 +58,7 @@ const DEMO_CLUBS_FALLBACK: ClubRow[] = [
     min_spend: 320,
     cover_url: null,
     arrival_time: "1h",
-    capacity: "3-6",
+    capacity: 6,
   },
   {
     id: "demo-3",
@@ -69,7 +69,7 @@ const DEMO_CLUBS_FALLBACK: ClubRow[] = [
     min_spend: 220,
     cover_url: null,
     arrival_time: "1h30",
-    capacity: "3-6",
+    capacity: 6,
   },
 ];
 
@@ -273,7 +273,7 @@ export default async function HomePage() {
                 NT
               </div>
               <p className="text-xs text-[#71717A] leading-relaxed">
-                © NightTable — Outil de réservation de tables pour clubs premiums. Inspiré par l&apos;expérience Shotgun, pensé pour la nuit.
+                © NightTable — Outil de réservation de tables pour clubs premiums.
               </p>
             </div>
             <nav className="grid grid-cols-2 md:grid-cols-4 gap-8" aria-label="Pied de page">
